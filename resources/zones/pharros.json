@@ -1,0 +1,23 @@
+{
+  "location": {"x": 970, "y": 670},
+  "color": "#d8cab5",
+  "maps": [
+    {
+      "name": "pharros",
+      "location": { "x": 0, "y": 0 },
+      "layout": "---------------\n----XX     ----\n----XPG  G ----\n---- G     ----\n----       ----\n----X G E X----\n----      X----\n----  X X  ----\n---------------",
+      "enemies": ["mushroom"],
+      "contraptions": [],
+      "specs": {
+        "isIsland": false
+      },
+      "unlocks": {
+        "forest2": "victory"
+      },
+      "status": "Unlocked",
+      "isHidden": false,
+      "difficulty": 1,
+      "barterOffers": []
+    }
+  ]
+}

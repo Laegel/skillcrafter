@@ -1,0 +1,23 @@
+{
+  "location": {"x": 700, "y": 350},
+  "color": "#aa856a",
+  "maps": [
+    {
+      "name": "forest1",
+      "location": { "x": 0, "y": 0 },
+      "layout": "---------------\n----XX     ----\n----XPG  G ----\n---- G     ----\n----       ----\n----X G E X----\n----      X----\n----  X X  ----\n---------------",
+      "enemies": ["mushroom"],
+      "contraptions": [],
+      "specs": {
+        "isIsland": false
+      },
+      "unlocks": {
+        "forest2": "victory"
+      },
+      "status": "Unlocked",
+      "isHidden": false,
+      "difficulty": 1,
+      "barterOffers": []
+    }
+  ]
+}

@@ -1,0 +1,221 @@
+{
+  "location": {"x": 400, "y": 300},
+  "color": "#585832",
+  "maps": [
+    {
+      "name": "forest1",
+      "location": { "x": 0, "y": 0 },
+      "layout": "---------------\n----XX     ----\n----XPG  G ----\n---- G   C ----\n----       ----\n----X G E X----\n----  C   X----\n----  X X  ----\n---------------",
+      "enemies": [],
+      "contraptions": [{ "name": "pressurePlate", "kind": "pressurePlate", "triggers": ["flameThrower"] }, { "name": "flameThrower", "kind": "flameThrower" }],
+      "specs": {
+        "isIsland": false
+      },
+      "unlocks": {
+        "forest2": "victory"
+      },
+      "triggers": {
+        "noise": {
+          "kind": "Dialogue",
+          "data": {
+            "ref": "noise"
+          }
+        },
+        "encounter": {
+          "kind": "Dialogue",
+          "data": {
+            "ref": "encounter1"
+          }
+        }
+      },
+      "dialogues": {
+        "Merchant": {
+          "text": "merchantWelcome",
+          "choices": [
+            {
+              "text": "lookAtItems",
+              "trigger": {
+                "kind": "OpenBarterOffers",
+                "data": {}
+              }
+            }
+          ]
+        },
+        "noise": {
+          "text": "noise"
+        },
+        "encounter1": {
+          "text": "encounter1",
+          "leftSpeaker": {
+            "name": "Hunter",
+            "isHighlighted": true
+          },
+          "rightSpeaker": {
+            "name": "Wolf",
+            "isHighlighted": false
+          },
+          "choices": [
+            {
+              "text": "continue",
+              "trigger": {
+                "kind": "Dialogue",
+                "data": {
+                  "ref": "encounter2"
+                }
+              }
+            }
+          ]
+        },
+        "encounter2": {
+          "text": "encounter2",
+          "leftSpeaker": {
+            "name": "Hunter",
+            "isHighlighted": false
+          },
+          "rightSpeaker": {
+            "name": "Wolf",
+            "isHighlighted": true
+          },
+          "choices": [
+            {
+              "text": "continue",
+              "trigger": {
+                "kind": "Dialogue",
+                "data": {
+                  "ref": "encounter3"
+                }
+              }
+            }
+          ]
+        },
+        "encounter3": {
+          "text": "encounter3",
+          "choices": [
+            {
+              "text": "sideWithHunter",
+              "trigger": {
+                "kind": "Battle",
+                "data": {
+                  "enemies": ["Wolf"],
+                  "allies": ["Hunter"]
+                }
+              }
+            },
+            {
+              "text": "sideWithWolf",
+              "trigger": {
+                "kind": "Battle",
+                "data": {
+                  "enemies": ["Hunter"],
+                  "allies": ["Wolf"]
+                }
+              }
+            },
+            {
+              "text": "doNothing"
+            }
+          ]
+        }
+      },
+      "status": "Unlocked",
+      "isHidden": false,
+      "difficulty": 1,
+      "barterOffers": [
+        {
+          "item": "vineCowl",
+          "quantity": 1,
+          "randomRequirements": [],
+          "specificRequirements": [
+            {
+              "quantity": 1,
+              "name": "rootFibers"
+            },
+            {
+              "quantity": 2,
+              "name": "ancientBark"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "forest2",
+      "location": { "x": 140, "y": 140 },
+      "layout": "------- -------\n------   ------\n----- X X -----\n----     X ----\n--- XG      ---\n--X X P  G X --\n-         G   -\nX            X \n-  XX G   X   -\n--  E     XXX--\n---   X X  G---\n----  X   G----\n-----     -----\n------X  ------",
+      "enemies": ["treant"],
+      "contraptions": [],
+      "specs": {
+        "isIsland": false
+      },
+
+      "forest3": "#trapdoor",
+      "unlocks": {
+        "forest4": "victory"
+      },
+      "status": "Locked",
+      "difficulty": 1.1,
+      "isHidden": false
+    },
+    {
+      "name": "forest3",
+      "location": { "x": 140, "y": 140 },
+      "layout": "------- -------\n------   ------\n-----     -----\n----     X ----\n---      G  ---\n-- P X  X   X--\n-        X  X -\n               \n-GX  XX  G X G-\n-- X E  X   X--\n---GX X  X X---\n----  XX E ----\n-----X    -----\n------   ------",
+      "enemies": ["wolf", "iceSpirit"],
+      "contraptions": [],
+      "specs": {
+        "isIsland": false
+      },
+      "unlocks": {
+        "forest4": "victory"
+      },
+      "status": "Locked",
+      "difficulty": 1.2,
+      "isHidden": true
+    },
+    {
+      "name": "forest4",
+      "location": { "x": 140, "y": 0 },
+      "layout": "               \n               \n               \n               \n       XXX     \n               \n     XXX  G    \n               \n      G        \n               \n     P   XGG   \n               \n    G    X GX  \n               \n    XX GX      \n               \n   G         X \n               \n  X  E E   XX  \n               \n      X  X X   \n               \n     G X  X    \n               \n               \n               \n       G       ",
+      "enemies": ["wolf", "treant"],
+      "contraptions": [],
+      "specs": {
+        "isIsland": false
+      },
+      "unlocks": {
+        "forest5": "victory"
+      },
+      "status": "Locked",
+      "difficulty": 1.3,
+      "isHidden": false
+    },
+    {
+      "name": "forest5",
+      "location": { "x": 0, "y": 140 },
+      "layout": "-----------------------------\n-------------- --------------\n-------------   -------------\n------------     ------------\n-----------       -----------\n----------         ----------\n---------           ---------\n--------             --------\n-------       XXX     -------\n------      XXX  G     ------\n-----        G          -----\n----        P   XGG      ----\n---        G    X GX      ---\n--         XX GX           --\n-         G         X       -\n--       X  E E   XX       --\n---          X  X X       ---\n----        G X  X       ----\n-----                   -----\n------        G        ------\n-------               -------\n--------             --------\n---------           ---------\n----------         ----------\n-----------       -----------\n------------     ------------\n-------------   -------------\n-------------- --------------\n-----------------------------",
+      "enemies": ["wolf", "treant"],
+      "contraptions": [],
+      "specs": {
+        "isIsland": false
+      },
+      "unlocks": {
+        "forest6": "victory"
+      },
+      "status": "Locked",
+      "difficulty": 1.4,
+      "isHidden": false
+    },
+    {
+      "name": "forest6",
+      "location": { "x": -140, "y": -140 },
+      "layout": "-----------------------------\n-------------- --------------\n-------------   -------------\n------------     ------------\n-----------       -----------\n----------         ----------\n---------           ---------\n--------             --------\n-------       XXX     -------\n------      XXX  G     ------\n-----        G          -----\n----        P   XGG      ----\n---        G    X GX      ---\n--         XX GX           --\n-         G         X       -\n--       X  E E   XX       --\n---          X  X X       ---\n----        G X  X       ----\n-----                   -----\n------        G        ------\n-------               -------\n--------             --------\n---------           ---------\n----------         ----------\n-----------       -----------\n------------     ------------\n-------------   -------------\n-------------- --------------\n-----------------------------",
+      "enemies": ["wolf", "treant"],
+      "contraptions": [],
+      "unlocks": {
+        "next": "victory"
+      },
+      "status": "Locked",
+      "difficulty": 1.5,
+      "isHidden": false
+    }
+  ]
+}

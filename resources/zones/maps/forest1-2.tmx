@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.10" tiledversion="1.11.0" orientation="isometric" renderorder="right-up" width="42" height="20" tilewidth="128" tileheight="64" infinite="1" nextlayerid="10" nextobjectid="68">
+ <tileset firstgid="1" name="bg_00244_" tilewidth="140" tileheight="157" tilecount="1" columns="1">
+  <tileoffset x="-6" y="70"/>
+  <image source="bg_00244_.png" width="140" height="157"/>
+ </tileset>
+ <tileset firstgid="2" name="ob_00006_" tilewidth="140" tileheight="167" tilecount="1" columns="1">
+  <tileoffset x="-8" y="-31"/>
+  <image source="ob_00006_.png" width="140" height="167"/>
+ </tileset>
+ <tileset firstgid="3" name="ob_00024_" tilewidth="140" tileheight="138" tilecount="1" columns="1">
+  <image source="ob_00024_.png" width="140" height="138"/>
+ </tileset>
+ <tileset firstgid="4" name="ob_00026_" tilewidth="140" tileheight="316" tilecount="1" columns="1">
+  <tileoffset x="0" y="-19"/>
+  <image source="ob_00026_.png" width="140" height="316"/>
+ </tileset>
+ <tileset firstgid="5" source="path_00057_2.tsx"/>
+ <tileset firstgid="6" source="path_00068_2.tsx"/>
+ <tileset firstgid="7" source="path_00048_4.tsx"/>
+ <tileset firstgid="8" name="bg_00251_" tilewidth="140" tileheight="157" tilecount="1" columns="1">
+  <tileoffset x="-7" y="94"/>
+  <image source="bg_00251_.png" width="140" height="157"/>
+ </tileset>
+ <tileset firstgid="9" name="bg_00246_" tilewidth="140" tileheight="157" tilecount="1" columns="1">
+  <tileoffset x="-7" y="94"/>
+  <image source="bg_00246_.png" width="140" height="157"/>
+ </tileset>
+ <tileset firstgid="10" source="tile-iso.tsx"/>
+ <tileset firstgid="11" source="path_00073_.tsx"/>
+ <tileset firstgid="12" source="bg_00250_.tsx"/>
+ <tileset firstgid="13" source="bg_00249_.tsx"/>
+ <tileset firstgid="14" source="bg_00251_.tsx"/>
+ <tileset firstgid="15" source="ob_00112_.tsx"/>
+ <layer id="15" name="BackgroundStoppers" width="39" height="20">
+  <data encoding="csv">
+   <chunk x="-16" y="0" width="16" height="16">
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,12,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,12,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,12,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,12,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,12,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+</chunk>
+  </data>
+ </layer>
+ <layer id="1" name="Ground" width="20" height="20">
+  <data encoding="csv">
+   <chunk x="0" y="0" width="16" height="16">
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+12,12,12,0,0,0,0,0,0,0,0,0,0,0,0,0,
+13,13,13,0,0,0,0,0,0,0,0,0,0,0,0,0,
+13,13,13,0,0,0,0,0,0,0,0,0,0,0,0,0,
+13,13,13,0,0,0,0,0,0,0,0,0,0,0,0,0,
+13,12,13,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+</chunk>
+  </data>
+ </layer>
+ <objectgroup id="17" name="Obstacles" tintcolor="#267e13"/>
+ <objectgroup id="2" name="SectionCells">
+  <object id="35" name="1-2:a" gid="10" x="128" y="768" width="128" height="64"/>
+  <object id="36" name="2-3:a" gid="10" x="64" y="448" width="128" height="64">
+   <properties>
+    <property name="triggers" value="encounter"/>
+   </properties>
+  </object>
+  <object id="37" gid="10" x="128" y="448" width="128" height="64"/>
+  <object id="38" gid="10" x="192" y="448" width="128" height="64"/>
+ </objectgroup>
+ <layer id="13" name="Paths" width="39" height="20">
+  <data encoding="csv">
+   <chunk x="0" y="0" width="16" height="16">
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+</chunk>
+  </data>
+ </layer>
+ <group id="6" name="Background">
+  <objectgroup id="8" name="Object Layer 6" tintcolor="#365a19">
+   <object id="54" gid="4" x="-66" y="776" width="140" height="316"/>
+   <object id="55" gid="4" x="-131.5" y="433.5" width="140" height="316"/>
+  </objectgroup>
+  <objectgroup id="7" name="Object Layer 5" tintcolor="#194b06">
+   <object id="49" gid="2" x="-18.5" y="736.5" width="140" height="167"/>
+   <object id="50" gid="2" x="-95" y="419" width="140" height="167"/>
+   <object id="51" gid="2" x="-92" y="590" width="140" height="167"/>
+   <object id="52" gid="3" x="-138.5" y="644.5" width="140" height="138"/>
+   <object id="53" gid="3" x="-109.5" y="459.5" width="140" height="138"/>
+  </objectgroup>
+  <objectgroup id="9" name="Object Layer 7" tintcolor="#3b8f0d">
+   <object id="57" gid="3" x="-34.5" y="646.5" width="140" height="138"/>
+   <object id="58" gid="3" x="-35" y="453" width="140" height="138"/>
+   <object id="62" gid="2" x="-9" y="507" width="140" height="167"/>
+   <object id="63" gid="2" x="7.5" y="570.5" width="140" height="167"/>
+   <object id="64" gid="3" x="-11.5" y="603.5" width="140" height="138"/>
+  </objectgroup>
+ </group>
+ <objectgroup id="5" name="Contraptions">
+  <object id="48" gid="15" x="64" y="576" width="64" height="64">
+   <properties>
+    <property name="class" value="chest"/>
+    <property name="contains" value="gear.dagger"/>
+   </properties>
+  </object>
+ </objectgroup>
+ <layer id="3" name="ForegroundStoppers" width="42" height="20">
+  <data encoding="csv">
+   <chunk x="0" y="0" width="16" height="16">
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,13,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,14,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,14,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,14,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,14,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+</chunk>
+  </data>
+ </layer>
+ <objectgroup id="4" name="Foreground" tintcolor="#151b15">
+  <object id="7" gid="2" x="387.333" y="860.667" width="140" height="167"/>
+  <object id="8" gid="2" x="399.333" y="803.333" width="140" height="167"/>
+  <object id="9" gid="2" x="390.667" y="737.333" width="140" height="167"/>
+  <object id="10" gid="2" x="410.667" y="696" width="140" height="167"/>
+  <object id="11" gid="2" x="384.667" y="612.667" width="140" height="167"/>
+  <object id="39" gid="2" x="378.667" y="554.667" width="140" height="167"/>
+  <object id="40" gid="2" x="413.833" y="865.5" width="140" height="167"/>
+  <object id="41" gid="2" x="419.167" y="784.167" width="140" height="167"/>
+  <object id="42" gid="2" x="414.167" y="722.5" width="140" height="167"/>
+  <object id="43" gid="2" x="413" y="660.333" width="140" height="167"/>
+  <object id="44" gid="2" x="408.167" y="597.167" width="140" height="167"/>
+  <object id="45" gid="2" x="413.667" y="549" width="140" height="167"/>
+ </objectgroup>
+</map>

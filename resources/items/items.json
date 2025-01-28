@@ -1,0 +1,29 @@
+{
+  "items": [
+    {
+      "name": "myceliumThreads",
+      "description": "",
+      "rarity": 0
+    },
+    {
+      "name": "sporeSacs",
+      "description": "",
+      "rarity": 1
+    },
+    {
+      "name": "ancientBark",
+      "description": "",
+      "rarity": 2
+    },
+    {
+      "name": "rootFibers",
+      "description": "",
+      "rarity": 3
+    },
+    {
+      "name": "treantEssence",
+      "description": "",
+      "rarity": 5
+    }
+  ]
+}

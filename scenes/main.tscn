@@ -1,0 +1,31 @@
+[gd_scene load_steps=5 format=3 uid="uid://bp2hdfghrqp5h"]
+
+[ext_resource type="Script" path="res://scripts/BattleScene.cs" id="1_p7yh0"]
+[ext_resource type="TileSet" uid="uid://cqwuw4bqsmwjf" path="res://resources/zones/highlight/highlights.tres" id="2_q5j30"]
+[ext_resource type="Script" path="res://addons/swipe-camera/SwipeCamera.cs" id="3_gpbsr"]
+
+[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_ex28d"]
+
+[node name="Main" type="Node2D"]
+material = SubResource("CanvasItemMaterial_ex28d")
+script = ExtResource("1_p7yh0")
+
+[node name="Grid" type="Node2D" parent="."]
+
+[node name="Ground" type="TileMapLayer" parent="Grid"]
+y_sort_enabled = true
+tile_map_data = PackedByteArray(0, 0, 0, 0, 0, 0, 17, 0, 2, 0, 2, 0, 0, 0)
+tile_set = ExtResource("2_q5j30")
+
+[node name="ValidationScope" type="TileMapLayer" parent="Grid"]
+tile_set = ExtResource("2_q5j30")
+
+[node name="Scope" type="TileMapLayer" parent="Grid"]
+tile_set = ExtResource("2_q5j30")
+
+[node name="SwipeCamera" type="Camera2D" parent="."]
+position = Vector2(-4.075, 0)
+offset = Vector2(-1.42, 0.595)
+drag_horizontal_enabled = true
+drag_vertical_enabled = true
+script = ExtResource("3_gpbsr")

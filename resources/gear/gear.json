@@ -1,0 +1,135 @@
+{
+    "gear": [
+      {
+        "name": "vineCowl",
+        "set": "vine",
+        "type": 1,
+        "slot": 0,
+        "description": "",
+        "quality": 1,
+        "ingredients": [],
+        "skills": []
+      },
+      {
+        "name": "vineJacket",
+        "set": "vine",
+        "type": 1,
+        "slot": 1,
+        "description": "",
+        "quality": 1,
+        "ingredients": [],
+        "skills": []
+      },
+      {
+        "name": "vineHandcovers",
+        "set": "vine",
+        "type": 1,
+        "slot": 2,
+        "description": "",
+        "quality": 1,
+        "ingredients": [],
+        "skills": []
+      },
+      {
+        "name": "vineJambs",
+        "set": "vine",
+        "type": 1,
+        "slot": 3,
+        "description": "",
+        "quality": 1,
+        "ingredients": [],
+        "skills": []
+      },
+      {
+        "name": "ironHelm",
+        "set": "iron",
+        "type": 0,
+        "slot": 0,
+        "description": "",
+        "quality": 1,
+        "ingredients": [],
+        "skills": []
+      },
+      {
+        "name": "ironArmor",
+        "set": "iron",
+        "type": 0,
+        "slot": 1,
+        "description": "",
+        "quality": 1,
+        "ingredients": [],
+        "skills": []
+      },
+      {
+        "name": "ironGauntlets",
+        "set": "iron",
+        "type": 0,
+        "slot": 2,
+        "description": "",
+        "quality": 1,
+        "ingredients": [],
+        "skills": []
+      },
+      {
+        "name": "ironCuisses",
+        "set": "iron",
+        "type": 0,
+        "slot": 3,
+        "description": "",
+        "quality": 1,
+        "ingredients": [],
+        "skills": []
+      },
+
+      {
+        "name": "cottonHood",
+        "set": "cotton",
+        "type": 2,
+        "slot": 0,
+        "description": "",
+        "quality": 1,
+        "ingredients": [],
+        "skills": []
+      },
+      {
+        "name": "cottonTunic",
+        "set": "cotton",
+        "type": 2,
+        "slot": 1,
+        "description": "",
+        "quality": 1,
+        "ingredients": [],
+        "skills": []
+      },
+      {
+        "name": "cottonGloves",
+        "set": "cotton",
+        "type": 2,
+        "slot": 2,
+        "description": "",
+        "quality": 1,
+        "ingredients": [],
+        "skills": []
+      },
+      {
+        "name": "cottonPants",
+        "set": "cotton",
+        "type": 2,
+        "slot": 3,
+        "description": "",
+        "quality": 1,
+        "ingredients": [],
+        "skills": []
+      },
+      {
+        "name": "dagger",
+        "set": "dagger",
+        "type": 3,
+        "slot": 4,
+        "description": "",
+        "quality": 1,
+        "ingredients": [],
+        "skills": ["daggerStrike"]
+      }
+    ]
+}

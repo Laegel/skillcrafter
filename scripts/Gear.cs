@@ -11,7 +11,7 @@ public class GearReader
     {
 
         string filePath = "res://resources/gear/gear.json";
-        var allItems = JSON.Read<GearObject>(filePath).gear;
+        var allItems = JSONFile.Read<GearObject>(filePath).gear;
 
         var items = new Dictionary<string, Gear>();
         foreach (var item in allItems)

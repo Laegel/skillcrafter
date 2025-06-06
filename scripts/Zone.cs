@@ -104,7 +104,7 @@ public class ZonesReader
     {
         string filePath = "res://resources/zones/" + key + ".json";
 
-        var allZones = JSON.Read<ZoneObject>(filePath).maps;
+        var allZones = JSONFile.Read<ZoneObject>(filePath).maps;
 
         var maps = new Dictionary<string, MapItem>();
         foreach (var zone in allZones)
@@ -118,7 +118,7 @@ public class ZonesReader
     {
         var files = DirAccess.Open("res://resources/zones").GetFiles();
 
-        return files.ToDictionary(file => file.Replace(".json", ""), file => JSON.Read<ZoneObject>(file));
+        return files.ToDictionary(file => file.Replace(".json", ""), file => JSONFile.Read<ZoneObject>(file));
     }
 }
 

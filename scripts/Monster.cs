@@ -11,7 +11,7 @@ public class MonstersReader
     public static Dictionary<string, Monster> Get()
     {
         string filePath = "res://resources/monsters/monsters.json";
-        var allMonsters = JSON.Read<MonsterObject>(filePath);
+        var allMonsters = JSONFile.Read<MonsterObject>(filePath);
         
         var monsters = new Dictionary<string, Monster>();
         foreach (var monster in allMonsters.monsters)

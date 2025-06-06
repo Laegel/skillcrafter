@@ -240,6 +240,7 @@ public enum Surface
 
 public partial class BattleScene : Node2D
 {
+    [Export] public string command;
     public Entity playerEntity;
     private bool isMoving = false;
     public SkillAction isCastingSkill = SkillAction.Inactive;
@@ -1481,6 +1482,10 @@ public override void _Input(InputEvent @event)
     // Called every frame. 'delta' is the elapsed time since the previous frame.
     public override void _Process(double delta)
     {
+        if (command != null && Commander.ExecuteCommand(command))
+        {
+            command = null;
+        }
 
         // if (Input.GetKeyDown(KeyCode.R) && Input.GetKey(KeyCode.LeftControl))
         // {

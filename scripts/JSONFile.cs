@@ -1,7 +1,7 @@
 using Godot;
 using Newtonsoft.Json;
 
-class JSON
+class JSONFile
 {
     public static T Read<T>(string filePath)
     {

@@ -38,7 +38,6 @@ public partial class BattlePanel : BuilderComponent
         // var M = NodeBuilder.Map;
         // var image = Image.LoadFromFile("res://resources/400x400.png");
         var border = 4;
-        var gridItemSize = 100;
 
         var marginContainer =
         NodeBuilder.CreateNode(
@@ -59,14 +58,14 @@ public partial class BattlePanel : BuilderComponent
                     OffsetBottom = 324.0f,
                     GrowHorizontal = Control.GrowDirection.Begin,
                     GrowVertical = Control.GrowDirection.Both,
-                    CustomMinimumSize = new Vector2(gridItemSize * 2 - 40, 0),
+                    CustomMinimumSize = new Vector2(SCTheme.GridItemSize * 2 - 40, 0),
                 },
                 NodeBuilder.CreateNode(
                     new ColorRect()
                     {
                         Color = SCTheme.Base100,
                         SizeFlagsVertical = Control.SizeFlags.ExpandFill,
-                        CustomMinimumSize = new Vector2(gridItemSize * 2 - 40, gridItemSize * 2),
+                        CustomMinimumSize = new Vector2(SCTheme.GridItemSize * 2 - 40, SCTheme.GridItemSize * 2),
                     },
                     NodeBuilder.CreateNode(
                         new VBoxContainer
@@ -78,7 +77,7 @@ public partial class BattlePanel : BuilderComponent
                             {
                                 Color = SCTheme.Health,
                                 SizeFlagsVertical = Control.SizeFlags.ExpandFill,
-                                CustomMinimumSize = new Vector2(gridItemSize * 2 - 40, gridItemSize - 28),
+                                CustomMinimumSize = new Vector2(SCTheme.GridItemSize * 2 - 40, SCTheme.GridItemSize - 28),
 
                             },
                             new Label()
@@ -98,7 +97,7 @@ public partial class BattlePanel : BuilderComponent
                                 {
                                     Color = SCTheme.Ability,
                                     SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
-                                    CustomMinimumSize = new Vector2(gridItemSize, gridItemSize - 28),
+                                    CustomMinimumSize = new Vector2(SCTheme.GridItemSize, SCTheme.GridItemSize - 28),
                                 },
                                 new Label()
                                 {
@@ -110,7 +109,7 @@ public partial class BattlePanel : BuilderComponent
                                 {
                                     Color = SCTheme.Movement,
                                     SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
-                                    CustomMinimumSize = new Vector2(gridItemSize, gridItemSize - 28),
+                                    CustomMinimumSize = new Vector2(SCTheme.GridItemSize, SCTheme.GridItemSize - 28),
                                 },
                                 new Label()
                                 {
@@ -124,8 +123,8 @@ public partial class BattlePanel : BuilderComponent
                         var gridContainer = new GridContainer()
                         {
                             Columns = 2,
-                            OffsetTop = gridItemSize * 2 - 48,
-                            OffsetRight = gridItemSize - 20,
+                            OffsetTop = SCTheme.GridItemSize * 2 - 48,
+                            OffsetRight = SCTheme.GridItemSize - 20,
                             OffsetBottom = 648,
                         };
                         gridContainer.AddThemeConstantOverride("h_separation", border);
@@ -135,7 +134,6 @@ public partial class BattlePanel : BuilderComponent
                     }, SkillSlotsState.equipedSkills, (item, i) => new ItemComponent
                     {
                         key = i,
-                        gridItemSize = gridItemSize,
                         onClick = () => onPressSkill(i),
                         onLongPress = () => { },
                         child = new Label()

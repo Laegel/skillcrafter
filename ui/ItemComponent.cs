@@ -8,7 +8,6 @@ public partial class ItemComponent : BuilderComponent
     // private TextureButton button;
     private Button button;
     private bool isLongPress = false;
-    public int gridItemSize = 100;
     public Color borderColor = new(0, 0, 0, 0);
     public Texture2D backgroundImage = new();
     public Action onClick = () => { };
@@ -31,7 +30,7 @@ public partial class ItemComponent : BuilderComponent
         button = new Button()
         {
             Name = GetType().Name + key,
-            CustomMinimumSize = new Vector2(gridItemSize, gridItemSize),
+            CustomMinimumSize = new Vector2(SCTheme.GridItemSize, SCTheme.GridItemSize),
         };
 
         button.ButtonDown += () =>
@@ -98,7 +97,7 @@ public partial class ItemComponent : BuilderComponent
                 return new Panel()
                 {
                     Material = shaderMaterial,
-                    CustomMinimumSize = new Vector2(gridItemSize - border * 3, gridItemSize - border * 3),
+                    CustomMinimumSize = new Vector2(SCTheme.GridItemSize - border * 3, SCTheme.GridItemSize - border * 3),
                     OffsetTop = border * 1.5f,
                     OffsetLeft = border * 1.5f,
                     MouseFilter = TextureRect.MouseFilterEnum.Ignore,
@@ -106,7 +105,7 @@ public partial class ItemComponent : BuilderComponent
             }, NodeBuilder.CreateNode(new TextureRect
             {
                 Texture = backgroundImage,
-                CustomMinimumSize = new Vector2(gridItemSize - border * 3, gridItemSize - border * 3),
+                CustomMinimumSize = new Vector2(SCTheme.GridItemSize - border * 3, SCTheme.GridItemSize - border * 3),
                 ExpandMode = TextureRect.ExpandModeEnum.FitWidthProportional,
                 StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered,
                 MouseFilter = TextureRect.MouseFilterEnum.Ignore,

@@ -14,8 +14,8 @@ public partial class MenuContainer : BuilderComponent
             { Menus.None, () => new Node()},
             { Menus.Equipment, () => Wrap(new MenuEquipment().Build(), false)},
             { Menus.Inventory, () => Wrap(new MenuInventory().Build())},
-            { Menus.Designer, () => new MenuDesigner().Build()},
-            { Menus.Map, () => new MenuMap().Build()},
+            { Menus.Designer, () => Wrap(new MenuDesigner().Build())},
+            { Menus.Map, () => Wrap(new MenuMap().Build())},
         }));
     }
 

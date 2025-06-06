@@ -10,6 +10,8 @@ class SCTheme
     public static readonly Color Movement = new(0.5058823529411764f, 0.5490196078431373f, 0.9725490196078431f);
     public static readonly Color Health = new(0.984313725490196f, 0.4392156862745098f, 0.5215686274509804f);
 
+    public static readonly int GridItemSize = 100;
+
     public static Color GetColorByQuality(Quality quality)
     {
         return quality switch

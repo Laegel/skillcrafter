@@ -64,7 +64,7 @@ public partial class MenuEquipment : BuilderComponent
     private Dictionary<string, SkillBlueprint> allSkills = SkillsReader.Get();
     private Dictionary<string, Gear> allGear = GearReader.Get();
     private Dictionary<string, DisplayableItem> allResources = ResourcesReader.Get();
-    private int gridItemSize = 100;
+
     private ReactiveState<List<Node>> itemsToDisplay = new(new());
     public override Node Build()
     {
@@ -93,7 +93,6 @@ public partial class MenuEquipment : BuilderComponent
 
             var itemComponent = new ItemComponent
             {
-                gridItemSize = gridItemSize,
                 onClick = () => onClick(gearSlot),
             };
 
@@ -114,7 +113,7 @@ public partial class MenuEquipment : BuilderComponent
 
         var panelsContainer = new GridContainer()
         {
-            CustomMinimumSize = new Vector2(gridItemSize * 3, gridItemSize * 3),
+            CustomMinimumSize = new Vector2(SCTheme.GridItemSize * 3, SCTheme.GridItemSize * 3),
             Columns = 3,
         };
         panelsContainer.AddThemeConstantOverride("h_separation", border);
@@ -122,7 +121,7 @@ public partial class MenuEquipment : BuilderComponent
 
         var blankSpot = () => new Control()
         {
-            CustomMinimumSize = new Vector2(gridItemSize, gridItemSize),
+            CustomMinimumSize = new Vector2(SCTheme.GridItemSize, SCTheme.GridItemSize),
         };
         
         var equipmentContainer = NodeBuilder.Map(panelsContainer,
@@ -156,7 +155,6 @@ public partial class MenuEquipment : BuilderComponent
         {
             var crossIcon = new ItemComponent
             {
-                gridItemSize = gridItemSize,
                 onClick = OnItemClick,
                 borderColor = SCTheme.GetColorByQuality(Quality.Worn),
                 backgroundImage = GD.Load<Texture2D>("res://images/skills/bareHandedStrike.png"),
@@ -173,7 +171,6 @@ public partial class MenuEquipment : BuilderComponent
                     var gear = (Gear)GetItemByName(item.name);
                     var gearNode = NodeBuilder.CreateNode(new ItemComponent
                     {
-                        gridItemSize = gridItemSize,
                         borderColor = SCTheme.GetColorByQuality(allGear[gear.name].quality),
                         backgroundImage = GD.Load<Texture2D>($"res://images/gear/{BattleScene.GetFullGearPath(gear)}.png"),
                         onClick = () => OnSelectGear(gear),
@@ -187,7 +184,6 @@ public partial class MenuEquipment : BuilderComponent
                 {
                     var skillNode = NodeBuilder.CreateNode(new ItemComponent()
                     {
-                        gridItemSize = gridItemSize,
                         onClick = () => OnSelectSkill(skill),
                         // backgroundImage = GD.Load<Texture2D>($"res://images/skills/{skill.name}.png"),
                     }.Build());

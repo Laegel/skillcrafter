@@ -9,6 +9,7 @@
 [node name="Main" type="Node2D"]
 material = SubResource("CanvasItemMaterial_ex28d")
 script = ExtResource("1_p7yh0")
+command = "open_menu 2;"
 
 [node name="SwipeCamera" type="Camera2D" parent="."]
 position = Vector2(-4.075, 0)

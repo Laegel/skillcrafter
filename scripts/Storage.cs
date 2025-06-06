@@ -54,7 +54,7 @@ public class Storage
 
         if (File.Exists(path) && env != "GenericDevice")
         {
-            var data = JSON.Read<GameData>(path);
+            var data = JSONFile.Read<GameData>(path);
 
             // GameData data = Json.Parse(json);
             data.skills ??= Array.Empty<SkillBlueprint>();
@@ -136,7 +136,7 @@ public class Storage
     {
         string path = PathForDocumentsFile();
 
-        JSON.Write(path, data);
+        JSONFile.Write(path, data);
     }
 
     private static string PathForDocumentsFile()

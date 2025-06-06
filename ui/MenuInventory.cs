@@ -9,7 +9,7 @@ public partial class MenuInventory : BuilderComponent
     {
         var size = DisplayServer.WindowGetSize();
         var items = Storage.Read();
-        var gridItemSize = 100;
+
         var allGear = GearReader.Get();
         var allResources = ResourcesReader.Get();
 
@@ -30,7 +30,6 @@ public partial class MenuInventory : BuilderComponent
             { "gear", makeGrid(items.gear.Select((gear, i) => {
                 return new ItemComponent {
                     key = i,
-                    gridItemSize = gridItemSize,
                     onLongPress = () => { },
                     borderColor = SCTheme.GetColorByQuality(allGear[gear.name].quality),
                     backgroundImage = ResourceLoader.Load<Texture2D>($"res://images/gear/{BattleScene.GetFullGearPath(allGear[gear.name])}.png"),
@@ -39,14 +38,12 @@ public partial class MenuInventory : BuilderComponent
             { "skill", makeGrid(items.skills.Select((skill, i) => {
                 return new ItemComponent {
                     key = i,
-                    gridItemSize = gridItemSize,
                     onLongPress = () => { },
                 }.Build();
             }).ToList())  },
             { "resource", makeGrid(items.resources.Select((resource, i) => {
                 return new ItemComponent {
                     key = i,
-                    gridItemSize = gridItemSize,
                     onLongPress = () => { },
                     backgroundImage = ResourceLoader.Load<Texture2D>($"res://images/resources/{resource.name}.png"),
                     borderColor = SCTheme.GetColorByRarity(allResources[resource.name].rarity),

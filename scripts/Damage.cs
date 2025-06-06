@@ -206,7 +206,7 @@ public class SkillsReader
     {
         string filePath = "res://resources/skills/skills.json";
         
-        var allSkills = JSON.Read<RootObject>(filePath).skills;
+        var allSkills = JSONFile.Read<RootObject>(filePath).skills;
 
         var skills = new Dictionary<string, SkillBlueprint>();
         foreach (var skill in allSkills)

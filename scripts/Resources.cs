@@ -2,15 +2,15 @@ using System;
 using System.Collections.Generic;
 
 
-public class ItemsReader
+public class ResourcesReader
 {
 
-    public static Dictionary<string, Item> Get()
+    public static Dictionary<string, DisplayableItem> Get()
     {
-        string filePath = "res://resources/items/items.json";
+        string filePath = "res://resources/resources/resources.json";
         var allItems = JSON.Read<ItemObject>(filePath);
 
-        var items = new Dictionary<string, Item>();
+        var items = new Dictionary<string, DisplayableItem>();
         foreach (var item in allItems.items)
         {
             items.Add(item.name, item);
@@ -32,7 +32,7 @@ public enum Rarity
 
 
 [Serializable]
-public class Item
+public class DisplayableItem
 {
     public string name;
     public string description;
@@ -43,5 +43,5 @@ public class Item
 [Serializable]
 public class ItemObject
 {
-    public Item[] items;
+    public DisplayableItem[] items;
 }

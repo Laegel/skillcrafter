@@ -105,7 +105,7 @@ public class TilemapExtractor
                     entitySlot = EntitySlot.Entity,
                     isOccupied = true,
                     metadata = new() {
-                    {"entity", char.IsUpper(entityName[0]) || entityName.Contains(":") ? entityName : entityName + ":" + Time.GetTimeDictFromSystem()}
+                    {"entity", char.IsUpper(entityName[0]) || entityName.Contains(':') ? entityName : entityName + ":" + Time.GetUnixTimeFromSystem()}
                 }
                 };
                 tiles.Add(mainGround.LocalToMap(mainGround.ToLocal(entity.GlobalPosition)).ToString(), newTile);

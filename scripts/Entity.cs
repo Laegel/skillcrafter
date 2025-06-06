@@ -5,6 +5,9 @@ using System.Linq;
 
 using Godot;
 
+using TurnBasedSkills = System.Collections.Generic.List<(TurnSkillRestrictions, SkillBlueprint)?>;
+
+
 public enum State
 {
     None,
@@ -53,19 +56,19 @@ public partial class Entity : Interactive
 {
     public State previousState, currentState;
 
-    public int maxHealthPoints;
-    public int healthPoints;
-    public int maxAbilityPoints;
-    public int abilityPoints;
-    public int maxMovementPoints;
-    public int movementPoints;
-    public int power;
-    public int armor;
-    public Disposition disposition;
+    [Export] public int maxHealthPoints;
+    [Export] public int healthPoints;
+    [Export] public int maxAbilityPoints;
+    [Export] public int abilityPoints;
+    [Export] public int maxMovementPoints;
+    [Export] public int movementPoints;
+    [Export] public int power;
+    [Export] public int armor;
+    [Export] public Disposition disposition;
 
-    public List<TurnSideEffect> sideEffects;
-    public List<TurnOverTimeEffect> overTimeEffects;
-    public List<(TurnSkillRestrictions, SkillBlueprint)?> skills;
+    public List<TurnSideEffect> sideEffects = new();
+    public List<TurnOverTimeEffect> overTimeEffects = new();
+    public TurnBasedSkills skills = new();
     public List<string> skillNames;
 
     private Dictionary<Element, int> resistance = new() {

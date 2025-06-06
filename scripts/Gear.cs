@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 
 
 
@@ -34,9 +35,13 @@ public enum GearSlot
 [Serializable]
 public enum GearType
 {
+    [Description("heavy")]
     Heavy,
+    [Description("light")]
     Light,
+    [Description("clothes")]
     Clothes,
+    [Description("weapon")]
     Weapon,
 }
 
@@ -63,6 +68,11 @@ public class Gear
     public Quality quality;
     public Ingredient[] ingredients;
     public string[] skills;
+
+    public string GetGearString()
+    {
+        return $"{type.GetEnumDescription()}/{set}";
+    }
 
     public int GetPower()
     {

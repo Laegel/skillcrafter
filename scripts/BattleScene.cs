@@ -240,7 +240,7 @@ public enum Surface
 
 public partial class BattleScene : Node2D
 {
-    public Entity player;
+    public Entity playerEntity;
     private bool isMoving = false;
     public SkillAction isCastingSkill = SkillAction.Inactive;
     public event Action<SkillAction> OnIsCastingSkillChanged;
@@ -436,14 +436,14 @@ public partial class BattleScene : Node2D
         Zone.Instantiate();
         maps = ZonesReader.GetByKey(Zone.Instance.CurrentBattle.Item1);
         monsters = MonstersReader.Get();
-        items = ItemsReader.Get();
+        items = ResourcesReader.Get();
         gear = GearReader.Get();
         allSkills = SkillsReader.Get();
         allGear = GearReader.Get();
         gameData = Storage.Read();
         GD.Print("Done loading data");
-
-        LoadUI();
+        SkillSlotsState.equipedSkills.Value = gameData.skillSlots.Select(x => x.Value == null ? (null, null) : (new TurnSkillRestrictions() { cooldown = 0 }, allSkills[x.Value.name])).ToList();
+        GearSlotState.equipedGear.Value = gameData.gearSlots;
 
         GD.Print("Creating player character portrait...");
         CreatePlayerCharacterForPortrait();
@@ -494,6 +494,33 @@ public partial class BattleScene : Node2D
                     currentMap[kvp.Key] = kvp.Value;
             }
         }
+
+
+        foreach (var gearSlot in gameData.gearSlots)
+        {
+            if (gearSlot.Value != null)
+            {
+                var gearItem = allGear[gearSlot.Value.name];
+                (playerEntity as Humanoid).SetGear(gearSlot.Key, gearItem.GetGearString());
+            }
+        }
+        GearSlotState.equipedGear.OnValueChanged += (gearSlots) =>
+        {
+            foreach (var gearSlot in gearSlots)
+            {
+                if (gearSlot.Value != null)
+                {
+                    var gearItem = allGear[gearSlot.Value.name];
+                    (playerEntity as Humanoid).SetGear(gearSlot.Key, gearItem.GetGearString());
+                }
+                else
+                {
+                    (playerEntity as Humanoid).SetGear(gearSlot.Key, null);
+                }
+            }
+        };
+
+        LoadUI();
         GD.Print("Awakening done");
     }
 
@@ -501,41 +528,35 @@ public partial class BattleScene : Node2D
 
     private void LoadUI()
     {
-        // ComponentRegistry.DiscoverAndRegisterComponents();
-
-        // // Create and use components
-        // var divElement = Builder.Create(new DivProps
-        // {
-        //     Children = new List<VisualElement>()
-        // });
-
-        // var sectionElement = Builder.Create(new SectionProps
-        // {
-        //     Title = "Section Title"
-        // });
+        var battlePanel = new BattlePanel((index) =>
+        {
+            if (MenuState.currentMenu.Value == Menus.Equipment)
+            {
+                ItemFilterState.Set(ItemType.Skill, index);
+            }
+            else
+            {
+                GD.Print("Skill pressed: " + index);
+                if (playerEntity.skills.Count - 1 < index)
+                {
+                    return;
+                }
+                PressSkillButton((SkillAction)index + 1);
+            }
+        });
+        AddChild(battlePanel.Build());
+        var menuContainer = new MenuContainer();
+        AddChild(menuContainer.Build());
+        var menuButton = new MenuButton().Build();
+        AddChild(menuButton);
     }
 
     private void Start()
     {
         // nextTickTime = Time.time + tickRate;
 
-        // SetCompleteEquipment(player);
     }
 
-    private void SetCompleteEquipment(Entity target)
-    {
-
-        foreach (GearSlot slot in Enum.GetValues(typeof(EquipmentSlot)))
-        {
-            if (!gameData.gearSlots.TryGetValue(slot, out var value) || value == null)
-            {
-                SetEquipment(target, slot, null);
-                continue;
-            }
-            SetEquipment(target, slot, GetGearPath(gear[gameData.gearSlots[slot].name]));
-
-        }
-    }
 
     public string GetGearPath(Gear item)
     {
@@ -551,7 +572,7 @@ public partial class BattleScene : Node2D
             return $"{setName}/{item.name}";
         }
     }
-    public string GetFullGearPath(Gear item)
+    public static string GetFullGearPath(Gear item)
     {
         string setName = item.set;
 
@@ -614,10 +635,13 @@ public partial class BattleScene : Node2D
                 continue;
             }
             var position = GridHelper.StringToVector2I(cell.Key);
-            var playerEntity = GetNode<Entity>("Player");
+
+            playerEntity = LoadEntity(cell.Value.metadata["entity"], position);
+            // var humanoidPrefab = GD.Load<PackedScene>("res://scenes/humanoid.tscn");
+            // playerEntity = humanoidPrefab.Instantiate<Humanoid>();
+            playerEntity.Name = "Player";
             // player.tag = "PlayableEntity";
 
-            // var playerEntity = player.GetComponent<Entity>();
 
             var totalArmor = Enumerable.Range(0, 4).Aggregate(0, (acc, x) =>
             {
@@ -645,6 +669,8 @@ public partial class BattleScene : Node2D
             }
 
             playerEntity.skills = SetSkillsFromGear();
+
+            AddChild(playerEntity);
         }
     }
 
@@ -679,7 +705,7 @@ public partial class BattleScene : Node2D
     }
 
 
-    public string GearTypeToFolder(GearType gearType)
+    public static string GearTypeToFolder(GearType gearType)
     {
         return gearType switch
         {
@@ -690,7 +716,7 @@ public partial class BattleScene : Node2D
         };
     }
 
-    public string GearSlotToFolder(GearSlot gearSlot)
+    public static string GearSlotToFolder(GearSlot gearSlot)
     {
         return gearSlot switch
         {
@@ -733,68 +759,6 @@ public partial class BattleScene : Node2D
         return true;
     }
 
-    public void SetEquipment(Entity target, GearSlot slot, string? name)
-    {
-        var skeleton = ((SpineSprite)target.GetNode("skeleton")).GetSkeleton();
-
-        if (name == null)
-        {
-            switch (slot)
-            {
-                case GearSlot.Head:
-                    skeleton.SetAttachment("head", null);
-                    break;
-                case GearSlot.Torso:
-                    skeleton.SetAttachment("torso", null);
-                    break;
-                case GearSlot.Arms:
-                    skeleton.SetAttachment("shoulder-right", null);
-                    skeleton.SetAttachment("hand-right", null);
-                    skeleton.SetAttachment("shoulder-left", null);
-                    skeleton.SetAttachment("hand-left", null);
-                    break;
-                case GearSlot.Legs:
-                    skeleton.SetAttachment("leg-right", null);
-                    skeleton.SetAttachment("foot-right", null);
-                    skeleton.SetAttachment("leg-left", null);
-                    skeleton.SetAttachment("foot-left", null);
-                    break;
-                case GearSlot.Weapon:
-                    skeleton.SetAttachment("weapon", null);
-                    skeleton.SetAttachment("weapon-extra", null);
-                    break;
-            }
-            return;
-        }
-        switch (slot)
-        {
-            case GearSlot.Head:
-                skeleton.SetAttachment("head", "images/" + name + "/head");
-                break;
-            case GearSlot.Torso:
-                skeleton.SetAttachment("torso", "images/" + name + "/torso");
-                break;
-            case GearSlot.Arms:
-                skeleton.SetAttachment("shoulder-right", "images/" + name + "/shoulder-right");
-                skeleton.SetAttachment("hand-right", "images/" + name + "/hand-right");
-                skeleton.SetAttachment("shoulder-left", "images/" + name + "/shoulder-left");
-                skeleton.SetAttachment("hand-left", "images/" + name + "/hand-left");
-                break;
-            case GearSlot.Legs:
-                skeleton.SetAttachment("leg-right", "images/" + name + "/leg-right");
-                skeleton.SetAttachment("foot-right", "images/" + name + "/foot-right");
-                skeleton.SetAttachment("leg-left", "images/" + name + "/leg-left");
-                skeleton.SetAttachment("foot-left", "images/" + name + "/foot-left");
-                break;
-            case GearSlot.Weapon:
-                skeleton.SetAttachment("weapon", "images/" + name);
-                if (name.StartsWith("bow"))
-                    skeleton.SetAttachment("weapon-extra", "images/bow/bow-string");
-                break;
-        }
-    }
-
-
     public void PressMovementButton()
     {
         if (IsCastingSkill != SkillAction.Inactive)
@@ -805,7 +769,7 @@ public partial class BattleScene : Node2D
         }
         if (!isMoving)
         {
-            var entity = player;
+            var entity = playerEntity;
 
             DrawTargetCells(BattleMap.EntityPositionToCellCoordinates(entity.Position), 1, entity.movementPoints, new[] { new MapCell() {
                 kind = CellKind.Empty,
@@ -813,7 +777,7 @@ public partial class BattleScene : Node2D
             }, new MapCell() {
                 kind = CellKind.Contraption,
                 isOccupied = false
-            } });
+            } }, SCTheme.Movement);
             // StartCoroutine(SetIsMoving(0.2f));
             isMoving = true;
 
@@ -1041,7 +1005,7 @@ public partial class BattleScene : Node2D
             IsCastingSkill = SkillAction.Inactive;
             if (status != BattleStatus.Exploring)
             {
-                DisplayMovementRange(player);
+                DisplayMovementRange(playerEntity);
             }
             return;
         }
@@ -1051,12 +1015,8 @@ public partial class BattleScene : Node2D
         }
         IsCastingSkill = pickedSkill;
 
-
-        var entity = player;
-
-        var skillDefinition = entity.skills[(int)pickedSkill - 1].Value.Item2;
-
-        DrawTargetCells(BattleMap.EntityPositionToCellCoordinates(entity.Position), skillDefinition.range.min, skillDefinition.range.max, GetTargetableCells(skillDefinition), new Color(1f, 0.843f, 0f), skillDefinition.vision == 1);
+        var skillDefinition = playerEntity.skills[(int)pickedSkill - 1].Value.Item2;
+        DrawTargetCells(BattleMap.EntityPositionToCellCoordinates(playerEntity.Position), skillDefinition.range.min, skillDefinition.range.max, GetTargetableCells(skillDefinition), SCTheme.Ability, skillDefinition.vision == 1);
     }
 
     public void PerformMovement(Entity entity, Vector2I[] path, Action onFinish)
@@ -1075,6 +1035,45 @@ public partial class BattleScene : Node2D
             }
         }
         return map;
+    }
+
+public override void _Input(InputEvent @event)
+    {
+        if (@event is InputEventKey keyEvent && keyEvent.Pressed)
+        {
+            if (keyEvent.Keycode == Key.C)
+            {
+                var point = GetGlobalMousePosition();
+                var cellPos = tilemap.LocalToMap(point);
+                GD.Print(cellPos);
+            }
+            else if (keyEvent.Keycode == Key.D)
+            {
+                DisplayInput();
+            }
+        }
+    }
+
+    private void DisplayInput()
+    {
+        var text = new TextEdit() {
+            Name = "InputDisplay",
+            CustomMinimumSize = new Vector2(100, 50),
+        };
+        var button = new Button();
+        button.Pressed += () =>
+        {
+            SendInput();  
+        };
+        AddChild(text);
+        AddChild(button);
+    }
+
+    private void SendInput()
+    {
+        var node = GetNode<TextEdit>("InputDisplay");
+        var value = node.Text;
+        GD.Print(value);
     }
 
     public void DoMovement(Vector2I[] path, Entity entity, Action onFinish)
@@ -1412,6 +1411,7 @@ public partial class BattleScene : Node2D
         // var mesh = GetMeshRenderer(movingTarget);
         var worldPosition = BattleMap.CellCoordinatesToEntityPosition(cell);
         // mesh.sortingOrder = GetSortingOrder(cell);
+        GD.Print($"Moving {movingTarget.Name} to cell {cell} at position {worldPosition}");
         movingTarget.Position = worldPosition;
     }
 
@@ -1505,12 +1505,12 @@ public partial class BattleScene : Node2D
 
         var pointerPosition = GetPointerDownPosition();
 
-//         if (turnEntities.Count() > 0 &&
-// turnEntities.FindAll(turnEntity => turnEntity.disposition == Disposition.Enemy).All(turnEntity => turnEntity.healthPoints == 0))
-//         {
-//             EndBattle();
-//             RefreshTurnOrder();
-//         }
+        //         if (turnEntities.Count() > 0 &&
+        // turnEntities.FindAll(turnEntity => turnEntity.disposition == Disposition.Enemy).All(turnEntity => turnEntity.healthPoints == 0))
+        //         {
+        //             EndBattle();
+        //             RefreshTurnOrder();
+        //         }
 
         if (pointerPosition != null)
         {
@@ -1721,7 +1721,7 @@ public partial class BattleScene : Node2D
                 GD.Print(tile);
                 if (IsInBoundaries(scope.tileMapLayer, scope.tileMapLayer.LocalToMap(point)))
                 {
-                    var entity = player;
+                    var entity = playerEntity;
 
                     var tilemapTargetPosition = cellPos;
 
@@ -1785,7 +1785,7 @@ public partial class BattleScene : Node2D
 
                 if (tile != null)
                 {
-                    var entity = player;
+                    var entity = playerEntity;
 
                     DestroyTargetCells();
                     isMoving = false;
@@ -1818,7 +1818,7 @@ public partial class BattleScene : Node2D
                 validateCastingSkillTargetCell = null;
                 pointerDown = true;
 
-                var entity = player;
+                var entity = playerEntity;
                 DisplayMovementRange(entity);
                 isMoving = true;
             }
@@ -1893,7 +1893,7 @@ public partial class BattleScene : Node2D
                 var tile = GetScopeTileFromWorld(point);
                 if (tile != null)
                 {
-                    var entity = player;
+                    var entity = playerEntity;
 
                     var tilemapTargetPosition = cellPos;
 
@@ -1918,7 +1918,7 @@ public partial class BattleScene : Node2D
                                 entity.disposition = Disposition.Enemy;
                                 return entity;
                             }).ToList();
-                            involvedEntities.Add(player);
+                            involvedEntities.Add(playerEntity);
                             PrepareBattle(involvedEntities);
                             StartBattle();
                         }
@@ -1970,7 +1970,7 @@ public partial class BattleScene : Node2D
                 {
                     var tilePosition = tilemap.LocalToMap(point);
                     DestroyTargetCells();
-                    var entity = player;
+                    var entity = playerEntity;
                     DrawTargetCells((Vector2I)tilePosition, 0, 0, new[] { new MapCell() {
                         kind = CellKind.Empty,
                         isOccupied = false
@@ -1995,7 +1995,7 @@ public partial class BattleScene : Node2D
                 if (tile != null)
                 {
                     DestroyTargetCells();
-                    var entity = player;
+                    var entity = playerEntity;
 
                     isMoving = false;
 
@@ -2240,7 +2240,7 @@ public partial class BattleScene : Node2D
         {
             if (effect.reference == "caster")
             {
-                var entityReference = player;
+                var entityReference = playerEntity;
                 var referencePosition = BattleMap.EntityPositionToCellCoordinates(entityReference.Position);
                 var entityTarget = effect.target;
                 var targetMoveResistance = entityTarget.GetRateFromEffect(Characteristic.MoveResistance);
@@ -2694,7 +2694,7 @@ public partial class BattleScene : Node2D
     private bool pointerDown = false;
     private float pointerDownTimer;
     private readonly float requiredHoldTime = 0.5f;
-    public Dictionary<string, Item> items;
+    public Dictionary<string, DisplayableItem> items;
     private List<LootResult> lootBag = new();
 
     public List<LootResult> GetLoot()
@@ -3297,7 +3297,7 @@ public partial class BattleScene : Node2D
     private Node LoadSection(string name, int index)
     {
         var map = Importer.Import("res://resources/zones/maps/" + name + "-" + index + ".tmx");
-        
+
         map.Name = name + "-" + index;
         GD.Print(map.Name);
         map.GlobalPosition = new Vector2(-1220, -1f);
@@ -3475,24 +3475,25 @@ public partial class BattleScene : Node2D
     {
         foreach (KeyValuePair<string, MapCell> cell in currentSection)
         {
-            if (cell.Value.isOccupied == false || cell.Value.entitySlot != EntitySlot.Entity)
+            if (cell.Value.isOccupied == false || cell.Value.entitySlot != EntitySlot.Entity || cell.Value.metadata["entity"] == "Player")
             {
                 continue;
             }
             var position = GridHelper.StringToVector2I(cell.Key);
-            // LoadEntity(cell.Value.metadata["entity"], position);
+            AddChild(LoadEntity(cell.Value.metadata["entity"], position));
         }
     }
 
-    // private Entity LoadEntity(string entity, Vector2I position)
-    // {
-    //     var entityKind = entity.Split(":");
-    //     var entityObject = Instantiate(Resources.Load<GameObject>("Battle/Prefabs/Entities/skeleton-" + entityKind[0]));
+    private Entity LoadEntity(string entity, Vector2I position)
+    {
+        var entityKind = entity.Split(":");
+        var prefab = GD.Load<PackedScene>($"res://scenes/entities/{entityKind[0]}.tscn");
+        var entityObject = prefab.Instantiate<Entity>();
 
-    //     entityObject.name = entity;
-    //     MoveRendererToCell(entityObject.transform, position);
-    //     return entityObject;
-    // }
+        entityObject.Name = entity;
+        MoveRendererToCell(entityObject, position);
+        return entityObject;
+    }
 
     public Entity GetEntityByName(string name)
     {
@@ -3563,16 +3564,17 @@ public partial class BattleScene : Node2D
                 }
             }
         }
-        skills.Add(new()
-        {
-            label = label,
-            name = skill.name,
-        });
-        gameData.skills = skills.ToArray();
-        gameData.resources = inventory.ToArray();
-        GameDataStorage = gameData;
+        // skills.Add(new()
+        // {
+        //     label = label,
+        //     name = skill.name,
+        // });
+        // gameData.skills = skills.ToArray();
+        // gameData.resources = inventory.ToArray();
+        // GameDataStorage = gameData;
     }
 
+    // Used in inventory, need to move that
     public void SpawnPlayer()
     {
         // var prefab = Resources.Load<GameObject>("Battle/Prefabs/Entities/skeleton-Player");
@@ -3610,7 +3612,7 @@ class BattleMap
 
     public static Vector3 EntityPositionToCellPosition(Vector3 position)
     {
-        return new Vector3(position.X, position.Y, 0);
+        return new Vector3(position.X, position.Y + 64, 0);
     }
 
     public static Vector2I EntityPositionToCellCoordinates(Vector2 position)
@@ -3621,12 +3623,12 @@ class BattleMap
     public static Vector2 CellPositionToEntityPosition(Vector2 position)
     {
         // return new Vector3(position.X, position.Y, Math.Abs(position.Y) / 100);
-        return new Vector2(position.X, position.Y);
+        return new Vector2(position.X + 56, position.Y - 92);
     }
 
     public static Vector2 CellCoordinatesToEntityPosition(Vector2I position)
     {
-        return CellPositionToEntityPosition(tilemap.LocalToMap(position));
+        return CellPositionToEntityPosition(tilemap.MapToLocal(position));
     }
 }
 

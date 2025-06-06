@@ -80,11 +80,8 @@ public partial class SwipeCamera : Camera2D
         {
             if (cameraDragging)
             {
-                var pos = movePosition - (Vector2)dragOrigin;
-                var move = new Vector2(-pos.X * dragSpeed, -pos.Y * dragSpeed);
-                var newPosition = Position + move;
-
-                Position = newPosition;
+                var pos = (movePosition - (Vector2)dragOrigin) * -dragSpeed;
+                Position += pos;
                 dragOrigin = movePosition;
             }
         }

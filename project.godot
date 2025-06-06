@@ -16,9 +16,9 @@ config/features=PackedStringArray("4.3", "C#")
 run/low_processor_mode=true
 config/icon="res://icon.svg"
 
-[autoload]
+[display]
 
-BetterTerrain="*res://addons/better-terrain/BetterTerrain.gd"
+window/stretch/mode="viewport"
 
 [dotnet]
 
@@ -31,6 +31,10 @@ enabled=PackedStringArray("res://addons/swipe-camera/plugin.cfg")
 [global]
 
 batch=false
+
+[gui]
+
+theme/custom="res://new_theme.tres"
 
 [physics]
 

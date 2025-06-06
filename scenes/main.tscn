@@ -10,6 +10,13 @@
 material = SubResource("CanvasItemMaterial_ex28d")
 script = ExtResource("1_p7yh0")
 
+[node name="SwipeCamera" type="Camera2D" parent="."]
+position = Vector2(-4.075, 0)
+offset = Vector2(-1.42, 0.595)
+drag_horizontal_enabled = true
+drag_vertical_enabled = true
+script = ExtResource("3_gpbsr")
+
 [node name="Grid" type="Node2D" parent="."]
 
 [node name="Ground" type="TileMapLayer" parent="Grid"]
@@ -22,10 +29,3 @@ tile_set = ExtResource("2_q5j30")
 
 [node name="Scope" type="TileMapLayer" parent="Grid"]
 tile_set = ExtResource("2_q5j30")
-
-[node name="SwipeCamera" type="Camera2D" parent="."]
-position = Vector2(-4.075, 0)
-offset = Vector2(-1.42, 0.595)
-drag_horizontal_enabled = true
-drag_vertical_enabled = true
-script = ExtResource("3_gpbsr")

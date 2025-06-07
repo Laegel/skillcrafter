@@ -1,6 +1,7 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 
 public class NodeCounter
@@ -287,6 +288,81 @@ public abstract partial class BuilderComponent
 {
     public int key;
     public Node child;
-    public abstract Node Build();
 
+    public Node BuildWithDependencies()
+    {
+        var method = GetType().GetMethod("Build") ?? throw new InvalidOperationException($"Method 'Build' not found in {GetType().Name}");
+        var parameters = method.GetParameters();
+
+        var args = parameters.Select(p => ServiceStorage.Resolve(p.ParameterType)).ToArray();
+
+        return (Node)method.Invoke(this, args);
+    }
+
+    public static implicit operator Node(BuilderComponent component)
+    {
+        return component.BuildWithDependencies();
+    }
+}
+
+public interface IAutoRegisterService { }
+
+[AttributeUsage(AttributeTargets.Class)]
+public class AutoRegisterAttribute : Attribute { }
+
+public static class ServiceStorage
+{
+    private static readonly Dictionary<Type, object> _services = new();
+
+    public static void Register<T>(T service) where T : class
+    {
+        _services[typeof(T)] = service;
+    }
+
+    public static T Resolve<T>() where T : class
+    {
+        if (_services.TryGetValue(typeof(T), out var service))
+        {
+            return service as T;
+        }
+        throw new InvalidOperationException($"Service of type {typeof(T)} is not registered.");
+    }
+
+    public static object Resolve(Type type)
+    {
+        if (_services.TryGetValue(type, out var service))
+        {
+            return service;
+        }
+        throw new InvalidOperationException($"Service of type {type} is not registered.");
+    }
+
+
+    public static void AutoRegisterServices()
+    {
+        // Get all types in the current assembly
+        var types = Assembly.GetExecutingAssembly().GetTypes();
+
+        foreach (var type in types)
+        {
+            // Option 1: Check for marker interface
+            if (typeof(IAutoRegisterService).IsAssignableFrom(type) && !type.IsInterface && !type.IsAbstract)
+            {
+                var instance = Activator.CreateInstance(type);
+                Register(type, instance);
+            }
+
+            // Option 2: Check for custom attribute
+            else if (type.GetCustomAttribute<AutoRegisterAttribute>() != null)
+            {
+                var instance = Activator.CreateInstance(type);
+                Register(type, instance);
+            }
+        }
+    }
+
+    private static void Register(Type type, object instance)
+    {
+        _services[type] = instance;
+    }
 }

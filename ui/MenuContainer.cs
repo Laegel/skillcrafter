@@ -3,7 +3,7 @@ using Godot;
 
 public partial class MenuContainer : BuilderComponent
 {
-    public override Node Build()
+    public Node Build()
     {
         return NodeBuilder.CreateNode(new CanvasLayer
         {
@@ -12,10 +12,10 @@ public partial class MenuContainer : BuilderComponent
             Transform = new Transform2D(1, 0, 0, 1, 0, 0),
         }, NodeBuilder.Match(MenuState.currentMenu, new() {
             { Menus.None, () => new Node()},
-            { Menus.Equipment, () => Wrap(new MenuEquipment().Build(), false)},
-            { Menus.Inventory, () => Wrap(new MenuInventory().Build())},
-            { Menus.Designer, () => Wrap(new MenuDesigner().Build())},
-            { Menus.Map, () => Wrap(new MenuMap().Build())},
+            { Menus.Equipment, () => Wrap(new MenuEquipment(), false)},
+            { Menus.Inventory, () => Wrap(new MenuInventory())},
+            { Menus.Designer, () => Wrap(new MenuDesigner())},
+            { Menus.Map, () => Wrap(new MenuMap())},
         }));
     }
 

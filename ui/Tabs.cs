@@ -14,7 +14,7 @@ public partial class Tabs : BuilderComponent
         currentTab = new(0);
     }
 
-    public override Node Build()
+    public Node Build()
     {
         var marginContainer = new MarginContainer();
         marginContainer.AddThemeConstantOverride("margin_top", 50);

@@ -25,7 +25,7 @@ public partial class ItemComponent : BuilderComponent
         }
     }
 
-    public override Node Build()
+    public Node Build()
     {
         button = new Button()
         {

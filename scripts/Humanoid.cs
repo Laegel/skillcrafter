@@ -66,7 +66,7 @@ public partial class Humanoid : Entity
                 break;
             case GearSlot.Weapon:
                 ChangeClothes("weapon", name);
-                if (name.StartsWith("bow"))
+                if (name != null && name.StartsWith("bow"))
                     ChangeClothes("weapon-extra", "images/bow/bow-string");
                 break;
         }

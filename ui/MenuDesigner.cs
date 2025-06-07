@@ -5,7 +5,7 @@ using Godot;
 
 public partial class MenuDesigner : BuilderComponent
 {
-    public override Node Build()
+    public Node Build()
     {
         var size = DisplayServer.WindowGetSize();
         var items = Storage.Read();
@@ -23,8 +23,8 @@ public partial class MenuDesigner : BuilderComponent
 
         var columnContent = new List<Node>
     {
-        new ConfigurationPanel().Build(),
-        new CostAndResultPanel().Build(),
+        new ConfigurationPanel(),
+        new CostAndResultPanel(),
     };
 
         return NodeBuilder.CreateNode(new VBoxContainer
@@ -37,7 +37,7 @@ public partial class MenuDesigner : BuilderComponent
 
 public partial class ConfigurationPanel : BuilderComponent
 {
-    public override Node Build()
+    public Node Build()
     {
         /*
         Skill name: text
@@ -108,7 +108,7 @@ public partial class ConfigurationPanel : BuilderComponent
 
 public partial class CostAndResultPanel : BuilderComponent
 {
-    public override Node Build()
+    public Node Build()
     {
         /*
         Grid with radii

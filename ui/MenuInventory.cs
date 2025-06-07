@@ -5,7 +5,7 @@ using Godot;
 
 public partial class MenuInventory : BuilderComponent
 {
-    public override Node Build()
+    public Node Build()
     {
         var size = DisplayServer.WindowGetSize();
         var items = Storage.Read();
@@ -28,27 +28,27 @@ public partial class MenuInventory : BuilderComponent
         }, children));
         return NodeBuilder.CreateNode(new Tabs(new() {
             { "gear", makeGrid(items.gear.Select((gear, i) => {
-                return new ItemComponent {
+                return (Node)new ItemComponent {
                     key = i,
                     onLongPress = () => { },
                     borderColor = SCTheme.GetColorByQuality(allGear[gear.name].quality),
                     backgroundImage = ResourceLoader.Load<Texture2D>($"res://images/gear/{BattleScene.GetFullGearPath(allGear[gear.name])}.png"),
-                }.Build();
+                };
             }).ToList()) },
             { "skill", makeGrid(items.skills.Select((skill, i) => {
-                return new ItemComponent {
+                return (Node)new ItemComponent {
                     key = i,
                     onLongPress = () => { },
-                }.Build();
+                };
             }).ToList())  },
             { "resource", makeGrid(items.resources.Select((resource, i) => {
-                return new ItemComponent {
+                return (Node)new ItemComponent {
                     key = i,
                     onLongPress = () => { },
                     backgroundImage = ResourceLoader.Load<Texture2D>($"res://images/resources/{resource.name}.png"),
                     borderColor = SCTheme.GetColorByRarity(allResources[resource.name].rarity),
-                }.Build();
+                };
             }).ToList()) },
-        }).Build());
+        }));
     }
 }

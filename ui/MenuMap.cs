@@ -2,7 +2,7 @@ using Godot;
 
 public partial class MenuMap : BuilderComponent
 {
-    public override Node Build()
+    public Node Build()
     {
         return NodeBuilder.CreateNode(new Control
         {

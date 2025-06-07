@@ -27,7 +27,7 @@ public class MenuState
 public partial class MenuButton : BuilderComponent
 {
     private ReactiveState<bool> isToggled = new(false);
-    public override Node Build()
+    public Node Build()
     {
         var menus = new ReactiveState<List<Menus>>(Enum.GetValues(typeof(Menus)).Cast<Menus>().ToList());
         GD.Print(menus.Value);

@@ -443,8 +443,6 @@ public partial class BattleScene : Node2D
         allGear = GearReader.Get();
         gameData = Storage.Read();
         GD.Print("Done loading data");
-        SkillSlotsState.equipedSkills.Value = gameData.skillSlots.Select(x => x.Value == null ? (null, null) : (new TurnSkillRestrictions() { cooldown = 0 }, allSkills[x.Value.name])).ToList();
-        GearSlotState.equipedGear.Value = gameData.gearSlots;
 
         GD.Print("Creating player character portrait...");
         CreatePlayerCharacterForPortrait();
@@ -505,7 +503,22 @@ public partial class BattleScene : Node2D
                 (playerEntity as Humanoid).SetGear(gearSlot.Key, gearItem.GetGearString());
             }
         }
-        GearSlotState.equipedGear.OnValueChanged += (gearSlots) =>
+
+        LoadUI();
+        GD.Print("Awakening done");
+    }
+
+    private void LoadUI()
+    {
+        ServiceStorage.AutoRegisterServices();
+        var itemFilterState = ServiceStorage.Resolve<ItemFilterState>();
+        var gearSlotState = ServiceStorage.Resolve<GearSlotState>();
+        var skillSlotsState = ServiceStorage.Resolve<SkillSlotsState>();
+
+        skillSlotsState.equipedSkills.Value = gameData.skillSlots.Select(x => x.Value == null ? (null, null) : (new TurnSkillRestrictions() { cooldown = 0 }, allSkills[x.Value.name])).ToList();
+        gearSlotState.equipedGear.Value = gameData.gearSlots;
+
+        gearSlotState.equipedGear.OnValueChanged += (gearSlots) =>
         {
             foreach (var gearSlot in gearSlots)
             {
@@ -520,20 +533,11 @@ public partial class BattleScene : Node2D
                 }
             }
         };
-
-        LoadUI();
-        GD.Print("Awakening done");
-    }
-
-
-
-    private void LoadUI()
-    {
         var battlePanel = new BattlePanel((index) =>
         {
             if (MenuState.currentMenu.Value == Menus.Equipment)
             {
-                ItemFilterState.Set(ItemType.Skill, index);
+                itemFilterState.Set(ItemType.Skill, index);
             }
             else
             {
@@ -545,11 +549,10 @@ public partial class BattleScene : Node2D
                 PressSkillButton((SkillAction)index + 1);
             }
         });
-        AddChild(battlePanel.Build());
+        AddChild(battlePanel);
         var menuContainer = new MenuContainer();
-        AddChild(menuContainer.Build());
-        var menuButton = new MenuButton().Build();
-        AddChild(menuButton);
+        AddChild(menuContainer);
+        AddChild(new MenuButton());
     }
 
     private void Start()

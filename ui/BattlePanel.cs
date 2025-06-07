@@ -32,7 +32,7 @@ public partial class BattlePanel : BuilderComponent
         // }).ToList();
     }
 
-    public override Node Build()
+    public Node Build(SkillSlotsState skillSlotsState)
     {
         var If = NodeBuilder.Show;
         // var M = NodeBuilder.Map;
@@ -131,7 +131,7 @@ public partial class BattlePanel : BuilderComponent
                         gridContainer.AddThemeConstantOverride("v_separation", border);
 
                         return gridContainer;
-                    }, SkillSlotsState.equipedSkills, (item, i) => new ItemComponent
+                    }, skillSlotsState.equipedSkills, (item, i) => new ItemComponent
                     {
                         key = i,
                         onClick = () => onPressSkill(i),
@@ -140,7 +140,7 @@ public partial class BattlePanel : BuilderComponent
                         {
                             Text = item.Item2 != null ? item.Item2.name : "Empty",
                         }
-                    }.Build())
+                    })
                 )
             )
         );

@@ -14,78 +14,40 @@ public enum ItemType
     Skill,
 }
 
-public class ItemFilterState
-{
-    private static string _state;
-
-    public static ItemType Type
-    {
-        get => Enum.Parse<ItemType>(_state.Split(':')[0]);
-        set
-        {
-            var category = Category;
-            var newState = $"{value}:{category}";
-            if (_state != newState)
-            {
-                _state = newState;
-                OnValueChanged?.Invoke();
-            }
-        }
-    }
-
-    public static int Category
-    {
-        get => int.Parse(_state.Split(':')[1]);
-        set
-        {
-            var type = Type;
-            var newState = $"{type}:{value}";
-            if (_state != newState)
-            {
-                _state = newState;
-                OnValueChanged?.Invoke();
-            }
-        }
-    }
-
-    public static void Set(ItemType type, int category)
-    {
-        _state = $"{type}:{category}";
-        OnValueChanged?.Invoke();
-    }
-
-    public static event Action OnValueChanged;
-}
-
 public partial class MenuEquipment : BuilderComponent
 {
-    private Node node;
+    private ItemFilterState _itemFilterState;
+    private GearSlotState _gearSlotState;
+    private SkillSlotsState _skillSlotsState;
+
     private GameData gameData = Storage.Read();
     private Dictionary<string, SkillBlueprint> allSkills = SkillsReader.Get();
     private Dictionary<string, Gear> allGear = GearReader.Get();
     private Dictionary<string, DisplayableItem> allResources = ResourcesReader.Get();
 
     private ReactiveState<List<Node>> itemsToDisplay = new(new());
-    public override Node Build()
+    public Node Build(ItemFilterState itemFilterState, GearSlotState gearSlotState, SkillSlotsState skillSlotsState)
     {
+        _itemFilterState = itemFilterState;
+        _gearSlotState = gearSlotState;
+        _skillSlotsState = skillSlotsState;
         var allGear = GearReader.Get();
         var allResources = ResourcesReader.Get();
         var border = 4;
 
-
         var getGearBySlot = (GearSlot slot) =>
         {
-            return GearSlotState.equipedGear.Value[slot];
+            return gearSlotState.equipedGear.Value[slot];
         };
 
-        ItemFilterState.OnValueChanged += () =>
+        itemFilterState.OnValueChanged += () =>
         {
             itemsToDisplay.Value = GetItemsSection();
         };
 
         var onClick = (GearSlot gearSlot) =>
         {
-            ItemFilterState.Set(ItemType.Gear, (int)gearSlot);
+            itemFilterState.Set(ItemType.Gear, (int)gearSlot);
         };
         Func<GearSlot, Node> getGearItemComponent = (gearSlot) =>
         {
@@ -108,7 +70,7 @@ public partial class MenuEquipment : BuilderComponent
                 itemComponent.borderColor = SCTheme.GetColorByQuality(Quality.Worn);
             }
 
-            return itemComponent.Build();
+            return itemComponent;
         };
 
         var panelsContainer = new GridContainer()
@@ -123,9 +85,9 @@ public partial class MenuEquipment : BuilderComponent
         {
             CustomMinimumSize = new Vector2(SCTheme.GridItemSize, SCTheme.GridItemSize),
         };
-        
+
         var equipmentContainer = NodeBuilder.Map(panelsContainer,
-            GearSlotState.equipedGear.Map((items) =>
+            gearSlotState.equipedGear.Map((items) =>
             {
                 return new List<Node>
                 {
@@ -143,30 +105,29 @@ public partial class MenuEquipment : BuilderComponent
         itemsContainer.AddThemeConstantOverride("h_separation", border);
         itemsContainer.AddThemeConstantOverride("v_separation", border);
 
-        node = NodeBuilder.CreateNode(new VBoxContainer(), equipmentContainer, NodeBuilder.Map(itemsContainer, itemsToDisplay, (item, i) => item));
-        return node;
+        return NodeBuilder.CreateNode(new VBoxContainer(), equipmentContainer, NodeBuilder.Map(itemsContainer, itemsToDisplay, (item, i) => item));
     }
 
     private List<Node> GetItemsSection()
     {
         var items = new List<Node>();
 
-        if ((ItemFilterState.Type == ItemType.Gear && ItemFilterState.Category == (int)GearSlot.Weapon) || ItemFilterState.Type == ItemType.Skill)
+        if ((_itemFilterState.Type == ItemType.Gear && _itemFilterState.Category == (int)GearSlot.Weapon) || _itemFilterState.Type == ItemType.Skill)
         {
             var crossIcon = new ItemComponent
             {
-                onClick = OnItemClick,
+                onClick = () => OnItemClick(),
                 borderColor = SCTheme.GetColorByQuality(Quality.Worn),
                 backgroundImage = GD.Load<Texture2D>("res://images/skills/bareHandedStrike.png"),
             };
-            items.Add(crossIcon.Build());
+            items.Add(crossIcon);
         }
 
-        switch (ItemFilterState.Type)
+        switch (_itemFilterState.Type)
         {
             case ItemType.Gear:
                 foreach (var item in gameData.gear.Where(item =>
-                     (int)allGear[item.name].slot == ItemFilterState.Category))
+                     (int)allGear[item.name].slot == _itemFilterState.Category))
                 {
                     var gear = (Gear)GetItemByName(item.name);
                     var gearNode = NodeBuilder.CreateNode(new ItemComponent
@@ -174,7 +135,7 @@ public partial class MenuEquipment : BuilderComponent
                         borderColor = SCTheme.GetColorByQuality(allGear[gear.name].quality),
                         backgroundImage = GD.Load<Texture2D>($"res://images/gear/{BattleScene.GetFullGearPath(gear)}.png"),
                         onClick = () => OnSelectGear(gear),
-                    }.Build());
+                    });
 
                     items.Add(gearNode);
                 }
@@ -186,7 +147,7 @@ public partial class MenuEquipment : BuilderComponent
                     {
                         onClick = () => OnSelectSkill(skill),
                         // backgroundImage = GD.Load<Texture2D>($"res://images/skills/{skill.name}.png"),
-                    }.Build());
+                    });
 
                     items.Add(skillNode);
 
@@ -242,15 +203,15 @@ public partial class MenuEquipment : BuilderComponent
     // Event handlers
     private void OnItemClick()
     {
-        if (ItemFilterState.Type == ItemType.Gear)
+        if (_itemFilterState.Type == ItemType.Gear)
         {
-            gameData.gearSlots[(GearSlot)ItemFilterState.Category] = null;
-            // BattleScene.SetEquipment("equipment", ItemFilterState.category, null);
-            // BattleScene.SetEquipment("Player", ItemFilterState.category, null);
+            gameData.gearSlots[(GearSlot)_itemFilterState.Category] = null;
+            // BattleScene.SetEquipment("equipment", _itemFilterState.category, null);
+            // BattleScene.SetEquipment("Player", _itemFilterState.category, null);
         }
         else
         {
-            gameData.skillSlots[(int)ItemFilterState.Category] = null;
+            gameData.skillSlots[_itemFilterState.Category] = null;
         }
 
         UpdateGameData();
@@ -258,14 +219,14 @@ public partial class MenuEquipment : BuilderComponent
 
     private void OnSelectSkill(SkillBlueprint skill)
     {
-        SkillSlotsState.Set(ItemFilterState.Category, (new TurnSkillRestrictions(), skill));
+        _skillSlotsState.Set(_itemFilterState.Category, (new TurnSkillRestrictions(), skill));
         UpdateGameData();
     }
 
     private void OnSelectGear(Gear gear)
     {
         var item = GetItemByName(gear.name);
-        GearSlotState.Set((GearSlot)ItemFilterState.Category, gear.name);
+        _gearSlotState.Set((GearSlot)_itemFilterState.Category, gear.name);
         // gameData.gearSlots[ItemFilterState.category] = gear;
         // var gear = gear.type === GearType.Weapon
         //                             ? gear.set + "/" + gear.name

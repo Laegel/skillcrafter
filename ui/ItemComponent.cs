@@ -108,7 +108,7 @@ public partial class ItemComponent : BuilderComponent
                 CustomMinimumSize = new Vector2(SCTheme.GridItemSize - border * 3, SCTheme.GridItemSize - border * 3),
                 ExpandMode = TextureRect.ExpandModeEnum.FitWidthProportional,
                 StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered,
-                MouseFilter = TextureRect.MouseFilterEnum.Ignore,
+                MouseFilter = Control.MouseFilterEnum.Ignore,
             }, child == null ? new Label() {Text = ""} : child)
             )
         );

@@ -13,21 +13,47 @@ public class NodeCounter
     }
 }
 
+public class ShadowReactiveState<N, T> : ReactiveState<N>
+{
+    private readonly ReactiveState<T> _watched;
+    private readonly Func<T, N> _mapFunc;
+    private readonly Func<N, T> _revertMapFunc;
+
+    public ShadowReactiveState(ReactiveState<T> watched, Func<T, N> mapFunc, Func<N, T> revertMapFunc)
+        : base(mapFunc(watched.Value))
+    {
+        _watched = watched;
+        _mapFunc = mapFunc;
+        _revertMapFunc = revertMapFunc;
+
+        _watched.OnValueChanged += (value) =>
+        {
+            base.Value = _mapFunc(value);
+            OnValueChanged?.Invoke(base.Value);
+        };
+    }
+    public override N Value
+    {
+        get => _mapFunc(_watched.Value);
+        set
+        {
+            _watched.Value = _revertMapFunc(value);
+        }
+    }
+}
+
 public class ReactiveState<T>
 {
+
     private T _value;
-    public T Value
+    public virtual T Value
     {
         get => _value;
         set
         {
-            // GD.Print($"Comparing: {value} with {_value}");
-            // if (!DeepEquals(_value, value))
-            // {
-            //     GD.Print($"Updated value!");
-                _value = value;
-                OnValueChanged?.Invoke(_value);
-            // }
+            GD.Print("Changed RS: " + value);
+            _value = value;
+            OnValueChanged?.Invoke(_value);
         }
     }
 
@@ -46,63 +72,20 @@ public class ReactiveState<T>
             mappedValue.Value = mapFunc(newValue);
         };
         return mappedValue;
+        // return new ShadowReactiveState<N, T>(this, mapFunc);
     }
 
-    private bool DeepEquals(object obj1, object obj2)
+    public ReactiveState<N> Bind<N>(Func<T, N> mapFunc, Func<N, T> revertMapFunc)
     {
-        if (obj1 == null || obj2 == null)
-            return obj1 == obj2;
-
-        if (obj1.Equals(obj2))
-            return true;
-
-        var type = obj1.GetType();
-        if (type != obj2.GetType())
-            return false;
-
-        if (type.IsPrimitive || type == typeof(string))
-            return obj1.Equals(obj2);
-
-        foreach (var property in type.GetProperties(BindingFlags.Public | BindingFlags.Instance))
-        {
-            // Skip properties with parameters (e.g., indexers)
-            if (property.GetIndexParameters().Length > 0)
-                continue;
-
-            try
-            {
-                var value1 = property.GetValue(obj1);
-                var value2 = property.GetValue(obj2);
-                if (!DeepEquals(value1, value2))
-                    return false;
-            }
-            catch
-            {
-                // Skip inaccessible properties
-                continue;
-            }
-        }
-
-        foreach (var field in type.GetFields(BindingFlags.Public | BindingFlags.Instance))
-        {
-            try
-            {
-                var value1 = field.GetValue(obj1);
-                var value2 = field.GetValue(obj2);
-                if (!DeepEquals(value1, value2))
-                    return false;
-            }
-            catch
-            {
-                // Skip inaccessible fields
-                continue;
-            }
-        }
-
-        return true;
+        // var mappedValue = new ReactiveState<N>(mapFunc(_value));
+        // OnValueChanged += newValue =>
+        // {
+        //     mappedValue.Value = mapFunc(newValue);
+        // };
+        // return mappedValue;
+        return new ShadowReactiveState<N, T>(this, mapFunc, revertMapFunc);
     }
 }
-
 
 public static class NodeBuilder
 {
@@ -269,6 +252,23 @@ public static class NodeBuilder
         {
             Name = "Match_" + NodeCounter.GetCount()
         };
+        target.OnValueChanged += newValue =>
+        {
+            foreach (var child in parent.GetChildren())
+            {
+                parent.RemoveChild(child);
+            }
+            var newChild = map[target.Value]();
+            AddChild(parent, newChild);
+        };
+
+        var initialChild = map[target.Value]();
+        AddChild(parent, initialChild);
+        return parent;
+    }
+
+    public static Node Match<T>(ReactiveState<T> target, Node parent, Dictionary<T, Func<Node>> map)
+    {
         target.OnValueChanged += newValue =>
         {
             foreach (var child in parent.GetChildren())

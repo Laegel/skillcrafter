@@ -78,8 +78,8 @@
  </layer>
  <objectgroup id="17" name="Obstacles" tintcolor="#267e13"/>
  <objectgroup id="2" name="SectionCells">
-  <object id="35" name="1-2:a" gid="10" x="128" y="768" width="128" height="64"/>
-  <object id="36" name="2-3:a" gid="10" x="64" y="448" width="128" height="64">
+  <object id="35" name="1-2_a" gid="10" x="128" y="768" width="128" height="64"/>
+  <object id="36" name="2-3_a" gid="10" x="64" y="448" width="128" height="64">
    <properties>
     <property name="triggers" value="encounter"/>
    </properties>

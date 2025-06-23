@@ -1,0 +1,8 @@
+{
+  "greeting": "Hello, {name}!",
+  "farewell": "Goodbye, {name}. See you in {days} days.",
+  "item_count": "You have {count} items.",
+  "damage": "[color={elementColor}][img=40x40]res://images/skin/icon-{element}.svg[/img] [b]{min}-{max}[/b][/color]",
+  "range": "Range: {min}-{max}",
+  "targetRadius": "Target Radius: {min}-{max}"
+}

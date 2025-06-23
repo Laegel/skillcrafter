@@ -20,14 +20,15 @@ public partial class MenuEquipment : BuilderComponent
     private GearSlotState _gearSlotState;
     private SkillSlotsState _skillSlotsState;
 
-    private GameData gameData = Storage.Read();
-    private Dictionary<string, SkillBlueprint> allSkills = SkillsReader.Get();
+    private GameData gameData;
+    // private Dictionary<string, SkillBlueprint> allSkills = SkillsReader.Get();
     private Dictionary<string, Gear> allGear = GearReader.Get();
     private Dictionary<string, DisplayableItem> allResources = ResourcesReader.Get();
 
     private ReactiveState<List<Node>> itemsToDisplay = new(new());
-    public Node Build(ItemFilterState itemFilterState, GearSlotState gearSlotState, SkillSlotsState skillSlotsState)
+    public Node Build(ItemFilterState itemFilterState, GearSlotState gearSlotState, SkillSlotsState skillSlotsState, Storage store)
     {
+        gameData = store.GameData;
         _itemFilterState = itemFilterState;
         _gearSlotState = gearSlotState;
         _skillSlotsState = skillSlotsState;
@@ -252,13 +253,13 @@ public partial class MenuEquipment : BuilderComponent
         {
             return allResources[name];
         }
-        else if (allSkills.ContainsKey(name))
-        {
-            return allSkills[name];
-        }
         else if (allGear.ContainsKey(name))
         {
             return allGear[name];
+        }
+        else if (gameData.skills.First(item => item.Name == name) != null)
+        {
+            return gameData.skills.First(item => item.Name == name);
         }
 
         return null;

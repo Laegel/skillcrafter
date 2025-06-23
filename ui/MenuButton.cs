@@ -26,7 +26,7 @@ public class MenuState
 
 public partial class MenuButton : BuilderComponent
 {
-    private ReactiveState<bool> isToggled = new(false);
+    private ReactiveState<bool> isToggled = false;
     public Node Build()
     {
         var menus = new ReactiveState<List<Menus>>(Enum.GetValues(typeof(Menus)).Cast<Menus>().ToList());

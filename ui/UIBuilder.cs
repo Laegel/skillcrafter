@@ -13,13 +13,14 @@ public class NodeCounter
     }
 }
 
-public class ShadowReactiveState<N, T> : ReactiveState<N>
+public class BoundReactiveState<N, T> : ReactiveState<N>
 {
     private readonly ReactiveState<T> _watched;
     private readonly Func<T, N> _mapFunc;
     private readonly Func<N, T> _revertMapFunc;
+    public new event Action<N> OnValueChanged;
 
-    public ShadowReactiveState(ReactiveState<T> watched, Func<T, N> mapFunc, Func<N, T> revertMapFunc)
+    public BoundReactiveState(ReactiveState<T> watched, Func<T, N> mapFunc, Func<N, T> revertMapFunc)
         : base(mapFunc(watched.Value))
     {
         _watched = watched;
@@ -44,14 +45,12 @@ public class ShadowReactiveState<N, T> : ReactiveState<N>
 
 public class ReactiveState<T>
 {
-
     private T _value;
     public virtual T Value
     {
         get => _value;
         set
         {
-            GD.Print("Changed RS: " + value);
             _value = value;
             OnValueChanged?.Invoke(_value);
         }
@@ -72,18 +71,66 @@ public class ReactiveState<T>
             mappedValue.Value = mapFunc(newValue);
         };
         return mappedValue;
-        // return new ShadowReactiveState<N, T>(this, mapFunc);
     }
 
     public ReactiveState<N> Bind<N>(Func<T, N> mapFunc, Func<N, T> revertMapFunc)
     {
-        // var mappedValue = new ReactiveState<N>(mapFunc(_value));
-        // OnValueChanged += newValue =>
-        // {
-        //     mappedValue.Value = mapFunc(newValue);
-        // };
-        // return mappedValue;
-        return new ShadowReactiveState<N, T>(this, mapFunc, revertMapFunc);
+        return new BoundReactiveState<N, T>(this, mapFunc, revertMapFunc);
+    }
+
+    public static ReactiveState<List<N>> Merge<N>(params ReactiveState<N>[] states)
+    {
+        var merged = new ReactiveState<List<N>>(new());
+
+        foreach (var (state, index) in states.Select((x, i) => (x, i)))
+        {
+            state.OnValueChanged += (newValue) =>
+            {
+                var currentMerged = merged.Value;
+                currentMerged[index] = newValue;
+                merged.Value = currentMerged;
+            };
+            merged.Value.Add(state.Value);
+        }
+
+        return merged;
+    }
+
+    public static bool operator ==(ReactiveState<T> reactiveState, T target)
+    {
+        if (reactiveState is null) return false;
+        return EqualityComparer<T>.Default.Equals(reactiveState.Value, target);
+    }
+
+    public static bool operator !=(ReactiveState<T> reactiveState, T target)
+    {
+        return !(reactiveState == target);
+    }
+
+    // Override Equals and GetHashCode for consistency
+    public override bool Equals(object obj)
+    {
+        if (obj is ReactiveState<T> other)
+        {
+            return this == other.Value;
+        }
+        return false;
+    }
+
+    public override int GetHashCode()
+    {
+        return _value?.GetHashCode() ?? 0;
+    }
+
+    public static implicit operator T(ReactiveState<T> reactiveState)
+    {
+        return reactiveState.Value;
+    }
+
+    // Optional: Implicit conversion from T to ReactiveState<T>
+    public static implicit operator ReactiveState<T>(T value)
+    {
+        return new ReactiveState<T>(value);
     }
 }
 
@@ -91,14 +138,7 @@ public static class NodeBuilder
 {
     private static void AddChild(Node parent, Node child)
     {
-        // if (child is BuilderComponent builderComponent)
-        // {
-        //     parent.AddChild(builderComponent.Build());
-        // }
-        // else
-        // {
         parent.AddChild(child);
-        // }
     }
 
     public static Node CreateNode(Node node, params Node[] children)
@@ -121,6 +161,22 @@ public static class NodeBuilder
 
         return node;
 
+    }
+
+    public static Node Watch<T>(Node parent, Func<Node> lazy, params ReactiveState<T>[] states)
+    {
+        var state = ReactiveState<T>.Merge(states);
+        state.OnValueChanged += (x) =>
+        {
+            foreach (var child in parent.GetChildren())
+            {
+                parent.RemoveChild(child);
+            }
+            parent.AddChild(lazy());
+        };
+        parent.AddChild(lazy());
+
+        return parent;
     }
 
 
@@ -286,8 +342,12 @@ public static class NodeBuilder
 }
 public abstract partial class BuilderComponent
 {
-    public int key;
-    public Node child;
+    public int Key;
+    public Node Child;
+
+    public string Name {
+        get => GetType().Name + "-" + NodeCounter.GetCount();
+    }
 
     public Node BuildWithDependencies()
     {

@@ -6,15 +6,17 @@ public partial class Dropdown : OptionButton
 {
     private string[] _items;
     public ReactiveState<int> SelectedItem = new();
+    public Action<int> OnChanged;
 
     public Dropdown()
     {
         ItemSelected += (index) =>
         {
-            if (index >= 0 && index < _items.Length)
-            {
-                SelectedItem.Value = (int)index;
-            }
+            OnChanged((int)index);
+            // if (index >= 0 && index < _items.Length)
+            // {
+            //     SelectedItem.Value = (int)index;
+            // }
         };
     }
 
@@ -49,8 +51,22 @@ public partial class TextInput : LineEdit
     }
 }
 
-public partial class DynamicLabel : Label
+public partial class DynamicLabel : RichTextLabel
 {
+    public DynamicLabel()
+    {
+        BbcodeEnabled = true;
+        FitContent = true;
+    }
+    public int FontSize
+    {
+        get => GetThemeFontSize("normal_font_size");
+        set
+        {
+            AddThemeFontSizeOverride("normal_font_size", value);
+        }
+    }
+
     private ReactiveState<string> _content = new();
 
     public ReactiveState<string> Content
@@ -62,7 +78,7 @@ public partial class DynamicLabel : Label
 
             if (_content != null)
             {
-                Text = _content.Value;
+                Text = _content;
             }
             _content.OnValueChanged += (newValue) =>
             {
@@ -97,6 +113,7 @@ public partial class StabilityBar : BuilderComponent
     {
         var container = new HBoxContainer
         {
+            Name = Name,
             SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
             SizeFlagsVertical = Control.SizeFlags.ShrinkCenter,
             CustomMinimumSize = CustomMinimumSize,
@@ -156,7 +173,6 @@ public partial class StabilityBar : BuilderComponent
 
     private ColorRect CreateBar(Color colorHex, int index)
     {
-        GD.Print(GetValue(index) / 10);
         return new ColorRect
         {
 
@@ -176,8 +192,7 @@ public partial class NumericRangeInput : BuilderComponent
     private ReactiveState<int> _maxValue;
     private ReactiveState<int> _minLimit = new();
     private ReactiveState<int> _maxLimit = new();
-
-    public NumericRangeInput((ReactiveState<int>, ReactiveState<int>) value, int min, int max, Action<(int, int)> onChange)
+    public NumericRangeInput((ReactiveState<int>, ReactiveState<int>) value, int min, int max)
     {
         _minValue = value.Item1;
         _maxValue = value.Item2;
@@ -189,6 +204,7 @@ public partial class NumericRangeInput : BuilderComponent
     {
         var container = new HBoxContainer
         {
+            Name = Name,
             SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
             SizeFlagsVertical = Control.SizeFlags.ExpandFill,
         };
@@ -227,7 +243,7 @@ public partial class NumericInput : BuilderComponent
 
     private void HandleChange(int newValue)
     {
-        if (newValue < _min.Value || newValue > _max.Value)
+        if (newValue < _min || newValue > _max)
         {
             return;
         }
@@ -238,6 +254,7 @@ public partial class NumericInput : BuilderComponent
     {
         var container = new VBoxContainer
         {
+            Name = Name,
             CustomMinimumSize = new Vector2(100, 50),
             SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
             SizeFlagsVertical = Control.SizeFlags.ExpandFill,
@@ -280,7 +297,7 @@ public partial class NumericInput : BuilderComponent
 
         incrementButton.Pressed += () =>
         {
-            HandleChange(_value.Value + 1);
+            HandleChange(_value + 1);
         };
 
         return incrementButton;
@@ -296,7 +313,7 @@ public partial class NumericInput : BuilderComponent
 
         decrementButton.Pressed += () =>
         {
-            HandleChange(_value.Value - 1);
+            HandleChange(_value - 1);
         };
 
         return decrementButton;
@@ -314,4 +331,109 @@ public partial class CallbackButton : Button
         }
     }
 
+}
+
+public partial class CallbackCheckBox : CheckBox
+{
+    public Action<bool> Callback
+    {
+        get => null;
+        set
+        {
+            Pressed += () =>
+            {
+                value(ButtonPressed);
+            };
+        }
+    }
+
+}
+
+public partial class Icon : Sprite2D
+{
+    public Icon()
+    {
+        Scale = new(0.05f, 0.05f);
+    }
+
+    public string Kind
+    {
+        get => null;
+        set
+        {
+            Texture = GD.Load<Texture2D>($"res://images/skin/icon-{value}.svg");
+        }
+    }
+}
+
+public class Gauge : BuilderComponent
+{
+    public ReactiveState<float> Value;
+    public Vector2 CustomMinimumSize;
+    public Color Color;
+
+    public Gauge(ReactiveState<float> value, ReactiveState<Color> color)
+    {
+        Value = value;
+        Color = color;
+    }
+
+    public Node Build()
+    {
+        var container = new Control
+        {
+            Name = Name,
+            SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
+            SizeFlagsVertical = Control.SizeFlags.ShrinkCenter,
+            CustomMinimumSize = CustomMinimumSize,
+        };
+
+        var background = new ColorRect
+        {
+            Color = new Color(0.2f, 0.2f, 0.2f),
+            CustomMinimumSize = container.CustomMinimumSize
+        };
+
+        var emptyBar = new Control()
+        {
+            SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
+            SizeFlagsVertical = Control.SizeFlags.Fill,
+            SizeFlagsStretchRatio = Mathf.Clamp(10 - Value.Value, 0, 1),
+        };
+
+        var foreground = new ColorRect
+        {
+            SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
+            SizeFlagsVertical = Control.SizeFlags.Fill,
+            SizeFlagsStretchRatio = Mathf.Clamp(Value.Value, 0, 1),
+            Color = Color
+        };
+        var foregroundWrapper = NodeBuilder.CreateNode(new HBoxContainer()
+        {
+            CustomMinimumSize = container.CustomMinimumSize,
+        }, foreground, emptyBar
+        );
+
+        Value.OnValueChanged += newValue =>
+        {
+            foreground.SizeFlagsStretchRatio = Mathf.Clamp(newValue, 0, 1);
+            foreground.SizeFlagsStretchRatio = Mathf.Clamp(10 - Value.Value, 0, 1);
+        };
+
+        return NodeBuilder.CreateNode(container, background, foregroundWrapper);
+    }
+}
+
+public partial class VerticalContainer : BuilderComponent
+{
+    public int Separation = 4;
+    public Node Build()
+    {
+        var container = new VBoxContainer()
+        {
+            Name = Name,
+        };
+        container.AddThemeConstantOverride("separation", Separation);
+        return container;
+    }
 }

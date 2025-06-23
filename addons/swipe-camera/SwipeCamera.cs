@@ -56,7 +56,7 @@ class Pointer
 [Tool]
 public partial class SwipeCamera : Camera2D
 {
-    private bool cameraDragging = false;
+    public bool CameraDragging = false;
     private Vector2? dragOrigin;
     public float dragSpeed = 1.5f;
     public override void _Ready()
@@ -69,16 +69,16 @@ public partial class SwipeCamera : Camera2D
         if (Pointer.GetPointerDown(@event, out Vector2 pointerPosition))
         {
             dragOrigin = pointerPosition;
-            cameraDragging = true;
+            CameraDragging = true;
         }
         else if (Pointer.GetPointerUp(@event))
         {
             dragOrigin = null;
-            cameraDragging = false;
+            CameraDragging = false;
         }
         else if (Pointer.GetPointerMove(@event, out Vector2 movePosition))
         {
-            if (cameraDragging)
+            if (CameraDragging)
             {
                 var pos = (movePosition - (Vector2)dragOrigin) * -dragSpeed;
                 Position += pos;

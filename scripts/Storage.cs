@@ -45,9 +45,25 @@ public partial class GameData : GodotObject
     public GameDataBarterOffer[] barterOffers;
 }
 
+[AutoRegister]
 public class Storage
 {
-    public static GameData Read()
+    private GameData _gameData;
+    public GameData GameData {
+        get => _gameData;
+        set
+        {
+            Write(value);
+            _gameData = value;
+        }
+    }
+
+    public Storage()
+    {
+        _gameData = Read();
+    }
+
+    public GameData Read()
     {
         string path = PathForDocumentsFile();
         var env = OS.GetModelName();
@@ -76,15 +92,28 @@ public class Storage
         {
             skills = new SkillBlueprint[] {
                 new() {
-                    name = "test",
-                    cost = new Cost() { ap = 1, mp = 0 },
-                    restrictions = new SkillRestrictions() { cooldown = 0, perTurn = 1, perTarget = 1 },
-                    damages = new Damage[] {
-                        new() { min = 1, max = 2, damageType = DamageType.Direct, element = Element.Neutral },
-                    },
-                    range = new Range() { min = 1, max = 1 },
-                    vision = 0,
-                    targetRadius = new Range() { min = 0, max = 0 },
+                    Name = "bareHandedStrike",
+                    AP = 3,
+                    Cooldown = 1,
+                    Range = new Range() { Min = 1, Max = 1 },
+                    Visibility = true,
+                    TargetRadius = new Range() { Min = 1, Max = 1 },
+                },
+                new() {
+                    Name = "interact",
+                    AP = 3,
+                    Cooldown = 1,
+                    Range = new Range() { Min = 1, Max = 1 },
+                    Visibility = true,
+                    TargetRadius = new Range() { Min = 1, Max = 1 },
+                },
+                new() {
+                    Name = "test",
+                    AP = 1, MP = 0, HP = 0,
+                    Cooldown = 0,
+                    Range = new Range() { Min = 1, Max = 20 },
+                    Visibility = false,
+                    TargetRadius = new Range() { Min = 1, Max = 1 },
                 },
                 // new() { name = "skill1", }
             },
@@ -106,7 +135,7 @@ public class Storage
             skillSlots = new() {
                 {0, new GameDataSkill(){ name = "bareHandedStrike", label = "bareHandedStrike" } },
                 {1, new GameDataSkill(){ name = "interact", label = "interact" } },
-                {2, null },
+                {2, new GameDataSkill(){ name = "test", label = "test" } },
                 {3, null },
                 {4, null },
                 {5, null },
@@ -132,14 +161,14 @@ public class Storage
         };
     }
 
-    public static void Write(GameData data)
+    public void Write(GameData data)
     {
         string path = PathForDocumentsFile();
 
         JSONFile.Write(path, data);
     }
 
-    private static string PathForDocumentsFile()
+    private string PathForDocumentsFile()
     {
         var filename = "strg";
         return Path.Combine("res://", filename);

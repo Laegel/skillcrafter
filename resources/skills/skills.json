@@ -1,50 +1,44 @@
 {
   "skills": [
     {
-      "name": "devWill",
+      "Name": "devWill",
       "description": "",
-      "cost": { "ap": 1, "mp": 0 },
-      "restrictions": {
-        "cooldown": 1,
-        "perTurn": 1,
-        "perTarget": 1
+      "AP": 1,
+      "MP": 0,
+      "Cooldown": 1,
+      "Range": {
+        "Min": 1,
+        "Max": 20
       },
-      "range": {
-        "min": 1,
-        "max": 20
-      },
-      "vision": 0,
-      "targetRadius": {
-        "min": 1,
-        "max": 1
+      "Vsibility": 0,
+      "TargetRadius": {
+        "Min": 1,
+        "Max": 1
       },
       "damages": [
         {
           "element": "Neutral",
-          "min": 100,
-          "max": 101,
+          "Min": 100,
+          "Max": 101,
           "damageType": "Direct",
           "duration": 0
         }
       ],
       "effects": [],
-      "stability": [1, 2, 50]
+      "Stability": [1, 2, 50]
     },
     {
-      "cost": { "ap": 1, "mp": 0 },
-      "restrictions": {
-        "cooldown": 1,
-        "perTurn": 1,
-        "perTarget": 1
+      "AP": 1,
+      "MP": 0,
+      "Cooldown": 1,
+      "Range": {
+        "Min": 1,
+        "Max": 1
       },
-      "range": {
-        "min": 1,
-        "max": 1
-      },
-      "vision": 1,
-      "targetRadius": {
-        "min": 1,
-        "max": 1
+      "Vsibility": 1,
+      "TargetRadius": {
+        "Min": 1,
+        "Max": 1
       },
       "damages": [],
       "movement": {
@@ -54,44 +48,38 @@
       },
       "effect": "Move a target one cell away.",
       "description": "Move a target one cell away.",
-      "name": "shove",
-      "stability": [2, 5, 95]
+      "Name": "shove",
+      "Stability": [2, 5, 95]
     },
     {
-      "cost": { "ap": 1, "mp": 0 },
-      "restrictions": {
-        "cooldown": 1,
-        "perTurn": 6,
-        "perTarget": 1
+      "AP": 1,
+      "MP": 0,
+      "Cooldown": 1,
+      "Range": {
+        "Min": 1,
+        "Max": 1
       },
-      "range": {
-        "min": 1,
-        "max": 1
-      },
-      "vision": 0,
-      "targetRadius": {
-        "min": 1,
-        "max": 1
+      "Vsibility": 0,
+      "TargetRadius": {
+        "Min": 1,
+        "Max": 1
       },
       "damages": [],
       "description": "Interact with an entity or a contraption.",
-      "name": "interact"
+      "Name": "interact"
     },
     {
-      "cost": { "ap": 1, "mp": 1 },
-      "restrictions": {
-        "cooldown": 1,
-        "perTurn": 1,
-        "perTarget": 1
+      "AP": 1,
+      "MP": 1,
+      "Cooldown": 1,
+      "Range": {
+        "Min": 2,
+        "Max": 2
       },
-      "range": {
-        "min": 2,
-        "max": 2
-      },
-      "vision": 1,
-      "targetRadius": {
-        "min": 1,
-        "max": 1
+      "Vsibility": 1,
+      "TargetRadius": {
+        "Min": 1,
+        "Max": 1
       },
       "damages": [],
       "movement": {
@@ -101,24 +89,21 @@
       },
       "effect": "Jump to a target cell.",
       "description": "Jump to a target cell.",
-      "name": "jump",
+      "Name": "jump",
       "ingredients": []
     },
     {
-      "cost": { "ap": 1, "mp": 1 },
-      "restrictions": {
-        "cooldown": 1,
-        "perTurn": 1,
-        "perTarget": 1
+      "AP": 1,
+      "MP": 1,
+      "Cooldown": 1,
+      "Range": {
+        "Min": 2,
+        "Max": 2
       },
-      "range": {
-        "min": 2,
-        "max": 2
-      },
-      "vision": 0,
-      "targetRadius": {
-        "min": 1,
-        "max": 1
+      "Vsibility": 0,
+      "TargetRadius": {
+        "Min": 1,
+        "Max": 1
       },
       "damages": [],
       "movement": {
@@ -128,31 +113,28 @@
       },
       "effect": "",
       "description": "Teleport to a target cell.",
-      "name": "teleport",
+      "Name": "teleport",
       "ingredients": [],
       "unlockedBy": "jump"
     },
     {
-      "cost": { "ap": 1, "mp": 1 },
-      "restrictions": {
-        "cooldown": 1,
-        "perTurn": 1,
-        "perTarget": 1
+      "AP": 1,
+      "MP": 1,
+      "Cooldown": 1,
+      "Range": {
+        "Min": 2,
+        "Max": 2
       },
-      "range": {
-        "min": 2,
-        "max": 2
-      },
-      "vision": 1,
-      "targetRadius": {
-        "min": 1,
-        "max": 1
+      "Vsibility": 1,
+      "TargetRadius": {
+        "Min": 1,
+        "Max": 1
       },
       "damages": [
         {
           "element": "Neutral",
-          "min": 4,
-          "max": 10,
+          "Min": 4,
+          "Max": 10,
           "damageType": "Direct",
           "duration": 0
         }
@@ -164,30 +146,27 @@
       },
       "effect": "",
       "description": "Jump to a target cell and deal damage to adjacent entities.",
-      "name": "airStrike",
+      "Name": "airStrike",
       "ingredients": [],
       "unlockedBy": "jump"
     },
     {
-      "cost": { "ap": 3, "mp": 0 },
-      "restrictions": {
-        "cooldown": 1,
-        "perTurn": 1,
-        "perTarget": 1
+      "AP": 3,
+      "MP": 0,
+      "Cooldown": 1,
+      "Range": {
+        "Min": 1,
+        "Max": 3
       },
-      "range": {
-        "min": 1,
-        "max": 3
-      },
-      "vision": 1,
-      "targetRadius": {
-        "min": 1,
-        "max": 1
+      "Vsibility": 1,
+      "TargetRadius": {
+        "Min": 1,
+        "Max": 1
       },
       "damages": [
         {
-          "min": 1,
-          "max": 10,
+          "Min": 1,
+          "Max": 10,
           "element": "Fire",
           "damageType": "Direct",
           "duration": 0
@@ -195,36 +174,33 @@
       ],
       "effects": [
         {
-          "name": "Burning",
+          "Name": "Burning",
           "rate": 10
         }
       ],
       "surface": "Fire",
       "description": "Cast a bolt of fire to a target.",
-      "name": "fireBolt",
+      "Name": "fireBolt",
       "ingredients": [],
-      "stability": [2, 5, 95]
+      "Stability": [2, 5, 95]
     },
     {
-      "cost": { "ap": 3, "mp": 0 },
-      "restrictions": {
-        "cooldown": 1,
-        "perTurn": 1,
-        "perTarget": 1
+      "AP": 3,
+      "MP": 0,
+      "Cooldown": 1,
+      "Range": {
+        "Min": 1,
+        "Max": 4
       },
-      "range": {
-        "min": 1,
-        "max": 4
-      },
-      "vision": 1,
-      "targetRadius": {
-        "min": 1,
-        "max": 2
+      "Vsibility": 1,
+      "TargetRadius": {
+        "Min": 1,
+        "Max": 2
       },
       "damages": [
         {
-          "min": 1,
-          "max": 10,
+          "Min": 1,
+          "Max": 10,
           "element": "Fire",
           "damageType": "Direct",
           "duration": 0
@@ -232,37 +208,34 @@
       ],
       "effects": [
         {
-          "name": "Burning",
+          "Name": "Burning",
           "rate": 10
         }
       ],
       "surface": "Fire",
       "description": "Cast a fireball to a target.",
-      "name": "fireball",
+      "Name": "fireball",
       "unlockedBy": "fireBolt",
       "ingredients": [],
-      "stability": [2, 5, 95]
+      "Stability": [2, 5, 95]
     },
     {
-      "cost": { "ap": 3, "mp": 0 },
-      "restrictions": {
-        "cooldown": 1,
-        "perTurn": 1,
-        "perTarget": 1
+      "AP": 3,
+      "MP": 0,
+      "Cooldown": 1,
+      "Range": {
+        "Min": 1,
+        "Max": 1
       },
-      "range": {
-        "min": 1,
-        "max": 1
-      },
-      "vision": 1,
-      "targetRadius": {
-        "min": 1,
-        "max": 1
+      "Vsibility": 1,
+      "TargetRadius": {
+        "Min": 1,
+        "Max": 1
       },
       "damages": [
         {
-          "min": 1,
-          "max": 10,
+          "Min": 1,
+          "Max": 10,
           "element": "Neutral",
           "damageType": "Direct",
           "duration": 0
@@ -270,29 +243,26 @@
       ],
       "effects": [],
       "description": "Perform bare-handed a melee attack.",
-      "name": "bareHandedStrike",
-      "stability": [2, 5, 95]
+      "Name": "bareHandedStrike",
+      "Stability": [2, 5, 95]
     },
     {
-      "cost": { "ap": 3, "mp": 0 },
-      "restrictions": {
-        "cooldown": 1,
-        "perTurn": 1,
-        "perTarget": 1
+      "AP": 3,
+      "MP": 0,
+      "Cooldown": 1,
+      "Range": {
+        "Min": 1,
+        "Max": 1
       },
-      "range": {
-        "min": 1,
-        "max": 1
-      },
-      "vision": 1,
-      "targetRadius": {
-        "min": 1,
-        "max": 1
+      "Vsibility": 1,
+      "TargetRadius": {
+        "Min": 1,
+        "Max": 1
       },
       "damages": [
         {
-          "min": 5,
-          "max": 10,
+          "Min": 5,
+          "Max": 10,
           "element": "Neutral",
           "damageType": "Direct",
           "duration": 0
@@ -300,59 +270,53 @@
       ],
       "effects": [],
       "description": "Perform a melee attack with equipped dagger.",
-      "name": "daggerStrike",
-      "stability": [2, 5, 95]
+      "Name": "daggerStrike",
+      "Stability": [2, 5, 95]
     },
     {
-      "cost": { "ap": 3, "mp": 0 },
-      "restrictions": {
-        "cooldown": 1,
-        "perTurn": 1,
-        "perTarget": 1
+      "AP": 3,
+      "MP": 0,
+      "Cooldown": 1,
+      "Range": {
+        "Min": 1,
+        "Max": 5
       },
-      "range": {
-        "min": 1,
-        "max": 5
-      },
-      "vision": 1,
-      "targetRadius": {
-        "min": 1,
-        "max": 1
+      "Vsibility": 1,
+      "TargetRadius": {
+        "Min": 1,
+        "Max": 1
       },
       "damages": [
         {
-          "min": 1,
-          "max": 10,
+          "Min": 1,
+          "Max": 10,
           "element": "Neutral",
           "damageType": "Direct",
           "duration": 0
         }
       ],
       "effects": [],
-      "description": "Perform a ranged attack with the equipped bow.",
-      "name": "bowStrike",
-      "stability": [2, 5, 95]
+      "description": "Perform a Ranged attack with the equipped bow.",
+      "Name": "bowStrike",
+      "Stability": [2, 5, 95]
     },
     {
-      "cost": { "ap": 3, "mp": 0 },
-      "restrictions": {
-        "cooldown": 1,
-        "perTurn": 1,
-        "perTarget": 1
+      "AP": 3,
+      "MP": 0,
+      "Cooldown": 1,
+      "Range": {
+        "Min": 1,
+        "Max": 1
       },
-      "range": {
-        "min": 1,
-        "max": 1
-      },
-      "vision": 1,
-      "targetRadius": {
-        "min": 1,
-        "max": 1
+      "Vsibility": 1,
+      "TargetRadius": {
+        "Min": 1,
+        "Max": 1
       },
       "damages": [
         {
-          "min": 1,
-          "max": 10,
+          "Min": 1,
+          "Max": 10,
           "element": "Fire",
           "damageType": "Direct",
           "duration": 0
@@ -360,35 +324,32 @@
       ],
       "effects": [
         {
-          "name": "Burning",
+          "Name": "Burning",
           "rate": 30
         }
       ],
-      "description": "Burn a close-ranged target.",
-      "name": "burningTouch",
+      "description": "Burn a close-Ranged target.",
+      "Name": "burningTouch",
       "ingredients": [],
-      "stability": [2, 5, 95]
+      "Stability": [2, 5, 95]
     },
     {
-      "cost": { "ap": 3, "mp": 0 },
-      "restrictions": {
-        "cooldown": 1,
-        "perTurn": 1,
-        "perTarget": 1
+      "AP": 3,
+      "MP": 0,
+      "Cooldown": 1,
+      "Range": {
+        "Min": 1,
+        "Max": 1
       },
-      "range": {
-        "min": 1,
-        "max": 1
-      },
-      "vision": 1,
-      "targetRadius": {
-        "min": 1,
-        "max": 1
+      "Vsibility": 1,
+      "TargetRadius": {
+        "Min": 1,
+        "Max": 1
       },
       "damages": [
         {
-          "min": 1,
-          "max": 10,
+          "Min": 1,
+          "Max": 10,
           "element": "Ice",
           "damageType": "Direct",
           "duration": 0
@@ -396,59 +357,53 @@
       ],
       "effects": [
         {
-          "name": "Burning",
+          "Name": "Burning",
           "rate": 30
         }
       ],
-      "description": "Burn a close-ranged target.",
-      "name": "iceBurningTouch",
+      "description": "Burn a close-Ranged target.",
+      "Name": "iceBurningTouch",
       "ingredients": [],
       "unlockedBy": "burningTouch",
-      "stability": [2, 5, 95]
+      "Stability": [2, 5, 95]
     },
     {
-      "cost": { "ap": 2, "mp": 0 },
-      "restrictions": {
-        "cooldown": 1,
-        "perTurn": 1,
-        "perTarget": 1
+      "AP": 2,
+      "MP": 0,
+      "Cooldown": 1,
+      "Range": {
+        "Min": 1,
+        "Max": 5
       },
-      "range": {
-        "min": 1,
-        "max": 5
-      },
-      "vision": 1,
-      "targetRadius": {
-        "min": 1,
-        "max": 1
+      "Vsibility": 1,
+      "TargetRadius": {
+        "Min": 1,
+        "Max": 1
       },
       "damages": [],
       "surface": "Water",
       "effect": "Create a water pool at the given cell.",
       "description": "Cast a water drop to a target.",
-      "name": "waterDrop",
+      "Name": "waterDrop",
       "ingredients": []
     },
     {
-      "cost": { "ap": 2, "mp": 0 },
-      "restrictions": {
-        "cooldown": 1,
-        "perTurn": 1,
-        "perTarget": 1
+      "AP": 2,
+      "MP": 0,
+      "Cooldown": 1,
+      "Range": {
+        "Min": 1,
+        "Max": 5
       },
-      "range": {
-        "min": 1,
-        "max": 5
-      },
-      "vision": 1,
-      "targetRadius": {
-        "min": 1,
-        "max": 1
+      "Vsibility": 1,
+      "TargetRadius": {
+        "Min": 1,
+        "Max": 1
       },
       "damages": [
         {
-          "min": 2,
-          "max": 7,
+          "Min": 2,
+          "Max": 7,
           "element": "Water",
           "damageType": "Direct",
           "duration": 0
@@ -456,31 +411,28 @@
       ],
       "effect": "Create a water pool at the given cell.",
       "description": "Create a water pool at the given cell.",
-      "name": "waterCannon",
+      "Name": "waterCannon",
       "unlockedBy": "waterDrop",
       "ingredients": [],
-      "stability": [2, 5, 95]
+      "Stability": [2, 5, 95]
     },
     {
-      "cost": { "ap": 3, "mp": 0 },
-      "restrictions": {
-        "cooldown": 1,
-        "perTurn": 1,
-        "perTarget": 1
+      "AP": 3,
+      "MP": 0,
+      "Cooldown": 1,
+      "Range": {
+        "Min": 1,
+        "Max": 5
       },
-      "range": {
-        "min": 1,
-        "max": 5
-      },
-      "vision": 1,
-      "targetRadius": {
-        "min": 1,
-        "max": 1
+      "Vsibility": 1,
+      "TargetRadius": {
+        "Min": 1,
+        "Max": 1
       },
       "damages": [
         {
-          "min": 1,
-          "max": 8,
+          "Min": 1,
+          "Max": 8,
           "element": "Ice",
           "damageType": "Direct",
           "duration": 0
@@ -488,31 +440,28 @@
       ],
       "effect": "10% Cold",
       "description": "Shoot an ice shard to a target.",
-      "name": "iceShard",
+      "Name": "iceShard",
       "ingredients": [],
       "unlockedBy": "fireBolt",
-      "stability": [2, 5, 95]
+      "Stability": [2, 5, 95]
     },
     {
-      "cost": { "ap": 3, "mp": 0 },
-      "restrictions": {
-        "cooldown": 2,
-        "perTurn": 1,
-        "perTarget": 1
+      "AP": 3,
+      "MP": 0,
+      "Cooldown": 2,
+      "Range": {
+        "Min": 1,
+        "Max": 1
       },
-      "range": {
-        "min": 1,
-        "max": 1
-      },
-      "vision": 1,
-      "targetRadius": {
-        "min": 1,
-        "max": 1
+      "Vsibility": 1,
+      "TargetRadius": {
+        "Min": 1,
+        "Max": 1
       },
       "damages": [
         {
-          "min": 5,
-          "max": 10,
+          "Min": 5,
+          "Max": 10,
           "element": "Neutral",
           "damageType": "Direct",
           "duration": 0
@@ -520,30 +469,27 @@
       ],
       "effect": "Push a target 1 cell away",
       "description": ".",
-      "name": "headbutt",
+      "Name": "headbutt",
       "ingredients": [],
-      "stability": [2, 5, 95]
+      "Stability": [2, 5, 95]
     },
     {
-      "cost": { "ap": 3, "mp": 0 },
-      "restrictions": {
-        "cooldown": 2,
-        "perTurn": 1,
-        "perTarget": 1
+      "AP": 3,
+      "MP": 0,
+      "Cooldown": 2,
+      "Range": {
+        "Min": 2,
+        "Max": 5
       },
-      "range": {
-        "min": 2,
-        "max": 5
-      },
-      "vision": 0,
-      "targetRadius": {
-        "min": 1,
-        "max": 1
+      "Vsibility": 0,
+      "TargetRadius": {
+        "Min": 1,
+        "Max": 1
       },
       "damages": [
         {
-          "min": 1,
-          "max": 10,
+          "Min": 1,
+          "Max": 10,
           "element": "Curse",
           "damageType": "Direct",
           "duration": 0
@@ -551,32 +497,29 @@
       ],
       "effect": "-",
       "description": "Shoot a cursed arrow to a target.",
-      "name": "spectralArrow",
+      "Name": "spectralArrow",
       "unlockedBy": "poisonDart",
       "weaponRequired": ["bow", "crossbow"],
       "ingredients": [],
-      "stability": [2, 5, 95]
+      "Stability": [2, 5, 95]
     },
     {
-      "cost": { "ap": 4, "mp": 0 },
-      "restrictions": {
-        "cooldown": 3,
-        "perTurn": 1,
-        "perTarget": 1
+      "AP": 4,
+      "MP": 0,
+      "Cooldown": 3,
+      "Range": {
+        "Min": 2,
+        "Max": 5
       },
-      "range": {
-        "min": 2,
-        "max": 5
-      },
-      "vision": 0,
-      "targetRadius": {
-        "min": 0,
-        "max": 2
+      "Vsibility": 0,
+      "TargetRadius": {
+        "Min": 0,
+        "Max": 2
       },
       "damages": [
         {
-          "min": 1,
-          "max": 10,
+          "Min": 1,
+          "Max": 10,
           "element": "Blast",
           "damageType": "Direct",
           "duration": 0
@@ -584,30 +527,27 @@
       ],
       "effect": "-",
       "description": "Throw a hand bomb.",
-      "name": "handBomb",
+      "Name": "handBomb",
       "ingredients": [],
-      "stability": [2, 5, 95]
+      "Stability": [2, 5, 95]
     },
     {
-      "cost": { "ap": 4, "mp": 0 },
-      "restrictions": {
-        "cooldown": 3,
-        "perTurn": 1,
-        "perTarget": 1
+      "AP": 4,
+      "MP": 0,
+      "Cooldown": 3,
+      "Range": {
+        "Min": 2,
+        "Max": 5
       },
-      "range": {
-        "min": 2,
-        "max": 5
-      },
-      "vision": 0,
-      "targetRadius": {
-        "min": 0,
-        "max": 2
+      "Vsibility": 0,
+      "TargetRadius": {
+        "Min": 0,
+        "Max": 2
       },
       "damages": [
         {
-          "min": 1,
-          "max": 10,
+          "Min": 1,
+          "Max": 10,
           "element": "Holy",
           "damageType": "Direct",
           "duration": 0
@@ -615,31 +555,28 @@
       ],
       "effect": "-",
       "description": "Throw a grenade charged with holy energy.",
-      "name": "holyGrenade",
+      "Name": "holyGrenade",
       "ingredients": [],
       "unlockedBy": "handBomb",
-      "stability": [2, 5, 95]
+      "Stability": [2, 5, 95]
     },
     {
-      "cost": { "ap": 4, "mp": 0 },
-      "restrictions": {
-        "cooldown": 2,
-        "perTurn": 1,
-        "perTarget": 1
+      "AP": 4,
+      "MP": 0,
+      "Cooldown": 2,
+      "Range": {
+        "Min": 2,
+        "Max": 6
       },
-      "range": {
-        "min": 2,
-        "max": 6
-      },
-      "vision": 1,
-      "targetRadius": {
-        "min": 1,
-        "max": 1
+      "Vsibility": 1,
+      "TargetRadius": {
+        "Min": 1,
+        "Max": 1
       },
       "damages": [
         {
-          "min": 1,
-          "max": 12,
+          "Min": 1,
+          "Max": 12,
           "element": "Radiating",
           "damageType": "Direct",
           "duration": 0
@@ -647,36 +584,33 @@
       ],
       "effects": [
         {
-          "name": "Shocked",
+          "Name": "Shocked",
           "rate": 25
         }
       ],
       "description": "Cast a bolt of lightning at a target.",
-      "name": "lightningBolt",
+      "Name": "lightningBolt",
       "unlockedBy": "fireBolt",
       "ingredients": [],
-      "stability": [2, 5, 95]
+      "Stability": [2, 5, 95]
     },
     {
-      "cost": { "ap": 2, "mp": 0 },
-      "restrictions": {
-        "cooldown": 1,
-        "perTurn": 1,
-        "perTarget": 1
+      "AP": 2,
+      "MP": 0,
+      "Cooldown": 1,
+      "Range": {
+        "Min": 2,
+        "Max": 4
       },
-      "range": {
-        "min": 2,
-        "max": 4
-      },
-      "vision": 1,
-      "targetRadius": {
-        "min": 1,
-        "max": 1
+      "Vsibility": 1,
+      "TargetRadius": {
+        "Min": 1,
+        "Max": 1
       },
       "damages": [
         {
-          "min": 1,
-          "max": 6,
+          "Min": 1,
+          "Max": 6,
           "element": "Poison",
           "damageType": "Direct",
           "duration": 0
@@ -684,55 +618,49 @@
       ],
       "effect": "25% Poison",
       "description": "Shoot a poisoned dart at a target.",
-      "name": "poisonDart",
+      "Name": "poisonDart",
       "weaponRequired": ["bow", "crossbow"],
       "ingredients": [],
-      "stability": [2, 5, 95]
+      "Stability": [2, 5, 95]
     },
     {
-      "cost": { "ap": 2, "mp": 0 },
-      "restrictions": {
-        "cooldown": 1,
-        "perTurn": 1,
-        "perTarget": 1
+      "AP": 2,
+      "MP": 0,
+      "Cooldown": 1,
+      "Range": {
+        "Min": 1,
+        "Max": 3
       },
-      "range": {
-        "min": 1,
-        "max": 3
-      },
-      "vision": 1,
-      "targetRadius": {
-        "min": 1,
-        "max": 1
+      "Vsibility": 1,
+      "TargetRadius": {
+        "Min": 1,
+        "Max": 1
       },
       "damages": [],
       "effect": "Heal 10% of target's HP",
       "description": "Restore health to a target.",
-      "name": "healingTouch",
+      "Name": "healingTouch",
       "unlockedBy": "burningTouch",
       "ingredients": [],
-      "stability": [2, 5, 95]
+      "Stability": [2, 5, 95]
     },
     {
-      "cost": { "ap": 3, "mp": 0 },
-      "restrictions": {
-        "cooldown": 2,
-        "perTurn": 1,
-        "perTarget": 1
+      "AP": 3,
+      "MP": 0,
+      "Cooldown": 2,
+      "Range": {
+        "Min": 1,
+        "Max": 4
       },
-      "range": {
-        "min": 1,
-        "max": 4
-      },
-      "vision": 1,
-      "targetRadius": {
-        "min": 1,
-        "max": 1
+      "Vsibility": 1,
+      "TargetRadius": {
+        "Min": 1,
+        "Max": 1
       },
       "damages": [
         {
-          "min": 5,
-          "max": 8,
+          "Min": 5,
+          "Max": 8,
           "element": "Curse",
           "damageType": "Direct",
           "duration": 0
@@ -740,30 +668,27 @@
       ],
       "effect": "-",
       "description": "Perform a swift and powerful strike.",
-      "name": "shadowStrike",
+      "Name": "shadowStrike",
       "ingredients": [],
-      "stability": [2, 5, 95]
+      "Stability": [2, 5, 95]
     },
     {
-      "cost": { "ap": 4, "mp": 0 },
-      "restrictions": {
-        "cooldown": 3,
-        "perTurn": 1,
-        "perTarget": 1
+      "AP": 4,
+      "MP": 0,
+      "Cooldown": 3,
+      "Range": {
+        "Min": 1,
+        "Max": 3
       },
-      "range": {
-        "min": 1,
-        "max": 3
-      },
-      "vision": 1,
-      "targetRadius": {
-        "min": 1,
-        "max": 2
+      "Vsibility": 1,
+      "TargetRadius": {
+        "Min": 1,
+        "Max": 2
       },
       "damages": [
         {
-          "min": 2,
-          "max": 6,
+          "Min": 2,
+          "Max": 6,
           "element": "Steam",
           "damageType": "Direct",
           "duration": 0
@@ -771,30 +696,27 @@
       ],
       "effect": "25% Hot",
       "description": "Create an explosion of steam at a target.",
-      "name": "steamExplosion",
+      "Name": "steamExplosion",
       "ingredients": [],
-      "stability": [2, 5, 95]
+      "Stability": [2, 5, 95]
     },
     {
-      "cost": { "ap": 5, "mp": 0 },
-      "restrictions": {
-        "cooldown": 4,
-        "perTurn": 1,
-        "perTarget": 1
+      "AP": 5,
+      "MP": 0,
+      "Cooldown": 4,
+      "Range": {
+        "Min": 0,
+        "Max": 0
       },
-      "range": {
-        "min": 0,
-        "max": 0
-      },
-      "vision": 0,
-      "targetRadius": {
-        "min": 1,
-        "max": 5
+      "Vsibility": 0,
+      "TargetRadius": {
+        "Min": 1,
+        "Max": 5
       },
       "damages": [
         {
-          "min": 1,
-          "max": 10,
+          "Min": 1,
+          "Max": 10,
           "element": "Neutral",
           "damageType": "Direct",
           "duration": 0
@@ -802,37 +724,34 @@
       ],
       "effect": "-",
       "description": "Cause the ground to shake, affecting all targets.",
-      "name": "smashGround",
+      "Name": "smashGround",
       "ingredients": [],
-      "stability": [2, 5, 95]
+      "Stability": [2, 5, 95]
     },
     {
-      "cost": { "ap": 5, "mp": 0 },
-      "restrictions": {
-        "cooldown": 3,
-        "perTurn": 1,
-        "perTarget": 1
+      "AP": 5,
+      "MP": 0,
+      "Cooldown": 3,
+      "Range": {
+        "Min": 2,
+        "Max": 4
       },
-      "range": {
-        "min": 2,
-        "max": 4
-      },
-      "vision": 1,
-      "targetRadius": {
-        "min": 1,
-        "max": 2
+      "Vsibility": 1,
+      "TargetRadius": {
+        "Min": 1,
+        "Max": 2
       },
       "damages": [
         {
-          "min": 2,
-          "max": 6,
+          "Min": 2,
+          "Max": 6,
           "element": "Fire",
           "damageType": "Direct",
           "duration": 0
         },
         {
-          "min": 1,
-          "max": 4,
+          "Min": 1,
+          "Max": 4,
           "element": "Curse",
           "damageType": "Direct",
           "duration": 0
@@ -840,30 +759,27 @@
       ],
       "effect": "10% Burn",
       "description": "Unleash a powerful blast of fire and curse.",
-      "name": "infernoBlast",
+      "Name": "infernoBlast",
       "ingredients": [],
-      "stability": [2, 5, 95]
+      "Stability": [2, 5, 95]
     },
     {
-      "cost": { "ap": 3, "mp": 0 },
-      "restrictions": {
-        "cooldown": 2,
-        "perTurn": 1,
-        "perTarget": 1
+      "AP": 3,
+      "MP": 0,
+      "Cooldown": 2,
+      "Range": {
+        "Min": 1,
+        "Max": 3
       },
-      "range": {
-        "min": 1,
-        "max": 3
-      },
-      "vision": 1,
-      "targetRadius": {
-        "min": 1,
-        "max": 1
+      "Vsibility": 1,
+      "TargetRadius": {
+        "Min": 1,
+        "Max": 1
       },
       "damages": [
         {
-          "min": 1,
-          "max": 4,
+          "Min": 1,
+          "Max": 4,
           "element": "Ice",
           "damageType": "Direct",
           "duration": 0
@@ -871,37 +787,34 @@
       ],
       "effect": "10% Cold",
       "description": "Freeze the target with a chilling touch.",
-      "name": "frostBite",
+      "Name": "frostBite",
       "ingredients": [],
-      "stability": [2, 5, 95]
+      "Stability": [2, 5, 95]
     },
     {
-      "cost": { "ap": 4, "mp": 0 },
-      "restrictions": {
-        "cooldown": 3,
-        "perTurn": 1,
-        "perTarget": 1
+      "AP": 4,
+      "MP": 0,
+      "Cooldown": 3,
+      "Range": {
+        "Min": 1,
+        "Max": 5
       },
-      "range": {
-        "min": 1,
-        "max": 5
-      },
-      "vision": 1,
-      "targetRadius": {
-        "min": 1,
-        "max": 1
+      "Vsibility": 1,
+      "TargetRadius": {
+        "Min": 1,
+        "Max": 1
       },
       "damages": [
         {
-          "min": 2,
-          "max": 8,
+          "Min": 2,
+          "Max": 8,
           "element": "Holy",
           "damageType": "Direct",
           "duration": 0
         },
         {
-          "min": 1,
-          "max": 6,
+          "Min": 1,
+          "Max": 6,
           "element": "Fire",
           "damageType": "Direct",
           "duration": 0
@@ -909,30 +822,27 @@
       ],
       "effect": "15% Burn",
       "description": "Engulf the target in divine flames.",
-      "name": "holyFlames",
+      "Name": "holyFlames",
       "ingredients": [],
-      "stability": [2, 5, 95]
+      "Stability": [2, 5, 95]
     },
     {
-      "cost": { "ap": 4, "mp": 0 },
-      "restrictions": {
-        "cooldown": 2,
-        "perTurn": 1,
-        "perTarget": 1
+      "AP": 4,
+      "MP": 0,
+      "Cooldown": 2,
+      "Range": {
+        "Min": 2,
+        "Max": 5
       },
-      "range": {
-        "min": 2,
-        "max": 5
-      },
-      "vision": 0,
-      "targetRadius": {
-        "min": 1,
-        "max": 2
+      "Vsibility": 0,
+      "TargetRadius": {
+        "Min": 1,
+        "Max": 2
       },
       "damages": [
         {
-          "min": 2,
-          "max": 6,
+          "Min": 2,
+          "Max": 6,
           "element": "Curse",
           "damageType": "Direct",
           "duration": 0
@@ -940,30 +850,27 @@
       ],
       "effect": "20% Curse, 15% Confusion",
       "description": "Create a swirling vortex of darkness and curse.",
-      "name": "shadowNova",
+      "Name": "shadowNova",
       "ingredients": [],
-      "stability": [2, 5, 95]
+      "Stability": [2, 5, 95]
     },
     {
-      "cost": { "ap": 3, "mp": 0 },
-      "restrictions": {
-        "cooldown": 2,
-        "perTurn": 1,
-        "perTarget": 1
+      "AP": 3,
+      "MP": 0,
+      "Cooldown": 2,
+      "Range": {
+        "Min": 2,
+        "Max": 6
       },
-      "range": {
-        "min": 2,
-        "max": 6
-      },
-      "vision": 1,
-      "targetRadius": {
-        "min": 1,
-        "max": 2
+      "Vsibility": 1,
+      "TargetRadius": {
+        "Min": 1,
+        "Max": 2
       },
       "damages": [
         {
-          "min": 1,
-          "max": 6,
+          "Min": 1,
+          "Max": 6,
           "element": "Poison",
           "damageType": "Direct",
           "duration": 0
@@ -971,37 +878,34 @@
       ],
       "effect": "20% Poison",
       "description": "Summon a rain of acid upon the target area.",
-      "name": "acidRain",
+      "Name": "acidRain",
       "ingredients": [],
-      "stability": [2, 5, 95]
+      "Stability": [2, 5, 95]
     },
     {
-      "cost": { "ap": 4, "mp": 0 },
-      "restrictions": {
-        "cooldown": 3,
-        "perTurn": 1,
-        "perTarget": 1
+      "AP": 4,
+      "MP": 0,
+      "Cooldown": 3,
+      "Range": {
+        "Min": 2,
+        "Max": 5
       },
-      "range": {
-        "min": 2,
-        "max": 5
-      },
-      "vision": 0,
-      "targetRadius": {
-        "min": 1,
-        "max": 1
+      "Vsibility": 0,
+      "TargetRadius": {
+        "Min": 1,
+        "Max": 1
       },
       "damages": [
         {
-          "min": 2,
-          "max": 10,
+          "Min": 2,
+          "Max": 10,
           "element": "Holy",
           "damageType": "Direct",
           "duration": 0
         },
         {
-          "min": 1,
-          "max": 6,
+          "Min": 1,
+          "Max": 6,
           "element": "Neutral",
           "damageType": "Direct",
           "duration": 0
@@ -1009,30 +913,27 @@
       ],
       "effect": "15% Burn",
       "description": "Strike the target with radiant energy.",
-      "name": "paladinSmite",
+      "Name": "paladinSmite",
       "ingredients": [],
-      "stability": [2, 5, 95]
+      "Stability": [2, 5, 95]
     },
     {
-      "cost": { "ap": 5, "mp": 0 },
-      "restrictions": {
-        "cooldown": 4,
-        "perTurn": 1,
-        "perTarget": 1
+      "AP": 5,
+      "MP": 0,
+      "Cooldown": 4,
+      "Range": {
+        "Min": 2,
+        "Max": 6
       },
-      "range": {
-        "min": 2,
-        "max": 6
-      },
-      "vision": 1,
-      "targetRadius": {
-        "min": 1,
-        "max": 2
+      "Vsibility": 1,
+      "TargetRadius": {
+        "Min": 1,
+        "Max": 2
       },
       "damages": [
         {
-          "min": 2,
-          "max": 8,
+          "Min": 2,
+          "Max": 8,
           "element": "Radiating",
           "damageType": "Direct",
           "duration": 0
@@ -1040,37 +941,34 @@
       ],
       "effect": "25% Shock",
       "description": "Summon a powerful thunderstorm to strike the area.",
-      "name": "thunderstorm",
+      "Name": "thunderstorm",
       "ingredients": [],
-      "stability": [2, 5, 95]
+      "Stability": [2, 5, 95]
     },
     {
-      "cost": { "ap": 3, "mp": 0 },
-      "restrictions": {
-        "cooldown": 2,
-        "perTurn": 1,
-        "perTarget": 1
+      "AP": 3,
+      "MP": 0,
+      "Cooldown": 2,
+      "Range": {
+        "Min": 1,
+        "Max": 4
       },
-      "range": {
-        "min": 1,
-        "max": 4
-      },
-      "vision": 1,
-      "targetRadius": {
-        "min": 1,
-        "max": 1
+      "Vsibility": 1,
+      "TargetRadius": {
+        "Min": 1,
+        "Max": 1
       },
       "damages": [
         {
-          "min": 2,
-          "max": 6,
+          "Min": 2,
+          "Max": 6,
           "element": "Poison",
           "damageType": "Direct",
           "duration": 0
         },
         {
-          "min": 1,
-          "max": 4,
+          "Min": 1,
+          "Max": 4,
           "element": "Neutral",
           "damageType": "Direct",
           "duration": 0
@@ -1078,30 +976,27 @@
       ],
       "effect": "20% Poison",
       "description": "Deliver a deadly strike that poisons and bleeds.",
-      "name": "venomousStrike",
+      "Name": "venomousStrike",
       "ingredients": [],
-      "stability": [2, 5, 95]
+      "Stability": [2, 5, 95]
     },
     {
-      "cost": { "ap": 3, "mp": 0 },
-      "restrictions": {
-        "cooldown": 2,
-        "perTurn": 1,
-        "perTarget": 1
+      "AP": 3,
+      "MP": 0,
+      "Cooldown": 2,
+      "Range": {
+        "Min": 1,
+        "Max": 1
       },
-      "range": {
-        "min": 1,
-        "max": 1
-      },
-      "vision": 1,
-      "targetRadius": {
-        "min": 1,
-        "max": 1
+      "Vsibility": 1,
+      "TargetRadius": {
+        "Min": 1,
+        "Max": 1
       },
       "damages": [
         {
-          "min": 1,
-          "max": 4,
+          "Min": 1,
+          "Max": 4,
           "element": "Neutral",
           "damageType": "Direct",
           "duration": 0
@@ -1109,31 +1004,28 @@
       ],
       "effect": "",
       "description": "Stab your target. Deal extra damage to low-health entities.",
-      "name": "stab",
+      "Name": "stab",
       "ingredients": [],
       "weaponRequired": ["dagger"],
-      "stability": [2, 5, 95]
+      "Stability": [2, 5, 95]
     },
     {
-      "cost": { "ap": 3, "mp": 0 },
-      "restrictions": {
-        "cooldown": 2,
-        "perTurn": 1,
-        "perTarget": 1
+      "AP": 3,
+      "MP": 0,
+      "Cooldown": 2,
+      "Range": {
+        "Min": 1,
+        "Max": 4
       },
-      "range": {
-        "min": 1,
-        "max": 4
-      },
-      "vision": 1,
-      "targetRadius": {
-        "min": 1,
-        "max": 3
+      "Vsibility": 1,
+      "TargetRadius": {
+        "Min": 1,
+        "Max": 3
       },
       "damages": [
         {
-          "min": 2,
-          "max": 6,
+          "Min": 2,
+          "Max": 6,
           "element": "Water",
           "damageType": "Direct",
           "duration": 0
@@ -1141,29 +1033,26 @@
       ],
       "effect": "-",
       "description": "Turn a liquid pool into tides that smash against enemies.",
-      "name": "tides",
+      "Name": "tides",
       "ingredients": []
     },
     {
-      "cost": { "ap": 6, "mp": 0 },
-      "restrictions": {
-        "cooldown": 4,
-        "perTurn": 1,
-        "perTarget": 1
+      "AP": 6,
+      "MP": 0,
+      "Cooldown": 4,
+      "Range": {
+        "Min": 2,
+        "Max": 6
       },
-      "range": {
-        "min": 2,
-        "max": 6
-      },
-      "vision": 1,
-      "targetRadius": {
-        "min": 1,
-        "max": 3
+      "Vsibility": 1,
+      "TargetRadius": {
+        "Min": 1,
+        "Max": 3
       },
       "damages": [
         {
-          "min": 2,
-          "max": 10,
+          "Min": 2,
+          "Max": 10,
           "element": "Fire",
           "damageType": "Direct",
           "duration": 0
@@ -1171,30 +1060,27 @@
       ],
       "effect": "10% Burn",
       "description": "Summon a rain of fiery meteors to strike the area.",
-      "name": "meteorShower",
+      "Name": "meteorShower",
       "ingredients": [],
-      "stability": [2, 5, 95]
+      "Stability": [2, 5, 95]
     },
     {
-      "cost": { "ap": 5, "mp": 0 },
-      "restrictions": {
-        "cooldown": 3,
-        "perTurn": 1,
-        "perTarget": 1
+      "AP": 5,
+      "MP": 0,
+      "Cooldown": 3,
+      "Range": {
+        "Min": 2,
+        "Max": 5
       },
-      "range": {
-        "min": 2,
-        "max": 5
-      },
-      "vision": 1,
-      "targetRadius": {
-        "min": 1,
-        "max": 3
+      "Vsibility": 1,
+      "TargetRadius": {
+        "Min": 1,
+        "Max": 3
       },
       "damages": [
         {
-          "min": 1,
-          "max": 8,
+          "Min": 1,
+          "Max": 8,
           "element": "Ice",
           "damageType": "Direct",
           "duration": 0
@@ -1202,75 +1088,66 @@
       ],
       "effect": "10% Cold",
       "description": "Create a powerful blizzard that chills the surroundings.",
-      "name": "blizzard",
+      "Name": "blizzard",
       "ingredients": [],
-      "stability": [2, 5, 95]
+      "Stability": [2, 5, 95]
     },
     {
-      "cost": { "ap": 4, "mp": 0 },
-      "restrictions": {
-        "cooldown": 3,
-        "perTurn": 1,
-        "perTarget": 1
+      "AP": 4,
+      "MP": 0,
+      "Cooldown": 3,
+      "Range": {
+        "Min": 2,
+        "Max": 5
       },
-      "range": {
-        "min": 2,
-        "max": 5
-      },
-      "vision": 0,
-      "targetRadius": {
-        "min": 1,
-        "max": 1
+      "Vsibility": 0,
+      "TargetRadius": {
+        "Min": 1,
+        "Max": 1
       },
       "damages": [],
       "effect": "Gain 50% damage reduction",
       "description": "Create a shield of divine energy for protection.",
-      "name": "divineShield",
+      "Name": "divineShield",
       "ingredients": [],
-      "stability": [2, 5, 95]
+      "Stability": [2, 5, 95]
     },
     {
-      "cost": { "ap": 3, "mp": 0 },
-      "restrictions": {
-        "cooldown": 2,
-        "perTurn": 1,
-        "perTarget": 1
+      "AP": 3,
+      "MP": 0,
+      "Cooldown": 2,
+      "Range": {
+        "Min": 1,
+        "Max": 5
       },
-      "range": {
-        "min": 1,
-        "max": 5
-      },
-      "vision": 0,
-      "targetRadius": {
-        "min": 1,
-        "max": 1
+      "Vsibility": 0,
+      "TargetRadius": {
+        "Min": 1,
+        "Max": 1
       },
       "damages": [],
       "effect": "",
       "description": "",
-      "name": "shadowStep",
+      "Name": "shadowStep",
       "ingredients": []
     },
     {
-      "cost": { "ap": 3, "mp": 0 },
-      "restrictions": {
-        "cooldown": 1,
-        "perTurn": 1,
-        "perTarget": 1
+      "AP": 3,
+      "MP": 0,
+      "Cooldown": 1,
+      "Range": {
+        "Min": 1,
+        "Max": 2
       },
-      "range": {
-        "min": 1,
-        "max": 2
-      },
-      "vision": 1,
-      "targetRadius": {
-        "min": 1,
-        "max": 1
+      "Vsibility": 1,
+      "TargetRadius": {
+        "Min": 1,
+        "Max": 1
       },
       "damages": [
         {
-          "min": 5,
-          "max": 8,
+          "Min": 5,
+          "Max": 8,
           "element": "Neutral",
           "damageType": "Direct",
           "duration": 0
@@ -1278,30 +1155,27 @@
       ],
       "effect": "25% Slow",
       "description": "Deliver a powerful blow that slows the target.",
-      "name": "cripplingBlow",
+      "Name": "cripplingBlow",
       "ingredients": [],
-      "stability": [2, 5, 95]
+      "Stability": [2, 5, 95]
     },
     {
-      "cost": { "ap": 4, "mp": 0 },
-      "restrictions": {
-        "cooldown": 2,
-        "perTurn": 1,
-        "perTarget": 1
+      "AP": 4,
+      "MP": 0,
+      "Cooldown": 2,
+      "Range": {
+        "Min": 1,
+        "Max": 3
       },
-      "range": {
-        "min": 1,
-        "max": 3
-      },
-      "vision": 1,
-      "targetRadius": {
-        "min": 1,
-        "max": 2
+      "Vsibility": 1,
+      "TargetRadius": {
+        "Min": 1,
+        "Max": 2
       },
       "damages": [
         {
-          "min": 1,
-          "max": 6,
+          "Min": 1,
+          "Max": 6,
           "element": "Radiating",
           "damageType": "Direct",
           "duration": 0
@@ -1309,30 +1183,27 @@
       ],
       "effect": "15% Shock",
       "description": "Unleash a burst of arcane energy in a target area.",
-      "name": "arcaneExplosion",
+      "Name": "arcaneExplosion",
       "ingredients": [],
-      "stability": [2, 5, 95]
+      "Stability": [2, 5, 95]
     },
     {
-      "cost": { "ap": 5, "mp": 0 },
-      "restrictions": {
-        "cooldown": 3,
-        "perTurn": 1,
-        "perTarget": 1
+      "AP": 5,
+      "MP": 0,
+      "Cooldown": 3,
+      "Range": {
+        "Min": 2,
+        "Max": 6
       },
-      "range": {
-        "min": 2,
-        "max": 6
-      },
-      "vision": 1,
-      "targetRadius": {
-        "min": 1,
-        "max": 1
+      "Vsibility": 1,
+      "TargetRadius": {
+        "Min": 1,
+        "Max": 1
       },
       "damages": [
         {
-          "min": 1,
-          "max": 10,
+          "Min": 1,
+          "Max": 10,
           "element": "Radiating",
           "damageType": "Direct",
           "duration": 0
@@ -1340,30 +1211,27 @@
       ],
       "effect": "20% Shock",
       "description": "Strike a target with lightning that chains to nearby enemies.",
-      "name": "chainLightning",
+      "Name": "chainLightning",
       "ingredients": [],
-      "stability": [2, 5, 95]
+      "Stability": [2, 5, 95]
     },
     {
-      "cost": { "ap": 3, "mp": 0 },
-      "restrictions": {
-        "cooldown": 2,
-        "perTurn": 1,
-        "perTarget": 1
+      "AP": 3,
+      "MP": 0,
+      "Cooldown": 2,
+      "Range": {
+        "Min": 1,
+        "Max": 3
       },
-      "range": {
-        "min": 1,
-        "max": 3
-      },
-      "vision": 1,
-      "targetRadius": {
-        "min": 1,
-        "max": 1
+      "Vsibility": 1,
+      "TargetRadius": {
+        "Min": 1,
+        "Max": 1
       },
       "damages": [
         {
-          "min": 1,
-          "max": 10,
+          "Min": 1,
+          "Max": 10,
           "element": "Neutral",
           "damageType": "Direct",
           "duration": 0
@@ -1371,52 +1239,46 @@
       ],
       "effect": "Heal for the same amount",
       "description": "Drain the life force from a target to heal yourself.",
-      "name": "bloodTheft",
+      "Name": "bloodTheft",
       "ingredients": [],
-      "stability": [2, 5, 95]
+      "Stability": [2, 5, 95]
     },
     {
-      "cost": { "ap": 3, "mp": 0 },
-      "restrictions": {
-        "cooldown": 6,
-        "perTurn": 1,
-        "perTarget": 1
+      "AP": 3,
+      "MP": 0,
+      "Cooldown": 6,
+      "Range": {
+        "Min": 1,
+        "Max": 3
       },
-      "range": {
-        "min": 1,
-        "max": 3
-      },
-      "vision": 1,
-      "targetRadius": {
-        "min": 1,
-        "max": 1
+      "Vsibility": 1,
+      "TargetRadius": {
+        "Min": 1,
+        "Max": 1
       },
       "damages": [],
       "effect": "Create a copy of yourself that lasts 1 turn. You may swap places with the copy.",
       "description": "Create a decoy of yourself.",
-      "name": "decoy",
+      "Name": "decoy",
       "ingredients": []
     },
     {
-      "cost": { "ap": 2, "mp": 0 },
-      "restrictions": {
-        "cooldown": 1,
-        "perTurn": 1,
-        "perTarget": 1
+      "AP": 2,
+      "MP": 0,
+      "Cooldown": 1,
+      "Range": {
+        "Min": 0,
+        "Max": 0
       },
-      "range": {
-        "min": 0,
-        "max": 0
-      },
-      "vision": 1,
-      "targetRadius": {
-        "min": 1,
-        "max": 2
+      "Vsibility": 1,
+      "TargetRadius": {
+        "Min": 1,
+        "Max": 2
       },
       "damages": [
         {
-          "min": 1,
-          "max": 5,
+          "Min": 1,
+          "Max": 5,
           "element": "Poison",
           "damageType": "Direct",
           "duration": 0
@@ -1424,158 +1286,143 @@
       ],
       "effects": [
         {
-          "name": "Poisoned",
+          "Name": "Poisoned",
           "rate": 10
         }
       ],
       "effect": "",
       "description": "",
-      "name": "spores",
-      "stability": [2, 5, 95]
+      "Name": "spores",
+      "Stability": [2, 5, 95]
     },
     {
-      "name": "mandibles",
+      "Name": "mandibles",
       "description": "Use powerful mandibles to crush enemies in close combat.",
-      "cost": { "ap": 6, "mp": 0 },
-      "restrictions": {
-        "cooldown": 0,
-        "perTurn": 0,
-        "perTarget": 0
+      "AP": 6,
+      "MP": 0,
+      "Cooldown": 0,
+      "Range": {
+        "Min": 1,
+        "Max": 1
       },
-      "range": {
-        "min": 1,
-        "max": 1
-      },
-      "vision": 0,
-      "targetRadius": {
-        "min": 1,
-        "max": 1
+      "Vsibility": 0,
+      "TargetRadius": {
+        "Min": 1,
+        "Max": 1
       },
       "damages": [
         {
           "element": "Neutral",
-          "min": 8,
-          "max": 16,
+          "Min": 8,
+          "Max": 16,
           "damageType": "Direct",
           "duration": 0
         }
       ],
       "effects": [],
-      "stability": [2, 5, 95]
+      "Stability": [2, 5, 95]
     },
     {
-      "name": "formicAcid",
-      "description": "Spray formic acid, dealing fiery damage to targets at a moderate range.",
-      "cost": { "ap": 4, "mp": 0 },
-      "restrictions": {
-        "cooldown": 0,
-        "perTurn": 0,
-        "perTarget": 0
+      "Name": "formicAcid",
+      "description": "Spray formic acid, dealing fiery damage to targets at a moderate Range.",
+      "AP": 4,
+      "MP": 0,
+      "Cooldown": 0,
+      "Range": {
+        "Min": 2,
+        "Max": 4
       },
-      "range": {
-        "min": 2,
-        "max": 4
-      },
-      "vision": 1,
-      "targetRadius": {
-        "min": 1,
-        "max": 1
+      "Vsibility": 1,
+      "TargetRadius": {
+        "Min": 1,
+        "Max": 1
       },
       "damages": [
         {
           "element": "Fire",
-          "min": 8,
-          "max": 10,
+          "Min": 8,
+          "Max": 10,
           "damageType": "Direct",
           "duration": 0
         }
       ],
       "effects": [],
-      "stability": [2, 5, 95]
+      "Stability": [2, 5, 95]
     },
     {
-      "name": "claws",
+      "Name": "claws",
       "description": "Use powerful claws to crush enemies in close combat.",
-      "cost": { "ap": 6, "mp": 0 },
-      "restrictions": {
-        "cooldown": 0,
-        "perTurn": 0,
-        "perTarget": 0
+      "AP": 6,
+      "MP": 0,
+      "Cooldown": 0,
+      "Range": {
+        "Min": 1,
+        "Max": 1
       },
-      "range": {
-        "min": 1,
-        "max": 1
-      },
-      "vision": 0,
-      "targetRadius": {
-        "min": 1,
-        "max": 1
+      "Vsibility": 0,
+      "TargetRadius": {
+        "Min": 1,
+        "Max": 1
       },
       "damages": [
         {
           "element": "Neutral",
-          "min": 8,
-          "max": 16,
+          "Min": 8,
+          "Max": 16,
           "damageType": "Direct",
           "duration": 0
         }
       ],
       "effects": [],
-      "stability": [2, 5, 95]
+      "Stability": [2, 5, 95]
     },
     {
-      "name": "bite",
+      "Name": "bite",
       "description": "Bite your target, dealing damage in close combat.",
-      "cost": { "ap": 6, "mp": 0 },
-      "restrictions": {
-        "cooldown": 0,
-        "perTurn": 0,
-        "perTarget": 0
+      "AP": 6,
+      "MP": 0,
+      "Cooldown": 0,
+      "Range": {
+        "Min": 1,
+        "Max": 1
       },
-      "range": {
-        "min": 1,
-        "max": 1
-      },
-      "vision": 0,
-      "targetRadius": {
-        "min": 1,
-        "max": 1
+      "Vsibility": 0,
+      "TargetRadius": {
+        "Min": 1,
+        "Max": 1
       },
       "damages": [
         {
           "element": "Neutral",
-          "min": 4,
-          "max": 10,
+          "Min": 4,
+          "Max": 10,
           "damageType": "Direct",
           "duration": 0
         }
       ],
       "effects": [],
-      "stability": [2, 5, 95]
+      "Stability": [2, 5, 95]
     },
     {
-      "name": "thornWhip",
-      "description": "Deals poison damage with a mid-range whip attack.",
-      "cost": { "ap": 3, "mp": 0 },
-      "restrictions": {
-        "cooldown": 0,
-        "perTurn": 0,
-        "perTarget": 0
+      "Name": "thornWhip",
+      "description": "Deals poison damage with a mid-Range whip attack.",
+      "AP": 3,
+      "MP": 0,
+      "Cooldown": 0,
+      "Range": {
+        "Min": 1,
+        "Max": 5
       },
-      "range": {
-        "min": 1,
-        "max": 5
-      },
-      "vision": 1,
-      "targetRadius": {
-        "min": 1,
-        "max": 1
+      "Vsibility": 1,
+      "TargetRadius": {
+        "Min": 1,
+        "Max": 1
       },
       "damages": [
         {
           "element": "Poison",
-          "min": 4,
-          "max": 10,
+          "Min": 4,
+          "Max": 10,
           "damageType": "Direct",
           "duration": 0
         }
@@ -1583,33 +1430,30 @@
       "effects": [],
       "ingredients": [
         {
-          "name": "treantEssence",
+          "Name": "treantEssence",
           "quantity": 1
         },
         {
-          "name": "rootFibers",
+          "Name": "rootFibers",
           "quantity": 2
         }
       ],
-      "stability": [2, 5, 95]
+      "Stability": [2, 5, 95]
     },
     {
-      "name": "pounce",
+      "Name": "pounce",
       "description": "Jump to a target cell and deal damage to adjacent entities.",
-      "cost": { "ap": 6, "mp": 0 },
-      "restrictions": {
-        "cooldown": 0,
-        "perTurn": 0,
-        "perTarget": 0
+      "AP": 6,
+      "MP": 0,
+      "Cooldown": 0,
+      "Range": {
+        "Min": 2,
+        "Max": 4
       },
-      "range": {
-        "min": 2,
-        "max": 4
-      },
-      "vision": 1,
-      "targetRadius": {
-        "min": 2,
-        "max": 2
+      "Vsibility": 1,
+      "TargetRadius": {
+        "Min": 2,
+        "Max": 2
       },
       "movement": {
         "reference": "targetCell",
@@ -1619,38 +1463,35 @@
       "damages": [
         {
           "element": "Neutral",
-          "min": 4,
-          "max": 10,
+          "Min": 4,
+          "Max": 10,
           "damageType": "Direct",
           "duration": 0
         }
       ],
       "effects": [],
-      "stability": [2, 5, 95]
+      "Stability": [2, 5, 95]
     },
     {
-      "name": "iceZone",
+      "Name": "iceZone",
       "description": "",
-      "cost": { "ap": 6, "mp": 0 },
-      "restrictions": {
-        "cooldown": 1,
-        "perTurn": 1,
-        "perTarget": 1
+      "AP": 6,
+      "MP": 0,
+      "Cooldown": 1,
+      "Range": {
+        "Min": 2,
+        "Max": 10
       },
-      "range": {
-        "min": 2,
-        "max": 10
-      },
-      "vision": 1,
-      "targetRadius": {
-        "min": 1,
-        "max": 4
+      "Vsibility": 1,
+      "TargetRadius": {
+        "Min": 1,
+        "Max": 4
       },
       "damages": [
         {
           "element": "Ice",
-          "min": 4,
-          "max": 10,
+          "Min": 4,
+          "Max": 10,
           "damageType": "Direct",
           "duration": 0
         }
@@ -1658,85 +1499,76 @@
       "effects": [],
       "surface": "Ice",
       "ingredients": [],
-      "stability": [2, 5, 95]
+      "Stability": [2, 5, 95]
     },
     {
-      "name": "reduceBurning",
+      "Name": "reduceBurning",
       "description": "",
-      "cost": { "ap": 6, "mp": 0 },
-      "restrictions": {
-        "cooldown": 1,
-        "perTurn": 1,
-        "perTarget": 1
+      "AP": 6,
+      "MP": 0,
+      "Cooldown": 1,
+      "Range": {
+        "Min": 2,
+        "Max": 10
       },
-      "range": {
-        "min": 2,
-        "max": 10
-      },
-      "vision": 1,
-      "targetRadius": {
-        "min": 1,
-        "max": 4
+      "Vsibility": 1,
+      "TargetRadius": {
+        "Min": 1,
+        "Max": 4
       },
       "damages": [],
       "effects": [],
       "ingredients": [],
-      "stability": [2, 5, 95]
+      "Stability": [2, 5, 95]
     },
     {
-      "name": "soulSiphon1",
+      "Name": "soulSiphon1",
       "description": "",
-      "cost": { "ap": 6, "mp": 0 },
-      "restrictions": {
-        "cooldown": 3,
-        "perTurn": 1,
-        "perTarget": 1
+      "AP": 6,
+      "MP": 0,
+      "Cooldown": 3,
+      "Range": {
+        "Min": 1,
+        "Max": 10
       },
-      "range": {
-        "min": 1,
-        "max": 10
-      },
-      "vision": 1,
-      "targetRadius": {
-        "min": 1,
-        "max": 1
+      "Vsibility": 1,
+      "TargetRadius": {
+        "Min": 1,
+        "Max": 1
       },
       "damages": [
         {
           "element": "Curse",
-          "min": 4,
-          "max": 10,
+          "Min": 4,
+          "Max": 10,
           "damageType": "OverTime",
           "duration": 3
         }
       ],
       "effects": [],
       "ingredients": [],
-      "stability": [2, 5, 95]
+      "Stability": [2, 5, 95]
     },
     {
-      "name": "detect-1",
+      "Name": "detect-1",
       "description": "",
-      "cost": { "ap": 1, "mp": 0 },
-      "restrictions": {
-        "cooldown": 1,
-        "perTurn": 1,
-        "perTarget": 1
+      "AP": 1,
+      "MP": 0,
+      "Cooldown": 1,
+      "Range": {
+        "Min": 0,
+        "Max": 0
       },
-      "range": {
-        "min": 0,
-        "max": 0
-      },
-      "vision": 0,
-      "targetRadius": {
-        "min": 2,
-        "max": 3
+      "Vsibility": 0,
+      "TargetRadius": {
+        "Min": 2,
+        "Max": 3
       },
       "damages": [],
       "effects": [],
       "ingredients": [
         {
-          "name": "rootFibers",
+          "Name": "rootFibers",
           "quantity": 2
         }
       ]

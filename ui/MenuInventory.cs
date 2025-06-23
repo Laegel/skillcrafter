@@ -5,10 +5,10 @@ using Godot;
 
 public partial class MenuInventory : BuilderComponent
 {
-    public Node Build()
+    public Node Build(Storage store)
     {
         var size = DisplayServer.WindowGetSize();
-        var items = Storage.Read();
+        var items = store.Read();
 
         var allGear = GearReader.Get();
         var allResources = ResourcesReader.Get();
@@ -29,7 +29,7 @@ public partial class MenuInventory : BuilderComponent
         return NodeBuilder.CreateNode(new Tabs(new() {
             { "gear", makeGrid(items.gear.Select((gear, i) => {
                 return (Node)new ItemComponent {
-                    key = i,
+                    Key = i,
                     onLongPress = () => { },
                     borderColor = SCTheme.GetColorByQuality(allGear[gear.name].quality),
                     backgroundImage = ResourceLoader.Load<Texture2D>($"res://images/gear/{BattleScene.GetFullGearPath(allGear[gear.name])}.png"),
@@ -37,13 +37,13 @@ public partial class MenuInventory : BuilderComponent
             }).ToList()) },
             { "skill", makeGrid(items.skills.Select((skill, i) => {
                 return (Node)new ItemComponent {
-                    key = i,
+                    Key = i,
                     onLongPress = () => { },
                 };
             }).ToList())  },
             { "resource", makeGrid(items.resources.Select((resource, i) => {
                 return (Node)new ItemComponent {
-                    key = i,
+                    Key = i,
                     onLongPress = () => { },
                     backgroundImage = ResourceLoader.Load<Texture2D>($"res://images/resources/{resource.name}.png"),
                     borderColor = SCTheme.GetColorByRarity(allResources[resource.name].rarity),

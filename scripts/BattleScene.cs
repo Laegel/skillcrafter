@@ -12,6 +12,9 @@ using YATI;
 using Map = System.Collections.Generic.Dictionary<string, MapCell>;
 using TurnOrder = System.Collections.Generic.List<TurnState>;
 
+using CellCoordinates = Godot.Vector2I;
+using Newtonsoft.Json;
+
 public enum EquipmentSlot
 {
     Head,
@@ -70,36 +73,36 @@ public enum Characteristic
 
 public class TurnState
 {
-    public Observer<TurnStatus> turnStatus;
-    public int maxMovementPoints;
-    public int movementPoints;
-    public int maxAbilityPoints;
-    public int abilityPoints;
-    public Entity entity;
-    public Observer<Vector2I> cell;
-    public List<TurnSideEffect> sideEffects;
-    public List<TurnOverTimeEffect> overTimeEffects;
-    public List<(TurnSkillRestrictions, SkillBlueprint)> skills;
+    public ReactiveState<TurnStatus> turnStatus;
+    public int MaxMovementPoints;
+    public int MovementPoints;
+    public int MaxAbilityPoints;
+    public int AbilityPoints;
+    public Entity Entity;
+    public ReactiveState<CellCoordinates> Cell;
+    public List<TurnSideEffect> SideEffects;
+    public List<TurnOverTimeEffect> OverTimeEffects;
+    public List<(TurnSkillRestrictions, SkillBlueprint)> Skills;
 
-    public TurnState(int maxMovementPoints, int maxAbilityPoints, Entity entity, Vector2I cell, List<TurnSideEffect> sideEffects, List<TurnOverTimeEffect> overTimeEffects, List<(TurnSkillRestrictions, SkillBlueprint)> skills)
+    public TurnState(int maxMovementPoints, int maxAbilityPoints, Entity entity, CellCoordinates cell, List<TurnSideEffect> sideEffects, List<TurnOverTimeEffect> overTimeEffects, List<(TurnSkillRestrictions, SkillBlueprint)> skills)
     {
-        this.maxMovementPoints = maxMovementPoints;
-        movementPoints = maxMovementPoints;
-        this.maxAbilityPoints = maxAbilityPoints;
-        abilityPoints = maxAbilityPoints;
-        this.entity = entity;
+        MaxMovementPoints = maxMovementPoints;
+        MovementPoints = maxMovementPoints;
+        MaxAbilityPoints = maxAbilityPoints;
+        AbilityPoints = maxAbilityPoints;
+        Entity = entity;
         turnStatus = new(TurnStatus.Pending);
-        this.cell = new(cell);
-        this.sideEffects = sideEffects;
-        this.overTimeEffects = overTimeEffects;
-        this.skills = skills;
+        Cell = new(cell);
+        SideEffects = sideEffects;
+        OverTimeEffects = overTimeEffects;
+        Skills = skills;
     }
 
     public bool CanCast(SkillBlueprint skill)
     {
-        return skills.Find(item => item.Item2.name == skill.name).Item1.cooldown == 0 &&
-             abilityPoints >= skill.cost.ap &&
-             movementPoints >= skill.cost.mp;
+        return Skills.Find(item => item.Item2.Name == skill.Name).Item1.cooldown == 0 &&
+             AbilityPoints >= skill.AP &&
+             MovementPoints >= skill.MP;
     }
 }
 
@@ -138,48 +141,6 @@ public abstract partial class Contraption : Interactive
 }
 
 
-public class Observer<T>
-{
-    private T value;
-    public Observer(T value)
-    {
-        this.value = value;
-    }
-
-    public T Value
-    {
-        get { return value; }
-        set
-        {
-            var oldValue = this.value;
-            this.value = value;
-            Notify(value, oldValue);
-        }
-    }
-    private List<Action<T, T>> subscribers = new();
-
-
-    public void Subscribe(Action<T, T> subscriber)
-    {
-        subscriber(value, value);
-        subscribers.Add(subscriber);
-    }
-
-
-    public void Unsubscribe(Action<T, T> subscriber)
-    {
-        subscribers.Remove(subscriber);
-    }
-
-    public void Notify(T newValue, T oldValue = default)
-    {
-        foreach (var subscriber in subscribers)
-        {
-            subscriber.Invoke(newValue, oldValue);
-        }
-    }
-}
-
 public class SurfaceStatus
 {
     public Surface surface;
@@ -194,7 +155,7 @@ public enum EntitySlot
 
 public class MapCell
 {
-    public CellKind kind;
+    public CellKind Kind;
     public bool isOccupied = false;
     public SurfaceStatus? surfaceStatus;
     public EntitySlot? entitySlot;
@@ -243,134 +204,35 @@ public partial class BattleScene : Node2D
     [Export] public string command;
     public Entity playerEntity;
     private bool isMoving = false;
-    public SkillAction isCastingSkill = SkillAction.Inactive;
-    public event Action<SkillAction> OnIsCastingSkillChanged;
-    public SkillAction IsCastingSkill
-    {
-        get { return isCastingSkill; }
-        set
-        {
-            isCastingSkill = value;
-            OnIsCastingSkillChanged?.Invoke(isCastingSkill);
-        }
-    }
+    public SkillAction IsCastingSkill = SkillAction.Inactive;
+
 
     public string? focusedInteractive;
-    public event Action<string?> OnFocusedInteractiveChanged;
-    public string? FocusedInteractive
-    {
-        get { return focusedInteractive; }
-        set
-        {
-            focusedInteractive = value;
-            OnFocusedInteractiveChanged?.Invoke(focusedInteractive);
-        }
-    }
 
     private int turnCounter = 0;
     public List<Entity> turnEntities;
     private int turnEntityIndex = 0;
-    public event Action<List<TurnStateOut>> OnTurnOrderChanged;
-    private List<TurnStateOut> turnOrderOut;
+    private TurnOrder TurnOrder;
 
-    public List<TurnStateOut> TurnOrder
-    {
-        get { return turnOrderOut; }
-        set
-        {
-            turnOrderOut = value;
-            OnTurnOrderChanged?.Invoke(turnOrderOut);
-        }
-    }
 
-    private int refresh;
-    public event Action<int> OnRefreshChanged;
-    public int Refresh
-    {
-        get { return refresh; }
-        set
-        {
-            refresh = value;
-            OnRefreshChanged?.Invoke(refresh);
-        }
-    }
 
     private List<(string, Dictionary<string, string>)> logs = new();
-    public event Action<string> OnLogsChanged;
 
-    public List<(string, Dictionary<string, string>)> Logs
-    {
-        get { return logs; }
-        set
-        {
-            logs = value;
-            var output = "[\"" + String.Join("\", \"", logs) + "\"]";
-            OnLogsChanged?.Invoke(output);
-        }
-    }
 
     private Entity currentPlayableEntity;
-    public event Action<Entity> OnCurrentPlayableEntityChanged;
 
-    public Entity CurrentPlayableEntity
-    {
-        get { return currentPlayableEntity; }
-        set
-        {
-            currentPlayableEntity = value;
-            OnCurrentPlayableEntityChanged?.Invoke(currentPlayableEntity);
-        }
-    }
-
-    private List<Entity> playableEntities;
-    public event Action<List<Entity>> OnPlayableEntitiesChanged;
-
-    public List<Entity> PlayableEntities
-    {
-        get { return playableEntities; }
-        set
-        {
-            playableEntities = value;
-            OnPlayableEntitiesChanged?.Invoke(playableEntities);
-        }
-    }
-
-    private (int, int) skillCooldown;
-    public event Action<(int, int)> OnSkillCooldownChanged;
-
-    public (int, int) SkillCooldown
-    {
-        get { return skillCooldown; }
-        set
-        {
-            skillCooldown = value;
-            OnSkillCooldownChanged?.Invoke(skillCooldown);
-        }
-    }
 
     private void AppendLogs(string line, Dictionary<string, string> values)
     {
         logs.Add((line, values));
-        Logs = logs;
     }
 
     // Map
     private TileMapLayer tilemap;
     private TileMapTerrain scope;
     private TileMapTerrain validationScope;
-    public event Action<BattleStatus> OnStatusChanged;
-    public BattleStatus Status
-    {
-        get { return status; }
-        set
-        {
-            status = value;
-            OnStatusChanged?.Invoke(status);
-        }
-    }
-    public BattleStatus status = BattleStatus.Exploring;
+    public ReactiveState<BattleStatus> Status = new(BattleStatus.Exploring);
 
-    public string assetBundlePath = "Assets/StreamingAssets"; // Path to the folder containing AssetBundles
     GameData gameData;
 
     public string map = "";
@@ -378,7 +240,6 @@ public partial class BattleScene : Node2D
     private List<Entity> entities;
     private List<List<Entity>> sectionEntities;
     private List<string> enemyNames;
-    public Dictionary<string, SkillBlueprint> allSkills;
     public Dictionary<string, Gear> allGear;
 
     private Map currentMap = new();
@@ -387,42 +248,24 @@ public partial class BattleScene : Node2D
     private Dictionary<string, Monster> monsters;
     private Dictionary<string, Gear> gear;
     private TurnOrder enemies = new();
-    private float difficulty;
 
-    public readonly MapCell[] skillCommonCells = new[] {  new MapCell(){
-        kind = CellKind.Empty,
+    public readonly MapCell[] SkillCommonCells = new[] {  new MapCell(){
+        Kind = CellKind.Empty,
         isOccupied = true,
     }, new MapCell(){
-        kind = CellKind.Empty,
+        Kind = CellKind.Empty,
         isOccupied = false,
     }, new MapCell(){
-        kind = CellKind.Gap,
+        Kind = CellKind.Gap,
         isOccupied = false,
     }, new MapCell(){
-        kind = CellKind.Contraption,
+        Kind = CellKind.Contraption,
         isOccupied = true,
     } };
 
     private Vector2I? validateCastingSkillTargetCell;
     private Dictionary<string, MapItem> maps;
-    public event Action<GameData> OnGameDataStorageChanged;
-    public GameData GameDataStorage
-    {
-        get
-        {
-            return gameData;
-        }
-        set
-        {
-            GD.Print("Writing to storage");
-            gameData = value;
-            Storage.Write(gameData);
-            OnGameDataStorageChanged?.Invoke(gameData);
-        }
-    }
-
-
-
+    private Storage store;
 
     public override void _Ready()
     {
@@ -439,9 +282,12 @@ public partial class BattleScene : Node2D
         monsters = MonstersReader.Get();
         items = ResourcesReader.Get();
         gear = GearReader.Get();
-        allSkills = SkillsReader.Get();
+        // allSkills = SkillsReader.Get();
         allGear = GearReader.Get();
-        gameData = Storage.Read();
+        ServiceStorage.AutoRegisterServices();
+
+        store = ServiceStorage.Resolve<Storage>();
+        gameData = store.GameData;
         GD.Print("Done loading data");
 
         GD.Print("Creating player character portrait...");
@@ -465,36 +311,19 @@ public partial class BattleScene : Node2D
         enemyNames = currentMapItem.enemies.ToList();
         // enemyPool = currentMapItem.enemies.Select(x => Resources.Load<GameObject>("Battle/Prefabs/Entities/skeleton-" + x)).ToList();
 
-        for (var sectionIndex = 1; sectionIndex < 5; sectionIndex++)
+        for (var sectionIndex = 1; sectionIndex < 3; sectionIndex++)
         {
             var prefix = Zone.Instance.CurrentBattle.Item1 + (Zone.Instance.CurrentBattle.Item2 + 1);
-            LoadSection(prefix, sectionIndex);
-            if (sectionIndex == 1)
-            {
-                GetNode<TileMapLayer>("Grid/Ground").TileSet = GetNode<TileMapLayer>(prefix + "-" + sectionIndex + "/Ground").TileSet;
-            }
-            var newTiles = TilemapExtractor.ExtractTiles(GetNode<Node2D>(prefix + "-" + sectionIndex), GetNode<Node2D>("Grid"), sectionIndex);
-
-            // var linkedSectionCells = GetMapCellsBy(x => x.metadata.ContainsKey("section") && x.metadata["section"] == sectionIndex - 1 + "-" + sectionIndex + ":a");
-            // foreach (var kvp in linkedSectionCells)
-            // {
-            //     var arrow = GetNode("arrow:" + kvp.Key);
-            //     arrow.SetProcess(false);
-            // }
-            SpawnEntities(newTiles);
-            if (sectionIndex == 1)
-            {
-                PreparePlayableEntities(newTiles);
-            }
-
-            foreach (var kvp in newTiles)
-            {
-                if (!currentMap.ContainsKey(kvp.Key) || currentMap[kvp.Key].kind == CellKind.Gap)
-                    currentMap[kvp.Key] = kvp.Value;
-            }
+            MergeNewSection(prefix, sectionIndex);
         }
 
+        AfterPlayerEntityLoaded();
+        LoadUI();
+        GD.Print("Awakening done");
+    }
 
+    private void AfterPlayerEntityLoaded()
+    {
         foreach (var gearSlot in gameData.gearSlots)
         {
             if (gearSlot.Value != null)
@@ -503,19 +332,42 @@ public partial class BattleScene : Node2D
                 (playerEntity as Humanoid).SetGear(gearSlot.Key, gearItem.GetGearString());
             }
         }
+    }
 
-        LoadUI();
-        GD.Print("Awakening done");
+    private void MergeNewSection(string prefix, int sectionIndex)
+    {
+        var section = LoadSection(prefix, sectionIndex);
+        if (sectionIndex == 1)
+        {
+            GetNode<TileMapLayer>("Grid/Ground").TileSet = GetNode<TileMapLayer>(prefix + "-" + sectionIndex + "/Ground").TileSet;
+        }
+        var tiles = TilemapExtractor.ExtractTiles(section, GetNode<Node2D>("Grid"), sectionIndex);
+        SpawnEntities(tiles);
+        if (sectionIndex == 1)
+        {
+            PreparePlayableEntities(tiles);
+        }
+
+        foreach (var kvp in tiles)
+        {
+            if (!currentMap.ContainsKey(kvp.Key) || currentMap[kvp.Key].Kind == CellKind.Gap)
+                currentMap[kvp.Key] = kvp.Value;
+        }
+    }
+
+    private SkillBlueprint GetSkillByName(string name)
+    {
+        return gameData.skills.First(item => item.Name == name);
     }
 
     private void LoadUI()
     {
-        ServiceStorage.AutoRegisterServices();
+        Translation.LoadTranslations("res://translations/en.json");
         var itemFilterState = ServiceStorage.Resolve<ItemFilterState>();
         var gearSlotState = ServiceStorage.Resolve<GearSlotState>();
         var skillSlotsState = ServiceStorage.Resolve<SkillSlotsState>();
 
-        skillSlotsState.equipedSkills.Value = gameData.skillSlots.Select(x => x.Value == null ? (null, null) : (new TurnSkillRestrictions() { cooldown = 0 }, allSkills[x.Value.name])).ToList();
+        skillSlotsState.equipedSkills.Value = gameData.skillSlots.Select(x => x.Value == null ? (null, null) : (new TurnSkillRestrictions() { cooldown = 0 }, GetSkillByName(x.Value.name))).ToList();
         gearSlotState.equipedGear.Value = gameData.gearSlots;
 
         gearSlotState.equipedGear.OnValueChanged += (gearSlots) =>
@@ -533,7 +385,7 @@ public partial class BattleScene : Node2D
                 }
             }
         };
-        var battlePanel = new BattlePanel((index) =>
+        AddChild(new BattlePanel((index) =>
         {
             if (MenuState.currentMenu.Value == Menus.Equipment)
             {
@@ -548,34 +400,19 @@ public partial class BattleScene : Node2D
                 }
                 PressSkillButton((SkillAction)index + 1);
             }
+        }));
+        AddChild(new TurnOrderPanel()
+        {
+            TurnOrder = new(new() {
+                new TurnState(4, 6, playerEntity, playerEntity.OccupiedCells[0], new(), new(), new()),
+                new TurnState(4, 6, playerEntity, playerEntity.OccupiedCells[0], new(), new(), new()),
+            })
         });
-        AddChild(battlePanel);
-        var menuContainer = new MenuContainer();
-        AddChild(menuContainer);
+        AddChild(new MenuContainer());
         AddChild(new MenuButton());
     }
 
-    private void Start()
-    {
-        // nextTickTime = Time.time + tickRate;
 
-    }
-
-
-    public string GetGearPath(Gear item)
-    {
-        string setName = item.set;
-
-        if (item.type != GearType.Weapon)
-        {
-            string folder = GearTypeToFolder(item.type);
-            return $"{folder}/{setName}";
-        }
-        else
-        {
-            return $"{setName}/{item.name}";
-        }
-    }
     public static string GetFullGearPath(Gear item)
     {
         string setName = item.set;
@@ -681,11 +518,11 @@ public partial class BattleScene : Node2D
     public List<(TurnSkillRestrictions, SkillBlueprint)?> SetSkillsFromGear()
     {
         var skills1 = gameData.skillSlots.ToList();
-        var skills = skills1.Select<KeyValuePair<int, GameDataSkill>, (TurnSkillRestrictions, SkillBlueprint)?>(x => x.Value == null ? null : (new TurnSkillRestrictions() { cooldown = 0 }, allSkills[x.Value.name])).ToList();
+        var skills = skills1.Select<KeyValuePair<int, GameDataSkill>, (TurnSkillRestrictions, SkillBlueprint)?>(x => x.Value == null ? null : (new TurnSkillRestrictions() { cooldown = 0 }, GetSkillByName(x.Value.name))).ToList();
         if (gameData.gearSlots.TryGetValue(GearSlot.Weapon, out var weaponName) && weaponName != null)
         {
             var weapon = allGear[weaponName.name];
-            skills[skills.FindIndex((x) => x != null && x.Value.Item2.name == "bareHandedStrike")] = (new TurnSkillRestrictions() { cooldown = 0 }, allSkills[weapon.skills[0]]);
+            // skills[skills.FindIndex((x) => x != null && x.Value.Item2.Name == "bareHandedStrike")] = (new TurnSkillRestrictions() { cooldown = 0 }, GetSkillByName(x.Value.Item2.name));
         }
         return skills;
     }
@@ -775,11 +612,11 @@ public partial class BattleScene : Node2D
         {
             var entity = playerEntity;
 
-            DrawTargetCells(BattleMap.EntityPositionToCellCoordinates(entity.Position), 1, entity.movementPoints, new[] { new MapCell() {
-                kind = CellKind.Empty,
+            DrawTargetCells(entity.OccupiedCells.First(), 1, entity.movementPoints, new[] { new MapCell() {
+                Kind = CellKind.Empty,
                 isOccupied = false
             }, new MapCell() {
-                kind = CellKind.Contraption,
+                Kind = CellKind.Contraption,
                 isOccupied = false
             } }, SCTheme.Movement);
             // StartCoroutine(SetIsMoving(0.2f));
@@ -835,23 +672,6 @@ public partial class BattleScene : Node2D
         DestroyTargetCells();
         DestroyValidationCells();
         RefreshTurnOrder();
-    }
-
-    private Vector2I[] GetNeighborPositions(Vector2I cellPosition)
-    {
-        Vector2I[] neighborPositions = new Vector2I[]
-        {
-            cellPosition + new Vector2I(1, 0),        // Right
-            cellPosition + new Vector2I(-1, 0),       // Left
-            cellPosition + new Vector2I(0, 1),        // Up
-            cellPosition + new Vector2I(0, -1),       // Down
-            cellPosition + new Vector2I(1, -1),     // Top Right
-            cellPosition + new Vector2I(-1, -1),    // Top Left
-            cellPosition + new Vector2I(1, 1),      // Bottom Right
-            cellPosition + new Vector2I(-1, 1)      // Bottom Left
-        };
-
-        return neighborPositions;
     }
 
     private Vector2I[] GetCellsInSquare(Vector2 centerCellPosition, float radius)
@@ -980,6 +800,10 @@ public partial class BattleScene : Node2D
         // validationScope.Modulate = color ?? new Color(1, 1, 1);
 
         var cells = FindReachableCells(position, fromRadius, radius, includableCells);
+        foreach (var cell in cells)
+        {
+            validationScope.PlaceTile(cells, cell);
+        }
         // foreach (var cell in cells)
         // {
         //     validationScope.SetCell(validationScope.MapToLocal(tilemap.LocalToMap(cell)), ruleTile);
@@ -1007,7 +831,7 @@ public partial class BattleScene : Node2D
         {
             DestroyTargetCells();
             IsCastingSkill = SkillAction.Inactive;
-            if (status != BattleStatus.Exploring)
+            if (Status != BattleStatus.Exploring)
             {
                 DisplayMovementRange(playerEntity);
             }
@@ -1019,8 +843,9 @@ public partial class BattleScene : Node2D
         }
         IsCastingSkill = pickedSkill;
 
-        var skillDefinition = playerEntity.skills[(int)pickedSkill - 1].Value.Item2;
-        DrawTargetCells(BattleMap.EntityPositionToCellCoordinates(playerEntity.Position), skillDefinition.range.min, skillDefinition.range.max, GetTargetableCells(skillDefinition), SCTheme.Ability, skillDefinition.vision == 1);
+        var skillSlotsState = ServiceStorage.Resolve<SkillSlotsState>();
+        var skillDefinition = skillSlotsState.equipedSkills.Value[(int)pickedSkill - 1].Item2;
+        DrawTargetCells(playerEntity.OccupiedCells.First(), skillDefinition.Range.Min, skillDefinition.Range.Max, GetTargetableCells(skillDefinition), SCTheme.Ability, skillDefinition.Visibility);
     }
 
     public void PerformMovement(Entity entity, Vector2I[] path, Action onFinish)
@@ -1041,8 +866,18 @@ public partial class BattleScene : Node2D
         return map;
     }
 
-public override void _Input(InputEvent @event)
+    private Vector2? _pointerPosition;
+    public override void _Input(InputEvent @event)
     {
+        if (@event is InputEventScreenTouch touchEvent)
+        {
+            _pointerPosition = touchEvent.Position;
+        }
+        else if (@event is InputEventMouseButton mouseEvent && mouseEvent.ButtonIndex == MouseButton.Left && !mouseEvent.Pressed)
+        {
+            _pointerPosition = mouseEvent.Position;
+        }
+
         if (@event is InputEventKey keyEvent && keyEvent.Pressed)
         {
             if (keyEvent.Keycode == Key.C)
@@ -1050,24 +885,29 @@ public override void _Input(InputEvent @event)
                 var point = GetGlobalMousePosition();
                 var cellPos = tilemap.LocalToMap(point);
                 GD.Print(cellPos);
+                GD.Print(JsonConvert.SerializeObject(ReadMapCell(cellPos)));
             }
             else if (keyEvent.Keycode == Key.D)
             {
-                DisplayInput();
+                var point = GetGlobalMousePosition();
+                var cellPos = tilemap.LocalToMap(point);
+                playerEntity.OccupiedCells = new() { cellPos };
+                MoveRendererToCell(playerEntity, cellPos);
             }
         }
     }
 
     private void DisplayInput()
     {
-        var text = new TextEdit() {
+        var text = new TextEdit()
+        {
             Name = "InputDisplay",
             CustomMinimumSize = new Vector2(100, 50),
         };
         var button = new Button();
         button.Pressed += () =>
         {
-            SendInput();  
+            SendInput();
         };
         AddChild(text);
         AddChild(button);
@@ -1082,17 +922,18 @@ public override void _Input(InputEvent @event)
 
     public void DoMovement(Vector2I[] path, Entity entity, Action onFinish)
     {
-        var previousCell = BattleMap.EntityPositionToCellCoordinates(entity.Position);
+        var previousCell = entity.OccupiedCells.First();
         entity.Move();
 
         foreach (var cell in path)
         {
             entity.LookAt(cell);
+            entity.OccupiedCells = new() { cell };
             MoveRendererToCell(entity, cell);
             var mapCell = ReadMapCell(cell);
             var surface = mapCell.surfaceStatus?.surface;
 
-            if (status != BattleStatus.Exploring)
+            if (Status != BattleStatus.Exploring)
             {
                 entity.movementPoints -= 1;
             }
@@ -1107,25 +948,11 @@ public override void _Input(InputEvent @event)
 
             if (mapCell.metadata.ContainsKey("section"))
             {
-                var chunks = mapCell.metadata["section"].Split(':');
+                var chunks = mapCell.metadata["section"].Split('_');
                 var nextSection = chunks[0].Split('-');
                 if (!IsSectionLoaded(Zone.Instance.CurrentBattle.Item1 + (Zone.Instance.CurrentBattle.Item2 + 1), int.Parse(nextSection[1])))
                 {
-                    var newSection = LoadSection(Zone.Instance.CurrentBattle.Item1 + (Zone.Instance.CurrentBattle.Item2 + 1), int.Parse(nextSection[1]));
-                    var newTiles = TilemapExtractor.ExtractTiles(newSection.GetChild<TileMapLayer>(0), GetNode<TileMapLayer>("Grid"), int.Parse(nextSection[1]));
-                    var linkedSectionCells = GetMapCellsBy(x => x.metadata.ContainsKey("section") && x.metadata["section"] == mapCell.metadata["section"]);
-                    foreach (var kvp in linkedSectionCells)
-                    {
-                        var arrow = GetNode("arrow:" + kvp.Key);
-                        arrow.SetProcess(false);
-                    }
-
-                    SpawnEntities(newTiles);
-                    foreach (var kvp in newTiles)
-                    {
-                        if (!currentMap.ContainsKey(kvp.Key) || currentMap[kvp.Key].kind == CellKind.Gap)
-                            currentMap[kvp.Key] = kvp.Value;
-                    }
+                    MergeNewSection(Zone.Instance.CurrentBattle.Item1 + (Zone.Instance.CurrentBattle.Item2 + 1), int.Parse(nextSection[1]));
 
                     if (mapCell.metadata.ContainsKey("triggers"))
                     {
@@ -1303,7 +1130,7 @@ public override void _Input(InputEvent @event)
         UpdateMapCell(oldCell.X, oldCell.Y, new MapCell()
         {
             isOccupied = false,
-            kind = value.kind,
+            Kind = value.Kind,
             surfaceStatus = value.surfaceStatus,
             metadata = value.metadata,
         });
@@ -1313,7 +1140,7 @@ public override void _Input(InputEvent @event)
         UpdateMapCell(newCell.X, newCell.Y, new MapCell()
         {
             isOccupied = true,
-            kind = value1.kind,
+            Kind = value1.Kind,
             surfaceStatus = value1.surfaceStatus,
             metadata = value1.metadata,
         });
@@ -1346,15 +1173,15 @@ public override void _Input(InputEvent @event)
                                 {"element", "Fire"},
                             });
                             break;
-                        case SideEffect.Poisoned:
-                            var damagePoison = Random.Range(1, 4);
-                            entity.TakeDamage(damagePoison, (int)Element.Poison, false);
-                            AppendLogs("takeDamage", new Dictionary<string, string>() {
-                                {"entity", entity.Name},
-                                {"damage", damagePoison.ToString()},
-                                {"element", "Poison"},
-                            });
-                            break;
+                        // case SideEffect.Poisoned:
+                        //     var damagePoison = Random.Range(1, 4);
+                        //     entity.TakeDamage(damagePoison, (int)Element.Poison, false);
+                        //     AppendLogs("takeDamage", new Dictionary<string, string>() {
+                        //         {"entity", entity.Name},
+                        //         {"damage", damagePoison.ToString()},
+                        //         {"element", "Poison"},
+                        //     });
+                        //     break;
                         default:
                             break;
                     }
@@ -1461,15 +1288,15 @@ public override void _Input(InputEvent @event)
                     {"element", Element.Fire.GetEnumDescription()},
                 });
                 break;
-            case Surface.Poison:
-                var damagePoison = Random.Range(1, 4);
-                entity.TakeDamage(damagePoison, (int)Element.Poison, false);
-                AppendLogs("takeDamage", new Dictionary<string, string>() {
-                    {"entity", entity.Name},
-                    {"damage", damagePoison.ToString()},
-                    {"element", Element.Poison.GetEnumDescription()},
-                });
-                break;
+                // case Surface.Poison:
+                //     var damagePoison = Random.Range(1, 4);
+                //     entity.TakeDamage(damagePoison, (int)Element.Poison, false);
+                //     AppendLogs("takeDamage", new Dictionary<string, string>() {
+                //         {"entity", entity.Name},
+                //         {"damage", damagePoison.ToString()},
+                //         {"element", Element.Poison.GetEnumDescription()},
+                //     });
+                //     break;
         }
     }
 
@@ -1509,23 +1336,26 @@ public override void _Input(InputEvent @event)
         //     return;
         // }
 
-
-
-        var pointerPosition = GetPointerDownPosition();
-
-        //         if (turnEntities.Count() > 0 &&
-        // turnEntities.FindAll(turnEntity => turnEntity.disposition == Disposition.Enemy).All(turnEntity => turnEntity.healthPoints == 0))
-        //         {
-        //             EndBattle();
-        //             RefreshTurnOrder();
-        //         }
-
-        if (pointerPosition != null)
+        if (MenuState.currentMenu != Menus.None)
         {
-            DoStuff(pointerPosition);
+            return;
         }
 
-        if (status == BattleStatus.Exploring)
+        //         if (turnEntities.Count() > 0 &&
+            // turnEntities.FindAll(turnEntity => turnEntity.disposition == Disposition.Enemy).All(turnEntity => turnEntity.healthPoints == 0))
+            //         {
+            //             EndBattle();
+            //             RefreshTurnOrder();
+            //         }
+
+            if (_pointerPosition != null)
+            {
+                var position = _pointerPosition;
+                _pointerPosition = null;
+                DoStuff(position);
+            }
+
+        if (Status == BattleStatus.Exploring)
         {
 
             // if (Time.time >= nextTickTime)
@@ -1537,7 +1367,7 @@ public override void _Input(InputEvent @event)
             // }
         }
 
-        if (status != BattleStatus.Ongoing)
+        if (Status != BattleStatus.Ongoing)
         {
             return;
         }
@@ -1710,9 +1540,9 @@ public override void _Input(InputEvent @event)
 
 
 
-        if (pointerPosition != null)
+        if (_pointerPosition != null)
         {
-            FocusedInteractive = null;
+            focusedInteractive = null;
             if (IsCastingSkill != SkillAction.Inactive)
             {
 
@@ -1745,7 +1575,7 @@ public override void _Input(InputEvent @event)
                         CastSkill(entity, pickedSkill, tilemapTargetPosition, () =>
                         {
 
-                            if (status != BattleStatus.Exploring)
+                            if (Status != BattleStatus.Exploring)
                                 DisplayMovementRange(entity);
                         });
                         entity.LookAt(tilemapTargetPosition);
@@ -1760,28 +1590,28 @@ public override void _Input(InputEvent @event)
                         DestroyValidationCells();
                         // if (validateCastingSkillTargetCell != null) {
                         DestroyTargetCells();
-                        DrawTargetCells(BattleMap.EntityPositionToCellCoordinates(entity.Position), pickedSkill.range.min, pickedSkill.range.max, GetTargetableCells(pickedSkill), new Color(1f, 0.843f, 0f), pickedSkill.vision == 1);
+                        DrawTargetCells(entity.OccupiedCells.First(), pickedSkill.Range.Min, pickedSkill.Range.Max, GetTargetableCells(pickedSkill), new Color(1f, 0.843f, 0f), pickedSkill.Visibility);
                         // }
                         validateCastingSkillTargetCell = tilemapTargetPosition;
-                        DrawValidationCells(tilemapTargetPosition, pickedSkill.targetRadius.min - 1, pickedSkill.targetRadius.max - 1, new[] {  new MapCell(){
-                            kind = CellKind.Empty,
+                        DrawValidationCells(tilemapTargetPosition, pickedSkill.TargetRadius.Min - 1, pickedSkill.TargetRadius.Max - 1, new[] {  new MapCell(){
+                            Kind = CellKind.Empty,
                             isOccupied = true,
                         }, new MapCell(){
-                            kind = CellKind.Empty,
+                            Kind = CellKind.Empty,
                             isOccupied = false,
                         }, new MapCell(){
-                            kind = CellKind.Gap,
+                            Kind = CellKind.Gap,
                             isOccupied = false,
                         }, new MapCell(){
-                            kind = CellKind.Gap,
+                            Kind = CellKind.Gap,
                             isOccupied = true,
                         }, new MapCell(){
-                            kind = CellKind.Obstacle,
+                            Kind = CellKind.Obstacle,
                             isOccupied = false,
                         } }, new Color(0, 1, 0));
                     }
                 }
-                Refresh = (int)delta;
+                // Refresh = (int)delta;
             }
             else if (isMoving)
             {
@@ -1799,13 +1629,13 @@ public override void _Input(InputEvent @event)
                     isMoving = false;
 
                     var tpath = FindShortestPath(
-                        BattleMap.EntityPositionToCellCoordinates(entity.Position),
+                        entity.OccupiedCells.First(),
                         scope.tileMapLayer.LocalToMap(point),
                         new[] { new MapCell(){
-                            kind = CellKind.Empty,
+                            Kind = CellKind.Empty,
                             isOccupied = false,
                         },new MapCell(){
-                            kind = CellKind.Contraption,
+                            Kind = CellKind.Contraption,
                             isOccupied = false,
                         } }
                     );
@@ -1813,8 +1643,8 @@ public override void _Input(InputEvent @event)
                     DoMovement(tpath, entity, () =>
                     {
                         RefreshTurnOrder();
-                        Refresh = (int)delta;
-                        if (status != BattleStatus.Exploring)
+                        // Refresh = (int)delta;
+                        if (Status != BattleStatus.Exploring)
                             DisplayMovementRange(entity);
                     });
                 }
@@ -1867,11 +1697,11 @@ public override void _Input(InputEvent @event)
     }
     private void DisplayMovementRange(Entity entity)
     {
-        DrawTargetCells(BattleMap.EntityPositionToCellCoordinates(entity.Position), 1, entity.movementPoints, new[] { new MapCell() {
-            kind = CellKind.Empty,
+        DrawTargetCells(entity.OccupiedCells.First(), 1, entity.movementPoints, new[] { new MapCell() {
+            Kind = CellKind.Empty,
             isOccupied = false
         }, new MapCell() {
-            kind = CellKind.Contraption,
+            Kind = CellKind.Contraption,
             isOccupied = false
         } });
     }
@@ -1882,13 +1712,13 @@ public override void _Input(InputEvent @event)
         DestroyTargetCells();
     }
 
-    private void DoStuff(Vector3? pointerPosition)
+    private void DoStuff(Vector2? pointerPosition)
     {
 
-        if (status == BattleStatus.Exploring)
+        if (Status == BattleStatus.Exploring)
         {
 
-            FocusedInteractive = null;
+            focusedInteractive = null;
             if (IsCastingSkill != SkillAction.Inactive)
             {
 
@@ -1903,20 +1733,19 @@ public override void _Input(InputEvent @event)
                 {
                     var entity = playerEntity;
 
-                    var tilemapTargetPosition = cellPos;
 
                     var pickedSkill = entity.skills[(int)IsCastingSkill - 1].Value.Item2;
 
 
-                    if (validateCastingSkillTargetCell == tilemapTargetPosition)
+                    if (validateCastingSkillTargetCell == cellPos)
                     {
                         validateCastingSkillTargetCell = null;
                         DestroyTargetCells();
                         DestroyValidationCells();
 
-                        SkillCooldown = ((int)IsCastingSkill - 1, pickedSkill.restrictions.cooldown);
-                        var targets = CastSkill(entity, pickedSkill, (Vector2I)tilemapTargetPosition, () => { });
-                        entity.LookAt(tilemapTargetPosition);
+                        // SkillCooldown = ((int)IsCastingSkill - 1, pickedSkill.Cooldown);
+                        var targets = CastSkill(entity, pickedSkill, tilemap.LocalToMap(point), () => { });
+                        entity.LookAt(cellPos);
 
                         if (targets.Count > 0)
                         {
@@ -1938,29 +1767,29 @@ public override void _Input(InputEvent @event)
                         DestroyValidationCells();
                         // if (validateCastingSkillTargetCell != null) {
                         DestroyTargetCells();
-                        DrawTargetCells(BattleMap.EntityPositionToCellCoordinates(entity.Position), pickedSkill.range.min, pickedSkill.range.max, GetTargetableCells(pickedSkill), new Color(1f, 0.843f, 0f), pickedSkill.vision == 1);
+                        DrawTargetCells(entity.OccupiedCells.First(), pickedSkill.Range.Min, pickedSkill.Range.Max, GetTargetableCells(pickedSkill), new Color(1f, 0.843f, 0f), pickedSkill.Visibility);
                         // }
-                        validateCastingSkillTargetCell = (Vector2I)tilemapTargetPosition;
-                        DrawValidationCells(validationScope.tileMapLayer.LocalToMap(point), pickedSkill.targetRadius.min - 1, pickedSkill.targetRadius.max - 1, new[] {  new MapCell(){
-                            kind = CellKind.Empty,
+                        validateCastingSkillTargetCell = (Vector2I)cellPos;
+                        DrawValidationCells(tilemap.LocalToMap(point), pickedSkill.TargetRadius.Min - 1, pickedSkill.TargetRadius.Max - 1, new[] {  new MapCell(){
+                            Kind = CellKind.Empty,
                             isOccupied = true,
                         }, new MapCell(){
-                            kind = CellKind.Empty,
+                            Kind = CellKind.Empty,
                             isOccupied = false,
                         }, new MapCell(){
-                            kind = CellKind.Gap,
+                            Kind = CellKind.Gap,
                             isOccupied = false,
                         }, new MapCell(){
-                            kind = CellKind.Gap,
+                            Kind = CellKind.Gap,
                             isOccupied = true,
                         }, new MapCell(){
-                            kind = CellKind.Obstacle,
+                            Kind = CellKind.Obstacle,
                             isOccupied = false,
                         }, new MapCell(){
-                            kind = CellKind.Contraption,
+                            Kind = CellKind.Contraption,
                             isOccupied = false,
                         }, new MapCell(){
-                            kind = CellKind.Contraption,
+                            Kind = CellKind.Contraption,
                             isOccupied = true,
                         } }, new Color(0, 1, 0));
                     }
@@ -1974,19 +1803,30 @@ public override void _Input(InputEvent @event)
 
                 var tile = GetTileFromWorld(point);
 
-                if (tile != null)
+                if (tile != null && IsTargetableCell(point))
                 {
-                    var tilePosition = tilemap.LocalToMap(point);
-                    DestroyTargetCells();
-                    var entity = playerEntity;
-                    DrawTargetCells((Vector2I)tilePosition, 0, 0, new[] { new MapCell() {
-                        kind = CellKind.Empty,
-                        isOccupied = false
-                    }, new MapCell() {
-                        kind = CellKind.Contraption,
-                        isOccupied = false
+                    var tpath = FindShortestPath(
+                        playerEntity.OccupiedCells.First(),
+                        tilemap.LocalToMap(point),
+                        new[] { new MapCell(){
+                        Kind = CellKind.Empty,
+                        isOccupied = false,
+                    },new MapCell(){
+                        Kind = CellKind.Contraption,
+                        isOccupied = false,
                     } });
-                    isMoving = true;
+                    DoMovement(tpath, playerEntity, RefreshTurnOrder);
+                    // var tilePosition = tilemap.LocalToMap(point);
+                    // DestroyTargetCells();
+                    // var entity = playerEntity;
+                    // DrawTargetCells((Vector2I)tilePosition, 0, 0, new[] { new MapCell() {
+                    //     kind = CellKind.Empty,
+                    //     isOccupied = false
+                    // }, new MapCell() {
+                    //     kind = CellKind.Contraption,
+                    //     isOccupied = false
+                    // } });
+                    // isMoving = true;
                 }
             }
             else
@@ -2008,13 +1848,13 @@ public override void _Input(InputEvent @event)
                     isMoving = false;
 
                     var tpath = FindShortestPath(
-                        BattleMap.EntityPositionToCellCoordinates(entity.Position),
+                        entity.OccupiedCells.First(),
                         scope.tileMapLayer.LocalToMap(point),
                         new[] { new MapCell(){
-                            kind = CellKind.Empty,
+                            Kind = CellKind.Empty,
                             isOccupied = false,
                         },new MapCell(){
-                            kind = CellKind.Contraption,
+                            Kind = CellKind.Contraption,
                             isOccupied = false,
                         } }
                     );
@@ -2047,13 +1887,19 @@ public override void _Input(InputEvent @event)
 
     private TileData GetScopeTileFromWorld(Vector2 position)
     {
-        var tilePosition = scope.tileMapLayer.MapToLocal((Vector2I)position);
+        var tilePosition = scope.tileMapLayer.LocalToMap((Vector2I)position);
         return scope.tileMapLayer.GetCellTileData((Vector2I)tilePosition);
     }
     private TileData GetTileFromWorld(Vector2 position)
     {
-        var tilePosition = tilemap.MapToLocal((Vector2I)position);
+        var tilePosition = tilemap.LocalToMap((Vector2I)position);
         return tilemap.GetCellTileData((Vector2I)tilePosition);
+    }
+
+    private bool IsTargetableCell(Vector2 position)
+    {
+        var cell = currentMap[tilemap.LocalToMap((Vector2I)position).ToString()];
+        return cell.Kind != CellKind.Wall && cell.Kind != CellKind.Obstacle;
     }
 
 
@@ -2064,7 +1910,7 @@ public override void _Input(InputEvent @event)
         var items = currentMapItem.unlocks.Select(kv => new Tuple<string, string>(kv.Key, kv.Value));
         var result = items.Any(row =>
         {
-            if (row.Item2 == "victory" && enemies.All(turnState => turnState.entity.healthPoints == 0))
+            if (row.Item2 == "victory" && enemies.All(turnState => turnState.Entity.healthPoints == 0))
             {
                 GD.Print("enemies died!");
                 tempNext = row.Item1;
@@ -2100,17 +1946,17 @@ public override void _Input(InputEvent @event)
 
     public MapCell[] GetTargetableCells(SkillBlueprint skill)
     {
-        if (skill.movement?.target == "caster")
-        {
-            return new[] { new MapCell(){
-                kind = CellKind.Empty,
-                isOccupied = false,
-            }, new MapCell(){
-                kind = CellKind.Gap,
-                isOccupied = false,
-            } };
-        }
-        return skillCommonCells;
+        // if (skill.movement?.target == "caster")
+        // {
+        //     return new[] { new MapCell(){
+        //         kind = CellKind.Empty,
+        //         isOccupied = false,
+        //     }, new MapCell(){
+        //         kind = CellKind.Gap,
+        //         isOccupied = false,
+        //     } };
+        // }
+        return SkillCommonCells;
     }
 
     // public IEnumerator ExecuteSkill(SkillBlueprint skill, Vector2I targetCell, Action onFinish)
@@ -2124,90 +1970,87 @@ public override void _Input(InputEvent @event)
 
     public List<Interactive> CastSkill(Entity entity, SkillBlueprint skill, Vector2I targetCell, Action onFinish)
     {
-        if (status != BattleStatus.Exploring)
+        if (Status != BattleStatus.Exploring)
         {
-            entity.abilityPoints -= skill.cost.ap;
-            entity.movementPoints -= skill.cost.mp;
+            entity.abilityPoints -= skill.AP;
+            entity.movementPoints -= skill.MP;
         }
         var modifier = 1f;
         var isCritical = false;
-        if (skill.stability != null)
+        var casterStability = entity.GetRateFromEffect(Characteristic.Stability);
+        int getStability(int stability) => (int)MathF.Ceiling(stability - stability * casterStability / 100);
+        var roll = Random.Range(1, 100);
+        if (roll <= getStability(skill.Stability.CriticalFailure))
         {
-            var casterStability = entity.GetRateFromEffect(Characteristic.Stability);
-            int getStability(int stability) => (int)MathF.Ceiling(stability - stability * casterStability / 100);
-            var roll = Random.Range(1, 100);
-            if (roll <= getStability(skill.stability[0]))
-            {
-                AppendLogs("criticalFailure", new Dictionary<string, string>() {
-                            {"entity", entity.Name},
-            });
-                onFinish();
-                return new();
-            }
-            else if (roll <= getStability(skill.stability[1]))
-            {
-                AppendLogs("failure", new Dictionary<string, string>() {
-                            {"entity", entity.Name},
-            });
-                onFinish();
-                return new();
-            }
-            else if (roll <= getStability(skill.stability[2]))
-            {
-                // success
-            }
-            else
-            {
-                // critical success
-                modifier *= 1.5f;
-                isCritical = true;
-                // check skills that increase this modifier
-            }
+            AppendLogs("criticalFailure", new Dictionary<string, string>() {
+                        {"entity", entity.Name},
+        });
+            onFinish();
+            return new();
+        }
+        else if (roll <= getStability(skill.Stability.Failure))
+        {
+            AppendLogs("failure", new Dictionary<string, string>() {
+                        {"entity", entity.Name},
+        });
+            onFinish();
+            return new();
+        }
+        else if (roll <= getStability(skill.Stability.Success))
+        {
+            // success
+        }
+        else
+        {
+            // critical success
+            modifier *= 1.5f;
+            isCritical = true;
+            // check skills that increase this modifier
         }
         AppendLogs("cast", new Dictionary<string, string>() {
             {"entity", entity.Name},
-            {"skill", "skill." + skill.name},
+            {"skill", "skill." + skill.Name},
         });
 
-        var turnSkill = entity.skills.Find(item => item.Value.Item2.name == skill.name);
-        turnSkill.Value.Item1.maxCooldown = skill.restrictions.cooldown;
-        turnSkill.Value.Item1.cooldown = skill.restrictions.cooldown;
+        var turnSkill = entity.skills.Find(item => item.Value.Item2.Name == skill.Name);
+        turnSkill.Value.Item1.maxCooldown = skill.Cooldown;
+        turnSkill.Value.Item1.cooldown = skill.Cooldown;
         turnSkill.Value.Item1.lastCastTime = (int)Time.GetUnixTimeFromSystem();
 
         // StartCoroutine(ExecuteSkill(skill, targetCell, onFinish));
-        var targetCells = FindReachableCells(targetCell, skill.targetRadius.min - 1, skill.targetRadius.max - 1, new[] {  new MapCell(){
-            kind = CellKind.Empty,
+        var targetCells = FindReachableCells(targetCell, skill.TargetRadius.Min - 1, skill.TargetRadius.Max - 1, new[] {  new MapCell(){
+            Kind = CellKind.Empty,
             isOccupied = true,
         }, new MapCell(){
-            kind = CellKind.Empty,
+            Kind = CellKind.Empty,
             isOccupied = false,
         }, new MapCell(){
-            kind = CellKind.Gap,
+            Kind = CellKind.Gap,
             isOccupied = false,
         }, new MapCell(){
-            kind = CellKind.Gap,
+            Kind = CellKind.Gap,
             isOccupied = true,
         }, new MapCell(){
-            kind = CellKind.Obstacle,
+            Kind = CellKind.Obstacle,
             isOccupied = false,
         }, new MapCell(){
-            kind = CellKind.Contraption,
+            Kind = CellKind.Contraption,
             isOccupied = true,
         } }, false);
         var targets = targetCells
-            .Select(cell => GetInteractiveByPosition(cell))
+            .Select(cell => GetInteractiveByCellCoordinates(cell))
             .Where(x => x != null)
             .ToList();
 
-        if (IsSpecialSkill(skill.name))
+        if (IsSpecialSkill(skill.Name))
         {
-            switch (skill.name.Split('-')[0])
+            switch (skill.Name.Split('-')[0])
             {
                 case "interact":
                     CastInteract(targetCell);
                     break;
                 case "detect":
-                    CastDetect(targets, int.Parse(skill.name.Split('-')[1]));
+                    CastDetect(targets, int.Parse(skill.Name.Split('-')[1]));
                     break;
                 default:
                     break;
@@ -2217,7 +2060,7 @@ public override void _Input(InputEvent @event)
 
         var effects = entity.Cast(skill, targets.Select(target => (Entity)target).ToList());
 
-        effects.damages.Select((damage, index) => (damage, index)).ToList().ForEach((row) =>
+        effects.Damages.Select((damage, index) => (damage, index)).ToList().ForEach((row) =>
         {
             var targetEntity = (Entity)targets[row.index];
             var rate = targetEntity.GetRateFromEffect(Characteristic.Evasion);
@@ -2240,16 +2083,16 @@ public override void _Input(InputEvent @event)
         });
 
 
-        var tilemapTargetPosition = targetCell;
-        var targetGameObject = GetInteractiveByPosition(tilemapTargetPosition);
+        var tilemapTargetPosition = tilemap.LocalToMap((Vector2I)targetCell);
+        var targetGameObject = GetInteractiveByCellCoordinates(targetCell);
 
-        var tilemapPlayerPosition = BattleMap.EntityPositionToCellCoordinates(entity.Position);
-        effects.movementEffects.ForEach((effect) =>
+        var tilemapPlayerPosition = entity.OccupiedCells.First();
+        effects.MovementEffects.ForEach((effect) =>
         {
             if (effect.reference == "caster")
             {
                 var entityReference = playerEntity;
-                var referencePosition = BattleMap.EntityPositionToCellCoordinates(entityReference.Position);
+                var referencePosition = entityReference.OccupiedCells.First();
                 var entityTarget = effect.target;
                 var targetMoveResistance = entityTarget.GetRateFromEffect(Characteristic.MoveResistance);
                 var roll = Random.Range(1, 100);
@@ -2257,7 +2100,7 @@ public override void _Input(InputEvent @event)
                 {
                     return;
                 }
-                var casterEntityPosition = BattleMap.EntityPositionToCellCoordinates(entityTarget.Position);
+                var casterEntityPosition = entityTarget.OccupiedCells.First();
                 var position = GridHelper.GetRelativePosition(referencePosition, casterEntityPosition);
 
                 var newCoordinates = position switch
@@ -2269,16 +2112,16 @@ public override void _Input(InputEvent @event)
                 };
 
                 var targetCell = ReadMapCell(newCoordinates);
-                if (targetCell.kind == CellKind.Obstacle || targetCell.isOccupied || targetCell.kind == CellKind.Wall)
+                if (targetCell.Kind == CellKind.Obstacle || targetCell.isOccupied || targetCell.Kind == CellKind.Wall)
                 {
                     return;
                 }
                 OnChangeCell(casterEntityPosition, newCoordinates);
                 // turnOrderTarget.cell.Value = newCoordinates;
-
+                entityTarget.OccupiedCells = new() { newCoordinates };
                 MoveRendererToCell(effect.target, newCoordinates);
 
-                if (targetCell.kind == CellKind.Gap)
+                if (targetCell.Kind == CellKind.Gap)
                 {
                     AppendLogs("feltHole", new Dictionary<string, string>() {
                         {"entity", entityTarget.Name},
@@ -2295,7 +2138,7 @@ public override void _Input(InputEvent @event)
             else
             {
                 var entity = effect.target;
-                var entityPosition = BattleMap.EntityPositionToCellCoordinates(entity.Position);
+                var entityPosition = entity.OccupiedCells.First();
                 var position = GridHelper.GetRelativePosition(tilemapTargetPosition, entityPosition);
 
                 var newCoordinates = position switch
@@ -2307,14 +2150,15 @@ public override void _Input(InputEvent @event)
                 };
 
                 var targetCell = ReadMapCell(newCoordinates.X, newCoordinates.Y);
-                if (targetCell.kind == CellKind.Obstacle || targetCell.isOccupied || targetCell.kind == CellKind.Wall)
+                if (targetCell.Kind == CellKind.Obstacle || targetCell.isOccupied || targetCell.Kind == CellKind.Wall)
                 {
                     return;
                 }
                 OnChangeCell(entityPosition, newCoordinates);
                 // turnOrder.cell.Value = newCoordinates;
+                entity.OccupiedCells = new() { newCoordinates };
                 MoveRendererToCell(effect.target, newCoordinates);
-                if (targetCell.kind == CellKind.Gap)
+                if (targetCell.Kind == CellKind.Gap)
                 {
                     AppendLogs("feltHole", new Dictionary<string, string>() {
                         {"entity", entity.Name},
@@ -2330,7 +2174,7 @@ public override void _Input(InputEvent @event)
             }
         });
 
-        effects.overTimeEffects.ForEach((effect) =>
+        effects.OverTimeEffects.ForEach((effect) =>
         {
             foreach (var target in targets)
             {
@@ -2353,7 +2197,7 @@ public override void _Input(InputEvent @event)
             }
         });
 
-        effects.sideEffects.ForEach((effect) =>
+        effects.SideEffects.ForEach((effect) =>
         {
             foreach (var target in targets)
             {
@@ -2378,13 +2222,13 @@ public override void _Input(InputEvent @event)
             }
         });
 
-        if (effects.mainSurfaceEffect != null)
+        if (effects.MainSurfaceEffect != null)
         {
-            ApplySurfaceToCells(targetCells, effects.mainSurfaceEffect.surface);
+            ApplySurfaceToCells(targetCells, effects.MainSurfaceEffect.surface);
         }
         else
         {
-            effects.surfaceEffects.ForEach((effect) =>
+            effects.SurfaceEffects.ForEach((effect) =>
             {
                 targetCells.ForEach((cell) =>
                 {
@@ -2517,15 +2361,15 @@ public override void _Input(InputEvent @event)
                             {"element", "Fire"},
                         });
                         break;
-                    case SideEffect.Poisoned:
-                        var damagePoison = Random.Range(1, 4);
-                        entity.TakeDamage(damagePoison, (int)Element.Poison, false);
-                        AppendLogs("takeDamage", new Dictionary<string, string>() {
-                            {"entity", entity.Name},
-                            {"damage", damagePoison.ToString()},
-                            {"element", "Poison"},
-                        });
-                        break;
+                    // case SideEffect.Poisoned:
+                    //     var damagePoison = Random.Range(1, 4);
+                    //     entity.TakeDamage(damagePoison, (int)Element.Poison, false);
+                    //     AppendLogs("takeDamage", new Dictionary<string, string>() {
+                    //         {"entity", entity.Name},
+                    //         {"damage", damagePoison.ToString()},
+                    //         {"element", "Poison"},
+                    //     });
+                    //     break;
                     default:
                         break;
                 }
@@ -2619,7 +2463,7 @@ public override void _Input(InputEvent @event)
         {
             var cellData = ReadMapCell(cell.X, cell.Y);
 
-            if (cellData.kind != CellKind.Empty)
+            if (cellData.Kind != CellKind.Empty)
             {
                 return;
             }
@@ -2732,11 +2576,11 @@ public override void _Input(InputEvent @event)
             try
             {
                 // GD.Print("Cell data: " + JsonUtility.ToJson(ReadMapCell((Vector2I)cellPos)));
-                var targetGameObject = GetInteractiveByPosition(cellPos);
+                var targetGameObject = GetInteractiveByCellCoordinates(cellPos);
                 if (targetGameObject != null)
                 {
                     GD.Print(targetGameObject.Name);
-                    FocusedInteractive = targetGameObject.Name;
+                    focusedInteractive = targetGameObject.Name;
                 }
             }
             catch (KeyNotFoundException)
@@ -2762,13 +2606,14 @@ public override void _Input(InputEvent @event)
 
     public void RefreshTurnOrder()
     {
+        return;
         turnEntities.ForEach(entity =>
         {
 
             if (entity.healthPoints == 0)
             {
-                var location = BattleMap.EntityPositionToCellCoordinates(entity.Position);
-                if (ReadMapCell(location).kind == CellKind.Gap)
+                var location = entity.OccupiedCells.First();
+                if (ReadMapCell(location).Kind == CellKind.Gap)
                 {
                     entity.SetProcess(false);
                 }
@@ -2810,21 +2655,21 @@ public override void _Input(InputEvent @event)
                 UpdateMapCell(location.X, location.Y, new MapCell()
                 {
                     isOccupied = false,
-                    kind = cellData.kind,
+                    Kind = cellData.Kind,
                     surfaceStatus = cellData.surfaceStatus,
                     metadata = cellData.metadata,
                 });
             }
         });
 
-        TurnOrder = turnEntities.Select(entity => new TurnStateOut()
-        {
-            turnStatus = turnEntities[turnEntityIndex] == entity ? TurnStatus.InProgress : (turnEntities.FindIndex(turn => entity == turn) > turnEntityIndex ? TurnStatus.Pending : TurnStatus.Ended),
-            maxHealthPoints = entity.maxHealthPoints,
-            healthPoints = entity.healthPoints,
-            name = entity.Name,
-            sideEffects = entity.sideEffects,
-        }).ToList();
+        // TurnOrder = turnEntities.Select(entity => new TurnStateOut()
+        // {
+        //     turnStatus = turnEntities[turnEntityIndex] == entity ? TurnStatus.InProgress : (turnEntities.FindIndex(turn => entity == turn) > turnEntityIndex ? TurnStatus.Pending : TurnStatus.Ended),
+        //     maxHealthPoints = entity.maxHealthPoints,
+        //     healthPoints = entity.healthPoints,
+        //     name = entity.Name,
+        //     sideEffects = entity.sideEffects,
+        // }).ToList();
     }
 
     public void FadeOut(Node2D transform, Action onFinish)
@@ -2926,7 +2771,7 @@ public override void _Input(InputEvent @event)
             Vector2I current = queue.Dequeue();
             nodesInCurrentLayer--;
 
-            var isMatchingCurrent = Array.Find(includableCells, (cell) => cell.kind == grid.GetValueOrDefault(Vector2ToString(current))?.kind && cell.isOccupied == grid.GetValueOrDefault(Vector2ToString(current))?.isOccupied) != null;
+            var isMatchingCurrent = Array.Find(includableCells, (cell) => cell.Kind == grid.GetValueOrDefault(Vector2ToString(current))?.Kind && cell.isOccupied == grid.GetValueOrDefault(Vector2ToString(current))?.isOccupied) != null;
             if (depth >= minimum && isMatchingCurrent)
             {
                 reachableCells.Add(current);
@@ -2939,7 +2784,7 @@ public override void _Input(InputEvent @event)
                 int newY = current.Y + dy[i];
 
                 // Check if the new cell is within bounds and not an obstacle
-                if (newX >= minCol && newX <= maxCol && newY >= minRow && newY <= maxRow && !visited[newY - minRow, newX - minCol] && Array.Find(includableCells, (cell) => cell.kind == grid.GetValueOrDefault(CoordsToString(newX, newY))?.kind && cell.isOccupied == grid.GetValueOrDefault(CoordsToString(newX, newY))?.isOccupied) != null)
+                if (newX >= minCol && newX <= maxCol && newY >= minRow && newY <= maxRow && !visited[newY - minRow, newX - minCol] && Array.Find(includableCells, (cell) => cell.Kind == grid.GetValueOrDefault(CoordsToString(newX, newY))?.Kind && cell.isOccupied == grid.GetValueOrDefault(CoordsToString(newX, newY))?.isOccupied) != null)
                 {
                     Vector2I next = new(newX, newY);
 
@@ -3016,7 +2861,7 @@ public override void _Input(InputEvent @event)
                 break;
             }
 
-            if (currentMap.GetValueOrDefault(CoordsToString(x0, y0)) == null || currentMap[CoordsToString(x0, y0)].kind == CellKind.Obstacle || currentMap[CoordsToString(x0, y0)].kind == CellKind.Wall || ((currentMap[CoordsToString(x0, y0)].isOccupied || currentMap[CoordsToString(x0, y0)].surfaceStatus?.surface == Surface.Smoke) && (x0 != origin.X || y0 != origin.Y)))
+            if (currentMap.GetValueOrDefault(CoordsToString(x0, y0)) == null || currentMap[CoordsToString(x0, y0)].Kind == CellKind.Obstacle || currentMap[CoordsToString(x0, y0)].Kind == CellKind.Wall || ((currentMap[CoordsToString(x0, y0)].isOccupied || currentMap[CoordsToString(x0, y0)].surfaceStatus?.surface == Surface.Smoke) && (x0 != origin.X || y0 != origin.Y)))
             {
                 return false;
             }
@@ -3093,7 +2938,7 @@ public override void _Input(InputEvent @event)
 
                 var next = new Vector2I(newX, newY);
 
-                if (grid.TryGetValue(Vector2ToString(next), out var cell) && Array.Find(includableCells, c => c.kind == cell.kind && c.isOccupied == cell.isOccupied) != null && !visited.Contains(next))
+                if (grid.TryGetValue(Vector2ToString(next), out var cell) && Array.Find(includableCells, c => c.Kind == cell.Kind && c.isOccupied == cell.isOccupied) != null && !visited.Contains(next))
                 {
                     visited.Add(next);
                     queue.Enqueue(next);
@@ -3128,7 +2973,7 @@ public override void _Input(InputEvent @event)
                 var nextY = current.Y + dy[i];
                 var next = new Vector2I(nextX, nextY);
 
-                if (grid.TryGetValue(next, out var nextCell) && !visited.Contains(next) && nextCell.kind == CellKind.Empty && nextCell.isOccupied == false)
+                if (grid.TryGetValue(next, out var nextCell) && !visited.Contains(next) && nextCell.Kind == CellKind.Empty && nextCell.isOccupied == false)
                 {
                     if (distance + 1 == N)
                     {
@@ -3144,20 +2989,19 @@ public override void _Input(InputEvent @event)
         return null;
     }
 
-    private Interactive GetInteractiveByPosition(Vector2I position)
+    private Interactive GetInteractiveByCellCoordinates(CellCoordinates position)
     {
         var mapCell = ReadMapCell(position);
-
         // var contraptions = GameObject.FindGameObjectsWithTag("Contraption").Where(obj => obj.name.EndsWith("-" + position.X + ":" + position.Y)).ToArray();
 
-        // if (mapCell.metadata.ContainsKey("entity"))
-        // {
-        //     return GameObject.Find(mapCell.metadata["entity"]);
-        // }
-        // else if (mapCell.metadata.ContainsKey("contraption"))
-        // {
-        //     return GameObject.Find(mapCell.metadata["contraption"]);
-        // }
+        if (mapCell.metadata.ContainsKey("entity"))
+        {
+            return GetNode<Interactive>(mapCell.metadata["entity"]);
+        }
+        else if (mapCell.metadata.ContainsKey("contraption"))
+        {
+            return GetNode<Interactive>(mapCell.metadata["contraption"]);
+        }
         return null;
     }
 
@@ -3186,19 +3030,6 @@ public override void _Input(InputEvent @event)
         return null;
     }
 
-
-    private Vector3? GetPointerDownPosition()
-    {
-        // if (Input.GetMouseButtonDown(0))
-        // {
-        //     return Input.mousePosition;
-        // }
-        // else if ((Input.touchCount > 0) && (Input.GetTouch(0).phase == TouchPhase.Began))
-        // {
-        //     return Input.GetTouch(0).position;
-        // }
-        return null;
-    }
 
     private Vector3? GetPointerUpPosition()
     {
@@ -3302,7 +3133,7 @@ public override void _Input(InputEvent @event)
         return GetNode(name + "-" + index) != null;
     }
 
-    private Node LoadSection(string name, int index)
+    private Node2D LoadSection(string name, int index)
     {
         var map = Importer.Import("res://resources/zones/maps/" + name + "-" + index + ".tmx");
 
@@ -3492,15 +3323,18 @@ public override void _Input(InputEvent @event)
         }
     }
 
-    private Entity LoadEntity(string entity, Vector2I position)
+    private Entity LoadEntity(string entityName, Vector2I position)
     {
-        var entityKind = entity.Split(":");
+        var entityKind = entityName.Split(":");
         var prefab = GD.Load<PackedScene>($"res://scenes/entities/{entityKind[0]}.tscn");
-        var entityObject = prefab.Instantiate<Entity>();
+        var entity = prefab.Instantiate<Entity>();
+        entity.AddToGroup("interactives");
+        entity.AddToGroup("entities");
 
-        entityObject.Name = entity;
-        MoveRendererToCell(entityObject, position);
-        return entityObject;
+        entity.Name = entityName;
+        entity.OccupiedCells = new() { position };
+        MoveRendererToCell(entity, position);
+        return entity;
     }
 
     public Entity GetEntityByName(string name)
@@ -3531,7 +3365,7 @@ public override void _Input(InputEvent @event)
                 // agent.Setup(this, entity);
             }
         });
-        Status = BattleStatus.Preparing;
+        Status.Value = BattleStatus.Preparing;
     }
 
     private void StartBattle()
@@ -3539,12 +3373,12 @@ public override void _Input(InputEvent @event)
         // if player starts, the turn order is not displayed?!
         turnEntityIndex = 0;
         turnCounter = 0;
-        Status = BattleStatus.Ongoing;
+        Status.Value = BattleStatus.Ongoing;
     }
 
     private void EndBattle()
     {
-        Status = BattleStatus.Exploring;
+        Status.Value = BattleStatus.Exploring;
         turnEntities.Clear();
         // GameObject.FindGameObjectsWithTag("PlayableEntity").ToList().ForEach(gameObject =>
         // {
@@ -3553,33 +3387,6 @@ public override void _Input(InputEvent @event)
         //     entity.movementPoints = entity.maxMovementPoints;
         // });
         HideMovementRange();
-    }
-
-    public void CraftSkill(string label, SkillBlueprint skill)
-    {
-        var skills = gameData.skills.ToList();
-        var inventory = gameData.resources.ToList();
-
-        foreach (var item in skill.ingredients)
-        {
-            var existingItem = inventory.FirstOrDefault(i => i.name == item.name);
-            if (existingItem != null)
-            {
-                existingItem.quantity -= item.quantity;
-                if (existingItem.quantity == 0)
-                {
-                    inventory.Remove(existingItem);
-                }
-            }
-        }
-        // skills.Add(new()
-        // {
-        //     label = label,
-        //     name = skill.name,
-        // });
-        // gameData.skills = skills.ToArray();
-        // gameData.resources = inventory.ToArray();
-        // GameDataStorage = gameData;
     }
 
     // Used in inventory, need to move that
@@ -3614,31 +3421,7 @@ public override void _Input(InputEvent @event)
     }
 }
 
-class BattleMap
-{
-    public static TileMapLayer tilemap;
 
-    public static Vector3 EntityPositionToCellPosition(Vector3 position)
-    {
-        return new Vector3(position.X, position.Y + 64, 0);
-    }
-
-    public static Vector2I EntityPositionToCellCoordinates(Vector2 position)
-    {
-        return tilemap.LocalToMap(Caster.Into(EntityPositionToCellPosition(Caster.Into(position))));
-    }
-
-    public static Vector2 CellPositionToEntityPosition(Vector2 position)
-    {
-        // return new Vector3(position.X, position.Y, Math.Abs(position.Y) / 100);
-        return new Vector2(position.X + 56, position.Y - 92);
-    }
-
-    public static Vector2 CellCoordinatesToEntityPosition(Vector2I position)
-    {
-        return CellPositionToEntityPosition(tilemap.MapToLocal(position));
-    }
-}
 
 public enum BattleStatus
 {
@@ -3656,67 +3439,7 @@ public class LootResult
     public int quantity;
 }
 
-public class GridHelper
-{
-    public static Direction GetRelativePosition(Vector2I positionA, Vector2I positionB)
-    {
-        if (positionB.X < positionA.X)
-        {
-            return Direction.Left;
-        }
-        else if (positionB.X > positionA.X)
-        {
-            return Direction.Right;
-        }
-        else if (positionB.Y > positionA.Y)
-        {
-            return Direction.Top;
-        }
-        else if (positionB.Y < positionA.Y)
-        {
-            return Direction.Bottom;
-        }
-        else
-        {
-            // The positions are the same
-            return Direction.Left;
-        }
-    }
 
-    public static Vector3I StringToVector3I(string input)
-    {
-        if (input.StartsWith("(") && input.EndsWith(")"))
-        {
-            input = input[1..^1];
-        }
-
-        string[] sArray = input.Split(',');
-
-        var result = new Vector3I(
-            int.Parse(sArray[0]),
-            int.Parse(sArray[1]),
-            int.Parse(sArray[2]));
-
-        return result;
-    }
-
-    public static Vector2I StringToVector2I(string input)
-    {
-        if (input.StartsWith("(") && input.EndsWith(")"))
-        {
-            input = input[1..^1];
-        }
-
-        string[] sArray = input.Split(',');
-
-        var result = new Vector2I(
-            int.Parse(sArray[0]),
-            int.Parse(sArray[1])
-        );
-
-        return result;
-    }
-}
 class Random
 {
     public static int Range(int min, int max)

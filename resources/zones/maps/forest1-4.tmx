@@ -213,7 +213,7 @@
  <objectgroup id="29" name="Contraptions" />
  <objectgroup id="17" name="Obstacles" tintcolor="#267e13"/>
  <objectgroup id="2" name="SectionCells">
-  <object id="4" name="3-4:a" gid="10" x="-768" y="832" width="128" height="64"/>
+  <object id="4" name="3-4_a" gid="10" x="-768" y="832" width="128" height="64"/>
   <object id="5" gid="10" x="-704" y="832" width="128" height="64"/>
   <object id="6" gid="10" x="-640" y="832" width="128" height="64"/>
  </objectgroup>

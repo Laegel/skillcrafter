@@ -4,10 +4,16 @@ using System.ComponentModel;
 using System.Linq;
 using Godot;
 
+using SkillKindConfiguration = ReactiveState<System.Collections.Generic.Dictionary<string, object>>;
+
 public enum SkillKinds
 {
-    [Description("Deal Damage ")]
-    DealDamage,
+    [Description("Deal Damage I")]
+    DealDamage1,
+    [Description("Deal Damage II")]
+    DealDamage2,
+    [Description("Deal Damage III")]
+    DealDamage3,
     [Description("Attract")]
     Attract,
     [Description("Repel")]
@@ -29,31 +35,33 @@ public enum SkillKinds
 
 public partial class SkillConfiguration
 {
-    public ReactiveState<string> SkillName = new("New Skill");
-    public ReactiveState<SkillKinds> SkillKind = new(SkillKinds.DealDamage);
-    public ReactiveState<int> Cooldown { get; set; } = new(0);
-    public ReactiveState<int> AP = new(6);
-    public ReactiveState<int> MP = new(0);
-    public ReactiveState<int> HP = new(0);
-    public (ReactiveState<int> Min, ReactiveState<int> Max) Range = (new ReactiveState<int>(1), new ReactiveState<int>(10));
-    public (ReactiveState<int> Min, ReactiveState<int> Max) TargetRadius = new(new ReactiveState<int>(1), new ReactiveState<int>(5));
-    public ReactiveState<(int, int, int)> Stability = new((5, 10, 90));
+    public ReactiveState<string> Name = "New Skill";
+    public ReactiveState<SkillKinds> SkillKind = SkillKinds.DealDamage1;
+    public SkillKindConfiguration SkillKindConfiguration = DealDamage.Init();
+    public ReactiveState<int> Cooldown = 2;
+    public ReactiveState<int> AP = 4;
+    public ReactiveState<int> MP = 0;
+    public ReactiveState<int> HP = 0;
+    public (ReactiveState<int> Min, ReactiveState<int> Max) Range = (1, 5);
+    public (ReactiveState<int> Min, ReactiveState<int> Max) TargetRadius = (1, 1);
+    public ReactiveState<bool> Visibility = true;
+    public ReactiveState<(int, int, int)> Stability = (5, 10, 90);
 }
 
 public enum SkillConfigurationTabs
 {
     Spec,
-    Range,
+    Scope,
     Constraints,
     Style, // Not sure to keep it
 }
 
 public partial class MenuDesigner : BuilderComponent
 {
-    public Node Build()
+    public Node Build(Storage store)
     {
         var size = DisplayServer.WindowGetSize();
-        var items = Storage.Read();
+        var items = store.GameData;
         var allResources = ResourcesReader.Get();
         var skillConfiguration = new SkillConfiguration();
 
@@ -105,11 +113,11 @@ public partial class MenuDesigner : BuilderComponent
         const float targetRadiusWeight = 0.7f;
 
         // Calculate weighted values
-        float apImpact = skillConfig.AP.Value * apWeight;
-        float mpImpact = skillConfig.MP.Value * mpWeight;
-        float hpImpact = skillConfig.HP.Value * hpWeight;
-        float rangeImpact = (skillConfig.Range.Max.Value - skillConfig.Range.Min.Value) * rangeWeight;
-        float targetRadiusImpact = (skillConfig.TargetRadius.Max.Value - skillConfig.TargetRadius.Min.Value) * targetRadiusWeight;
+        float apImpact = skillConfig.AP * apWeight;
+        float mpImpact = skillConfig.MP * mpWeight;
+        float hpImpact = skillConfig.HP * hpWeight;
+        float rangeImpact = (skillConfig.Range.Max - skillConfig.Range.Min) * rangeWeight;
+        float targetRadiusImpact = (skillConfig.TargetRadius.Max - skillConfig.TargetRadius.Min) * targetRadiusWeight;
 
         // Aggregate the impacts
         float totalImpact = apImpact + mpImpact + hpImpact + rangeImpact + targetRadiusImpact;
@@ -143,11 +151,32 @@ public partial class ConfigurationPanel : BuilderComponent
         {
             PlaceholderText = "Skill Name",
             SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
-            Value = skillConfiguration.SkillName,
+            Value = skillConfiguration.Name,
         },
         new Dropdown
         {
-            SelectedItem = skillConfiguration.SkillKind.Bind(x => (int)x, x => (SkillKinds)x),
+            SelectedItem = skillConfiguration.SkillKind.Map(x => (int)x),
+            OnChanged = (index) =>
+            {
+                var newSkillKind = (SkillKinds)index;
+                skillConfiguration.SkillKindConfiguration = newSkillKind switch
+                {
+                    SkillKinds.DealDamage1 => DealDamage.Init(),
+                    SkillKinds.DealDamage2 => DealDamage.Init(),
+                    SkillKinds.DealDamage3 => DealDamage.Init(),
+                    // SkillKinds.Attract => throw new NotImplementedException(),
+                    // SkillKinds.Repel => throw new NotImplementedException(),
+                    // SkillKinds.Activate => throw new NotImplementedException(),
+                    // SkillKinds.Move => throw new NotImplementedException(),
+                    // SkillKinds.ApplyDebuff => throw new NotImplementedException(),
+                    // SkillKinds.ApplyBuff => throw new NotImplementedException(),
+                    // SkillKinds.CreateSurface => throw new NotImplementedException(),
+                    // SkillKinds.ConsumeSurface => throw new NotImplementedException(),
+                    _ => DealDamage.Init(),
+                };
+                skillConfiguration.SkillKind.Value = newSkillKind;
+
+            },
             Items = Enum.GetValues(typeof(SkillKinds))
                 .Cast<SkillKinds>()
                 .Select(x => x.GetEnumDescription())
@@ -177,7 +206,7 @@ public partial class ConfigurationPanel : BuilderComponent
                         BgColor = new Color(x switch
                         {
                             SkillConfigurationTabs.Spec => "#ffffff",
-                            SkillConfigurationTabs.Range => "#ff0000",
+                            SkillConfigurationTabs.Scope => "#ff0000",
                             SkillConfigurationTabs.Constraints => "#00ff00",
                             SkillConfigurationTabs.Style => "#0000ff"
                         }),
@@ -201,30 +230,44 @@ public partial class ConfigurationPanel : BuilderComponent
             }, new()
             {
                 {SkillConfigurationTabs.Spec, () => NodeBuilder.Match(skillConfiguration.SkillKind, new VBoxContainer(), new() {
-                    {SkillKinds.DealDamage, () => {
-                        return new Label(){ Text = "Damage" };
+                    {SkillKinds.DealDamage1, () => new DealDamage() {
+                        SkillKindConfiguration = skillConfiguration.SkillKindConfiguration,
+
                     }},
-                    {SkillKinds.Attract, () => {
+                    {SkillKinds.DealDamage2, () => new DealDamage() {
+                        SkillKindConfiguration = skillConfiguration.SkillKindConfiguration,
+                        Strength = 2,
+                    }},
+                    {SkillKinds.DealDamage3, () => new DealDamage() {
+                        SkillKindConfiguration = skillConfiguration.SkillKindConfiguration,
+                        Strength = 3,
+                    }},
+                    { SkillKinds.Attract, () => {
                         return new Label(){ Text = "Attract" };
                     }},
                 })},
-                {SkillConfigurationTabs.Range, () => NodeBuilder.CreateNode(new VBoxContainer(),
+                {SkillConfigurationTabs.Scope, () => NodeBuilder.CreateNode(new VBoxContainer(),
                     new Label()
                     {
                         Text = "Range"
                     },
-                    new NumericRangeInput(skillConfiguration.Range, 1, 10, (value) =>
-                    {
-                        GD.Print($"Range changed to: {value.Item1} - {value.Item2}");
-                    }),
+                    new NumericRangeInput(skillConfiguration.Range, 1, 10),
                     new Label()
                     {
                         Text = "Target Radius"
                     },
-                    new NumericRangeInput(skillConfiguration.TargetRadius, 1, 5, (value) =>
+                    new NumericRangeInput(skillConfiguration.TargetRadius, 1, 5),
+                    new Label()
                     {
-                        GD.Print($"Target radius changed to: {value.Item1} - {value.Item2}");
-                    })
+                        Text = "Visibility Required"
+                    },
+                    new CallbackCheckBox() {
+                        ButtonPressed = skillConfiguration.Visibility,
+                        Callback = (value) =>
+                        {
+                            skillConfiguration.Visibility.Value = value;
+                        }
+                    }
                 )},
                 {SkillConfigurationTabs.Constraints, () => NodeBuilder.CreateNode(new VBoxContainer(),
                     new Label { Text = "AP:", SizeFlagsHorizontal = Control.SizeFlags.ExpandFill },
@@ -234,7 +277,7 @@ public partial class ConfigurationPanel : BuilderComponent
                         new NumericInput(skillConfiguration.MP, new(0), new(10))
                     ), NodeBuilder.CreateNode(new HBoxContainer(),
                         new Label { Text = "HP:", SizeFlagsHorizontal = Control.SizeFlags.ExpandFill },
-                        new NumericInput(skillConfiguration.HP, new(0), new(10))
+                        new NumericInput(skillConfiguration.HP, new(0), new(9))
                     ),
                     new Label()
                     {
@@ -258,6 +301,43 @@ public partial class ConfigurationPanel : BuilderComponent
     }
 }
 
+public partial class DealDamage : BuilderComponent
+{
+    public SkillKindConfiguration SkillKindConfiguration;
+    public int Strength = 1;
+
+    public static SkillKindConfiguration Init()
+    {
+        return new(new()
+        {
+            { "damage", (new ReactiveState<int>(1), new ReactiveState<int>(2)) },
+            { "element", new ReactiveState<Element>(Element.Fire)}
+        });
+    }
+    public Node Build()
+    {
+        var damageRange = ((ReactiveState<int>, ReactiveState<int>))SkillKindConfiguration.Value["damage"];
+        var element = (ReactiveState<Element>)SkillKindConfiguration.Value["element"];
+        return NodeBuilder.CreateNode(new VBoxContainer(),
+            new Label() { Text = "Damage Range" },
+            new NumericRangeInput(damageRange, 1, 5 * Strength),
+            new Label() { Text = "Element" },
+            new Dropdown()
+            {
+                SelectedItem = element.Map(x => (int)x),
+                OnChanged = (index) =>
+                {
+                    element.Value = (Element)index;
+                },
+                Items = Enum.GetValues(typeof(Element))
+                .Cast<Element>()
+                .Select(x => x.GetEnumDescription())
+                .ToArray(),
+            }
+        );
+    }
+}
+
 public partial class CostAndResultPanel : BuilderComponent
 {
     public SkillConfiguration skillConfiguration;
@@ -265,7 +345,7 @@ public partial class CostAndResultPanel : BuilderComponent
     {
         this.skillConfiguration = skillConfiguration;
     }
-    public Node Build()
+    public Node Build(Storage store)
     {
         /*
         Grid with radii
@@ -285,21 +365,111 @@ public partial class CostAndResultPanel : BuilderComponent
         },
             new DynamicLabel
             {
-                Content = skillConfiguration.SkillName,
+                Content = skillConfiguration.Name,
+                FontSize = 20,
+                AutowrapMode = TextServer.AutowrapMode.Off,
+            },
+
+            new HSeparator(),
+            new StabilityBar(skillConfiguration.Stability)
+            {
+                CustomMinimumSize = new Vector2(500, 20)
             },
             new DynamicLabel
             {
                 Content = skillConfiguration.SkillKind.Map(x => x.GetEnumDescription()),
             },
-            new StabilityBar(skillConfiguration.Stability)
+            NodeBuilder.Match(skillConfiguration.SkillKind, new VBoxContainer(), new()
             {
-                CustomMinimumSize = new Vector2(500, 20)
+                { SkillKinds.DealDamage1, () => {
+                    var damage = ((ReactiveState<int>, ReactiveState<int>))skillConfiguration.SkillKindConfiguration.Value["damage"];
+                    var element = (ReactiveState<Element>)skillConfiguration.SkillKindConfiguration.Value["element"];
+                    return NodeBuilder.CreateNode(new VBoxContainer(),
+
+                        NodeBuilder.Watch(new HBoxContainer(), () => {
+                            return new RichTextLabel() {
+                                BbcodeEnabled = true, FitContent = true, AutowrapMode = TextServer.AutowrapMode.Off, Text = Translation.T("damage", new() {
+                                { "min", damage.Item1 },
+                                { "max", damage.Item2 },
+                                { "element", element.Value.GetEnumDescription().ToLower() },
+                                { "elementColor", SCTheme.GetElementColor(element).ToHtml() }
+                            }) };
+                        }, damage.Item1, damage.Item2, element.Map(x => (int)x))
+                    );
+                } }
+            }),
+
+            NodeBuilder.Watch(new HBoxContainer(), () =>
+            {
+                return new Label()
+                {
+                    Text = Translation.T("range", new() {
+                        { "min", skillConfiguration.Range.Min },
+                        { "max", skillConfiguration.Range.Max }
+                    })
+                };
+            }, skillConfiguration.Range.Min, skillConfiguration.Range.Max),
+            NodeBuilder.Watch(new HBoxContainer(), () =>
+            {
+                return new Label()
+                {
+                    Text = Translation.T("targetRadius", new() {
+                        { "min", skillConfiguration.TargetRadius.Min },
+                        { "max", skillConfiguration.TargetRadius.Max }
+                    })
+                };
+            }, skillConfiguration.TargetRadius.Min, skillConfiguration.TargetRadius.Max),
+            new DynamicLabel
+            {
+                Content = skillConfiguration.Visibility.Map(x => x ? "Requires visibility" : "Doesn't require visibility"),
             },
+            NodeBuilder.CreateNode(new HBoxContainer(),
+                NodeBuilder.Show(skillConfiguration.AP.Map(x => x > 0), new DynamicLabel()
+                {
+                    AutowrapMode = TextServer.AutowrapMode.Off,
+                    Content = skillConfiguration.AP.Map(x => $"[color={SCTheme.Ability.ToHtml()}][img=40x40]res://images/skin/icon-star.svg[/img][b]" + x + "[/b][/color]"),
+                }),
+                NodeBuilder.Show(skillConfiguration.MP.Map(x => x > 0), new DynamicLabel()
+                {
+                    AutowrapMode = TextServer.AutowrapMode.Off,
+                    Content = skillConfiguration.MP.Map(x => $"[color={SCTheme.Movement.ToHtml()}][img=40x40]res://images/skin/icon-boot.svg[/img][b]" + x + "[/b][/color]"),
+                }),
+                NodeBuilder.Show(skillConfiguration.HP.Map(x => x > 0), new DynamicLabel()
+                {
+                    AutowrapMode = TextServer.AutowrapMode.Off,
+                    Content = skillConfiguration.HP.Map(x => $"[color={SCTheme.Health.ToHtml()}][img=40x40]res://images/skin/icon-heart.svg[/img][b]" + (x * 10) + "%" + "[/b][/color]"),
+                })
+            ),
             new CallbackButton()
             {
                 Callback = () =>
                 {
-
+                    var gameData = store.GameData;
+                    var skills = gameData.skills.ToList();
+                    skills.Add(new SkillBlueprint()
+                    {
+                        Name = skillConfiguration.Name,
+                        AP = skillConfiguration.AP,
+                        HP = skillConfiguration.HP,
+                        MP = skillConfiguration.MP,
+                        Cooldown = skillConfiguration.Cooldown,
+                        Range = new Range()
+                        {
+                            Min = skillConfiguration.Range.Min,
+                            Max = skillConfiguration.Range.Max
+                        },
+                        TargetRadius = new Range()
+                        {
+                            Min = skillConfiguration.TargetRadius.Min,
+                            Max = skillConfiguration.TargetRadius.Max
+                        },
+                        SkillKind = skillConfiguration.SkillKind,
+                        SkillKindConfiguration = skillConfiguration.SkillKindConfiguration,
+                        Stability = skillConfiguration.Stability,
+                        Visibility = skillConfiguration.Visibility,
+                    });
+                    gameData.skills = skills.ToArray();
+                    store.GameData = gameData;
                 },
                 Text = "Craft"
             }

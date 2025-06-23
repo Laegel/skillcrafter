@@ -36,35 +36,35 @@ public class Zone
         // DontDestroyOnLoad(gameObject);
     }
 
-    public Dictionary<string, ZoneObject> Zones
-    {
-        get
-        {
-            var gameData = Storage.Read();
-            return ZonesReader.Get();
-            // return new OutZone
-            // {
-            //     maps = ZonesReader.Get("forest")
-            //         .Where(item => gameData.progress["forest"].ContainsKey(item.Key))
-            //         .ToDictionary(item => item.Key, item => ObjectMerger.MergeObjects(item.Value, new MapItem
-            //         {
-            //             status = gameData.progress["forest"][item.Key].status
-            //         }))
-            // };
-        }
-        set
-        {
-            zones = value;
-            OnZonesChanged?.Invoke(zones);
-        }
-    }
+    // public Dictionary<string, ZoneObject> Zones
+    // {
+    //     get
+    //     {
+    //         var gameData = Storage.Read();
+    //         return ZonesReader.Get();
+    //         // return new OutZone
+    //         // {
+    //         //     maps = ZonesReader.Get("forest")
+    //         //         .Where(item => gameData.progress["forest"].ContainsKey(item.Key))
+    //         //         .ToDictionary(item => item.Key, item => ObjectMerger.MergeObjects(item.Value, new MapItem
+    //         //         {
+    //         //             status = gameData.progress["forest"][item.Key].status
+    //         //         }))
+    //         // };
+    //     }
+    //     set
+    //     {
+    //         zones = value;
+    //         OnZonesChanged?.Invoke(zones);
+    //     }
+    // }
 
-    public event Action<Dictionary<string, ZoneObject>> OnZonesChanged;
+    // public event Action<Dictionary<string, ZoneObject>> OnZonesChanged;
     Dictionary<string, ZoneObject> zones;
 
     void Start()
     {
-        var gameData = Storage.Read();
+        // var gameData = Storage.Read();
         zones = ZonesReader.Get();
         // zones = new OutZone
         // {

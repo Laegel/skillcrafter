@@ -75,15 +75,15 @@
  </layer>
  <objectgroup id="3" name="EntitySlots" tintcolor="#ffff00">
   <object id="17" name="Hunter" gid="10" x="-832" y="640" width="128" height="64"/>
-  <object id="18" name="wolf:Wolf" gid="10" x="-576" y="640" width="128" height="64"/>
+  <object id="18" name="wolf_Wolf" gid="10" x="-576" y="640" width="128" height="64"/>
  </objectgroup>
  <objectgroup id="29" name="Contraptions" />
  <objectgroup id="17" name="Obstacles" tintcolor="#267e13"/>
  <objectgroup id="2" name="SectionCells">
-  <object id="4" name="2-3:a" gid="10" x="-768" y="832" width="128" height="64"/>
+  <object id="4" name="2-3_a" gid="10" x="-768" y="832" width="128" height="64"/>
   <object id="5" gid="10" x="-704" y="832" width="128" height="64"/>
   <object id="6" gid="10" x="-640" y="832" width="128" height="64"/>
-  <object id="61" name="3-4:a" gid="10" x="-768" y="448" width="128" height="64"/>
+  <object id="61" name="3-4_a" gid="10" x="-768" y="448" width="128" height="64"/>
   <object id="62" gid="10" x="-704" y="448" width="128" height="64"/>
   <object id="63" gid="10" x="-640" y="448" width="128" height="64"/>
  </objectgroup>

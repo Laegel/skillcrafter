@@ -69,10 +69,16 @@ public enum Element
     Fire,
     [Description("Water")]
     Water,
+    [Description("Air")]
+    Air,
+    [Description("Earth")]
+    Earth,
     [Description("Holy")]
     Holy,
     [Description("Curse")]
     Curse,
+
+
     [Description("Radiating")]
     Radiating,
     [Description("Steam")]
@@ -103,12 +109,12 @@ public struct Skill
             Element.Fire => (0.8980392156862745f, 0, 0),
             Element.Holy => (1, 1, 1),
             Element.Water => (0.054901960784313725f, 0.5294117647058824f, 0.8f),
-            Element.Radiating => (0.9882352941176471f, 0.7529411764705882f, 0.11764705882352941f),
-            Element.Steam => (0.7803921568627451f, 0.8352941176470589f, 0.8784313725490196f),
-            Element.Ice => (0.8627450980392157f, 0.9529411764705882f, 1),
-            Element.Poison => (0.6196078431372549f, 1, 0),
+            // Element.Radiating => (0.9882352941176471f, 0.7529411764705882f, 0.11764705882352941f),
+            // Element.Steam => (0.7803921568627451f, 0.8352941176470589f, 0.8784313725490196f),
+            // Element.Ice => (0.8627450980392157f, 0.9529411764705882f, 1),
+            // Element.Poison => (0.6196078431372549f, 1, 0),
             Element.Neutral => (1, 1, 1),
-            Element.Blast => (1, 0.12549019607843137f, 0.12549019607843137f),
+            // Element.Blast => (1, 0.12549019607843137f, 0.12549019607843137f),
             _ => (0, 0, 0),
         };
     }
@@ -211,7 +217,7 @@ public class SkillsReader
         var skills = new Dictionary<string, SkillBlueprint>();
         foreach (var skill in allSkills)
         {
-            skills.Add(skill.name, skill);
+            skills.Add(skill.Name, skill);
         }
         return skills;
     }
@@ -226,14 +232,6 @@ public class RootObject
 
 
 [Serializable]
-public class SkillRestrictions
-{
-    public int cooldown;
-    public int perTurn;
-    public int perTarget;
-}
-
-[Serializable]
 public class Ingredient
 {
     public string name;
@@ -243,24 +241,22 @@ public class Ingredient
 [Serializable]
 public class SkillBlueprint
 {
-    public string name;
-    public Cost cost;
-    public SkillRestrictions restrictions;
-    public Range range;
-    public int vision;
-    public Range targetRadius;
-    public Damage[] damages;
-    public Movement? movement;
-    public Effect[] effects;
-    public Surface? surface;
-    public string description;
-    public Ingredient[]? ingredients;
-    public int[]? stability;
-    public string? unlockedBy;
+    public string Name;
+    public SkillKinds SkillKind;
+    public Dictionary<string, object> SkillKindConfiguration;
+    public int Cooldown;
+    public int AP;
+    public int MP;
+    public int HP;
+    public Range Range;
+    public Range TargetRadius;
+    public bool Visibility;
+    public (int CriticalFailure, int Failure, int Success) Stability;
 
     public bool IsSelfMovingSkill()
     {
-        return movement?.target == "caster";
+        return false;
+        // return movement?.target == "caster";
     }
 }
 
@@ -282,8 +278,8 @@ public class Movement
 [Serializable]
 public class Range
 {
-    public int min;
-    public int max;
+    public int Min;
+    public int Max;
 }
 
 [Serializable]

@@ -15,7 +15,7 @@ public partial class BattlePanel : BuilderComponent
     private Action<int> onPressSkill;
     public BattlePanel(Action<int> onPressSkill)
     {
-        this.key = 0;
+        this.Key = 0;
         this.onPressSkill = onPressSkill;
 
         // this.skills.Value = skills;
@@ -58,14 +58,14 @@ public partial class BattlePanel : BuilderComponent
                     OffsetBottom = 324.0f,
                     GrowHorizontal = Control.GrowDirection.Begin,
                     GrowVertical = Control.GrowDirection.Both,
-                    CustomMinimumSize = new Vector2(SCTheme.GridItemSize * 2 - 40, 0),
+                    CustomMinimumSize = new(SCTheme.GridItemSize * 2 - 40, 0),
                 },
                 NodeBuilder.CreateNode(
                     new ColorRect()
                     {
                         Color = SCTheme.Base100,
                         SizeFlagsVertical = Control.SizeFlags.ExpandFill,
-                        CustomMinimumSize = new Vector2(SCTheme.GridItemSize * 2 - 40, SCTheme.GridItemSize * 2),
+                        CustomMinimumSize = new(SCTheme.GridItemSize * 2 - 40, SCTheme.GridItemSize * 2),
                     },
                     NodeBuilder.CreateNode(
                         new VBoxContainer
@@ -133,12 +133,12 @@ public partial class BattlePanel : BuilderComponent
                         return gridContainer;
                     }, skillSlotsState.equipedSkills, (item, i) => new ItemComponent
                     {
-                        key = i,
+                        Key = i,
                         onClick = () => onPressSkill(i),
                         onLongPress = () => { },
-                        child = new Label()
+                        Child = new Label()
                         {
-                            Text = item.Item2 != null ? item.Item2.name : "Empty",
+                            Text = item.Item2 != null ? item.Item2.Name : "Empty",
                         }
                     })
                 )

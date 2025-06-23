@@ -65,6 +65,7 @@ public partial class Entity : Interactive
     [Export] public int power;
     [Export] public int armor;
     [Export] public Disposition disposition;
+    public List<Vector2I> OccupiedCells;
 
     public List<TurnSideEffect> sideEffects = new();
     public List<TurnOverTimeEffect> overTimeEffects = new();
@@ -74,12 +75,12 @@ public partial class Entity : Interactive
     private Dictionary<Element, int> resistance = new() {
         {Element.Fire, 0},
         {Element.Water, 0},
-        {Element.Ice, 0},
-        {Element.Radiating, 0},
+        // {Element.Ice, 0},
+        // {Element.Radiating, 0},
         {Element.Holy, 0},
         {Element.Curse, 0},
-        {Element.Steam, 0},
-        {Element.Poison, 0},
+        // {Element.Steam, 0},
+        // {Element.Poison, 0},
         {Element.Neutral, 0}
     };
 
@@ -134,62 +135,62 @@ public partial class Entity : Interactive
 
     public bool CanCast(SkillBlueprint skill)
     {
-        return skills.Find(item => item.Value.Item2.name == skill.name).Value.Item1.cooldown == 0 &&
-             abilityPoints >= skill.cost.ap &&
-             movementPoints >= skill.cost.mp;
+        return skills.Find(item => item.Value.Item2.Name == skill.Name).Value.Item1.cooldown == 0 &&
+             abilityPoints >= skill.AP &&
+             movementPoints >= skill.MP;
     }
 
     public CastResult Cast(SkillBlueprint skill, List<Entity> targets)
     {
         var currentTargets = targets;
         var movementTargets = new List<Entity>();
-        if (skill.movement?.target == "caster")
-        {
-            movementTargets.Add(this);
-        } else {
-            movementTargets = targets;
-        }
+        // if (skill.movement?.target == "caster")
+        // {
+        //     movementTargets.Add(this);
+        // } else {
+        //     movementTargets = targets;
+        // }
 
         RunAnimation(State.Attack);
 
-        SurfaceEffect mainSurfaceEffect = skill.surface != null ? new SurfaceEffect { surface = (Surface)skill.surface } : null;
-        var surfaceEffects = new List<SurfaceEffect>();
+        // SurfaceEffect mainSurfaceEffect = skill.surface != null ? new SurfaceEffect { surface = (Surface)skill.surface } : null;
+        // var surfaceEffects = new List<SurfaceEffect>();
 
-        var overTimeEffects = new List<OverTimeEffect>();
+        // var overTimeEffects = new List<OverTimeEffect>();
         var damages = new List<DamageResult>();
-        foreach (var target in targets)
-        {
-            foreach (var damage in skill.damages)
-            {
-                if (damage.damageType == DamageType.OverTime) {
-                    overTimeEffects.Add(new OverTimeEffect() {
-                        caster = this,
-                        damage = damage,
-                        duration = damage.duration,
-                        name = skill.name,
-                    });
-                    continue;
-                }
-                var elementResistance = target.Resistance[damage.element];
-                var armor = target.armor;
-                var baseAmount = Random.Range(damage.min, damage.max) * power;
-                var resistanceFactor = 1 - (elementResistance / 100.0f);
-                var amount = (int)(baseAmount / armor * resistanceFactor);
-                damages.Add(new DamageResult()
-                {
-                    amount = amount,
-                    element = damage.element,
-                });
-            }
-        }
+        // foreach (var target in targets)
+        // {
+        //     foreach (var damage in skill.damages)
+        //     {
+        //         if (damage.damageType == DamageType.OverTime) {
+        //             overTimeEffects.Add(new OverTimeEffect() {
+        //                 caster = this,
+        //                 damage = damage,
+        //                 duration = damage.duration,
+        //                 name = skill.name,
+        //             });
+        //             continue;
+        //         }
+        //         var elementResistance = target.Resistance[damage.element];
+        //         var armor = target.armor;
+        //         var baseAmount = Random.Range(damage.min, damage.max) * power;
+        //         var resistanceFactor = 1 - (elementResistance / 100.0f);
+        //         var amount = (int)(baseAmount / armor * resistanceFactor);
+        //         damages.Add(new DamageResult()
+        //         {
+        //             amount = amount,
+        //             element = damage.element,
+        //         });
+        //     }
+        // }
 
-        foreach (var damage in skill.damages)
-        {
-            var surfaceEffect = ElementToSurfaceEffect(damage.element);
-            if (surfaceEffect != null) {
-                surfaceEffects.Add(surfaceEffect);
-            }
-        }
+        // foreach (var damage in skill.damages)
+        // {
+        //     var surfaceEffect = ElementToSurfaceEffect(damage.element);
+        //     if (surfaceEffect != null) {
+        //         surfaceEffects.Add(surfaceEffect);
+        //     }
+        // }
 
         // }
         // else
@@ -199,32 +200,41 @@ public partial class Entity : Interactive
 
         // StartCoroutine(ResetIdleState());
 
-        if (skill.movement != null)
+        // if (skill.movement != null)
+        // {
+        //     return new CastResult
+        //     {
+        //         movementEffects = movementTargets.Select(target => new MovementEffect(
+        //             skill.movement.reference,
+        //             target,
+        //             skill.movement.strength
+        //         )).ToList(),
+        //         sideEffects = skill.effects == null ? new List<Effect>() : skill.effects.ToList(),
+        //         damages = damages,
+        //         mainSurfaceEffect = mainSurfaceEffect,
+        //         surfaceEffects = surfaceEffects,
+        //         overTimeEffects = overTimeEffects,
+        //     };
+        // } else {
+        //     return new CastResult
+        //     {
+        //         movementEffects = new List<MovementEffect>(),
+        //         sideEffects = skill.effects == null ? new List<Effect>() : skill.effects.ToList(),
+        //         damages = damages,
+        //         mainSurfaceEffect = mainSurfaceEffect,
+        //         surfaceEffects = surfaceEffects,
+        //         overTimeEffects = overTimeEffects,
+        //     };
+        // }
+        return new CastResult()
         {
-            return new CastResult
-            {
-                movementEffects = movementTargets.Select(target => new MovementEffect(
-                    skill.movement.reference,
-                    target,
-                    skill.movement.strength
-                )).ToList(),
-                sideEffects = skill.effects == null ? new List<Effect>() : skill.effects.ToList(),
-                damages = damages,
-                mainSurfaceEffect = mainSurfaceEffect,
-                surfaceEffects = surfaceEffects,
-                overTimeEffects = overTimeEffects,
-            };
-        } else {
-            return new CastResult
-            {
-                movementEffects = new List<MovementEffect>(),
-                sideEffects = skill.effects == null ? new List<Effect>() : skill.effects.ToList(),
-                damages = damages,
-                mainSurfaceEffect = mainSurfaceEffect,
-                surfaceEffects = surfaceEffects,
-                overTimeEffects = overTimeEffects,
-            };
-        }
+            Damages = damages,
+            MovementEffects = new(),
+            SurfaceEffects = new(),
+            MainSurfaceEffect = null,
+            OverTimeEffects = new(),
+            SideEffects = new(),
+        };
     }
 
     private SurfaceEffect? ElementToSurfaceEffect(Element element)
@@ -240,18 +250,18 @@ public partial class Entity : Interactive
             {
                 surface = Surface.Water
             };
-            case Element.Ice: return new SurfaceEffect
-            {
-                surface = Surface.Ice
-            };
+            // case Element.Ice: return new SurfaceEffect
+            // {
+            //     surface = Surface.Ice
+            // };
             // case Element.Radiating: return new SurfaceEffect
             // {
             //     surface = Surface.Radiating
             // };
-            case Element.Poison: return new SurfaceEffect
-            {
-                surface = Surface.Poison
-            };
+            // case Element.Poison: return new SurfaceEffect
+            // {
+            //     surface = Surface.Poison
+            // };
 
         }
         return null;
@@ -353,37 +363,37 @@ public partial class Entity : Interactive
 
     void RunAnimation(State newState)
     {
-        var skeletonAnimation = ((SpineSprite)GetNode("skeleton")).GetAnimationState();
-        // var skeletonAnimation = transform.Find("skeleton").GetComponent<Spine.Unity.SkeletonAnimation>();
-        string stateName = null;
-        switch (newState)
-        {
-            case State.Idle:
-                stateName = "idle";
-                break;
-            case State.Walk:
-                stateName = "walk";
-                break;
-            case State.Run:
-                stateName = "running";
-                break;
-            case State.Rise:
-                stateName = "rise";
-                break;
-            case State.Attack:
-                //     var attachmentName = "";
-                //     if (skeletonAnimation.Skeleton.Slots.Items.Count() > 9)
-                //     {
-                //         attachmentName = skeletonAnimation.Skeleton.Slots.Items[10].Attachment.ToString();
-                //     }
-                //     stateName = attachmentName.StartsWith("images/bow") ? "attacking/bow" : "attacking/sword";
-                //     break;
-                // case State.Cast:
-                stateName = "casting/simple";
-                break;
-            default:
-                break;
-        }
+        // var skeletonAnimation = ((SpineSprite)GetNode("skeleton")).GetAnimationState();
+        // // var skeletonAnimation = transform.Find("skeleton").GetComponent<Spine.Unity.SkeletonAnimation>();
+        // string stateName = null;
+        // switch (newState)
+        // {
+        //     case State.Idle:
+        //         stateName = "idle";
+        //         break;
+        //     case State.Walk:
+        //         stateName = "walk";
+        //         break;
+        //     case State.Run:
+        //         stateName = "running";
+        //         break;
+        //     case State.Rise:
+        //         stateName = "rise";
+        //         break;
+        //     case State.Attack:
+        //         //     var attachmentName = "";
+        //         //     if (skeletonAnimation.Skeleton.Slots.Items.Count() > 9)
+        //         //     {
+        //         //         attachmentName = skeletonAnimation.Skeleton.Slots.Items[10].Attachment.ToString();
+        //         //     }
+        //         //     stateName = attachmentName.StartsWith("images/bow") ? "attacking/bow" : "attacking/sword";
+        //         //     break;
+        //         // case State.Cast:
+        //         stateName = "casting/simple";
+        //         break;
+        //     default:
+        //         break;
+        // }
         // skeletonAnimation.AnimationName = stateName;
     }
 
@@ -420,10 +430,10 @@ public partial class Entity : Interactive
 
 public class CastResult
 {
-    public List<MovementEffect> movementEffects;
-    public List<Effect> sideEffects;
-    public List<OverTimeEffect> overTimeEffects;
-    public List<DamageResult> damages;
-    public SurfaceEffect mainSurfaceEffect;
-    public List<SurfaceEffect> surfaceEffects;
+    public List<MovementEffect> MovementEffects;
+    public List<Effect> SideEffects;
+    public List<OverTimeEffect> OverTimeEffects;
+    public List<DamageResult> Damages;
+    public SurfaceEffect MainSurfaceEffect;
+    public List<SurfaceEffect> SurfaceEffects;
 }

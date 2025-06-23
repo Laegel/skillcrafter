@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 
 using Godot;
-
+using Newtonsoft.Json;
 using Map = System.Collections.Generic.Dictionary<string, MapCell>;
 
 public class TilemapExtractor
@@ -44,10 +44,10 @@ public class TilemapExtractor
         {
             var newTile = new MapCell
             {
-                kind = CellKind.Empty,
+                Kind = CellKind.Empty,
                 isOccupied = false,
                 metadata = new() {
-                    {"section", sectionCell.Name.ToString().StartsWith("Object") ? null : sectionCell.Name.ToString().Replace(" (TRS)", "")}
+                    {"section", sectionCell.Name.ToString().StartsWith("tile") ? null : sectionCell.Name}
                 }
             };
             // var child = sectionCell.GetChild(0).GetChild(0).GetChild<Node2D>(0);
@@ -59,39 +59,41 @@ public class TilemapExtractor
             // var previousParent = child.Parent;
             // child.Parent = null;
             // Coordinates are wrong here?
-            tiles.Add(mainGround.MapToLocal(groundTilemap.LocalToMap(sectionCell.GlobalPosition)).ToString(), newTile);
+            // mainGround.LocalToMap(mainGround.ToLocal(entity.GlobalPosition))
+            
+            tiles.Add((mainGround.LocalToMap(mainGround.ToLocal(sectionCell.GlobalPosition)) + new Vector2(0, -1)).ToString(), newTile);
             // child.Parent = previousParent;
         }
 
-        // foreach (var tile in tiles)
-        // {
-        //     if (tile.Value.metadata["section"] != null)
-        //     {
-        //         var section = tile.Value.metadata["section"].ToString();
-        //         var adjacentTiles = new[] {
-        //             GridHelper.StringToVector3I(tile.Key) + new Vector3I(0, -1, 0),
-        //             GridHelper.StringToVector3I(tile.Key) + new Vector3I(0, 1, 0),
-        //             GridHelper.StringToVector3I(tile.Key) + new Vector3I(1, 0, 0),
-        //             GridHelper.StringToVector3I(tile.Key) - new Vector3I(1, 0, 0),
-        //         };
-        //         foreach (var adjacentPos in adjacentTiles)
-        //         {
-        //             if (tiles.ContainsKey(adjacentPos.ToString()))
-        //             {
-        //                 var adjacentTile = tiles[adjacentPos.ToString()];
-        //                 if (adjacentTile.metadata["section"] == null)
-        //                 {
-        //                     adjacentTile.metadata["section"] = section;
-        //                 }
-        //                 if (tile.Value.metadata.ContainsKey("triggers"))
-        //                 {
-        //                     adjacentTile.metadata["triggers"] = tile.Value.metadata["triggers"].ToString();
-        //                 }
-        //             }
-        //         }
+        foreach (var tile in tiles)
+        {
+            if (tile.Value.metadata["section"] != null)
+            {
+                var section = tile.Value.metadata["section"].ToString();
+                var adjacentTiles = new[] {
+                    GridHelper.StringToVector2I(tile.Key) + new Vector2I(0, -1),
+                    GridHelper.StringToVector2I(tile.Key) + new Vector2I(0, 1),
+                    GridHelper.StringToVector2I(tile.Key) + new Vector2I(1, 0),
+                    GridHelper.StringToVector2I(tile.Key) - new Vector2I(1, 0),
+                };
+                foreach (var adjacentPos in adjacentTiles)
+                {
+                    if (tiles.ContainsKey(adjacentPos.ToString()))
+                    {
+                        var adjacentTile = tiles[adjacentPos.ToString()];
+                        if (adjacentTile.metadata["section"] == null)
+                        {
+                            adjacentTile.metadata["section"] = section;
+                        }
+                        if (tile.Value.metadata.ContainsKey("triggers"))
+                        {
+                            adjacentTile.metadata["triggers"] = tile.Value.metadata["triggers"].ToString();
+                        }
+                    }
+                }
 
-        //     }
-        // }
+            }
+        }
 
 
         if (entitySlots != null)
@@ -101,14 +103,14 @@ public class TilemapExtractor
                 var entityName = entity.Name.ToString();
                 var newTile = new MapCell
                 {
-                    kind = CellKind.Empty,
+                    Kind = CellKind.Empty,
                     entitySlot = EntitySlot.Entity,
                     isOccupied = true,
                     metadata = new() {
-                    {"entity", char.IsUpper(entityName[0]) || entityName.Contains(':') ? entityName : entityName + ":" + Time.GetUnixTimeFromSystem()}
+                    {"entity", char.IsUpper(entityName[0]) || entityName.Contains('_') ? entityName : entityName + "_" + Time.GetUnixTimeFromSystem()}
                 }
                 };
-                tiles.Add(mainGround.LocalToMap(mainGround.ToLocal(entity.GlobalPosition)).ToString(), newTile);
+                tiles.Add((mainGround.LocalToMap(mainGround.ToLocal(entity.GlobalPosition)) + new Vector2(0, -1)).ToString(), newTile);
             }
         }
 
@@ -170,6 +172,7 @@ public class TilemapExtractor
 
             var atlasCoords = groundTilemap.GetCellAtlasCoords(cellPos);
             mainGround.SetCell(TransferPosition(groundTilemap, mainGround, newPos), oldTileSource, atlasCoords);
+            var cell = TransferPosition(groundTilemap, mainGround, newPos);
 
             // Got to merge tilesets and get tile IDs?
             // if (playerSlotsTilemap.GetTile(cellPos))
@@ -196,13 +199,13 @@ public class TilemapExtractor
             // }
             // else
             {
-                newTile.kind = CellKind.Empty;
+                newTile.Kind = CellKind.Empty;
                 newTile.isOccupied = false;
             }
 
-            if (!tiles.ContainsKey(newPos.ToString()) || newTile.kind == CellKind.Gap)
+            if (!tiles.ContainsKey(cell.ToString()) || newTile.Kind == CellKind.Gap)
             {
-                tiles.Add(newPos.ToString(), newTile);
+                tiles.Add(cell.ToString(), newTile);
             }
         }
 
@@ -243,7 +246,7 @@ public class TilemapExtractor
                         var newTile = new MapCell()
                         {
                             metadata = new(),
-                            kind = CellKind.Wall,
+                            Kind = CellKind.Wall,
                         };
                         if (tiles.ContainsKey(translatedPosition.ToString()))
                         {
@@ -257,6 +260,8 @@ public class TilemapExtractor
                 }
             }
         }
+        GD.Print(JsonConvert.SerializeObject(tiles));
+
 
         return tiles;
     }

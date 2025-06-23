@@ -29,7 +29,7 @@ public partial class ItemComponent : BuilderComponent
     {
         button = new Button()
         {
-            Name = GetType().Name + key,
+            Name = GetType().Name + Key,
             CustomMinimumSize = new Vector2(SCTheme.GridItemSize, SCTheme.GridItemSize),
         };
 
@@ -109,7 +109,7 @@ public partial class ItemComponent : BuilderComponent
                 ExpandMode = TextureRect.ExpandModeEnum.FitWidthProportional,
                 StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered,
                 MouseFilter = Control.MouseFilterEnum.Ignore,
-            }, child == null ? new Label() {Text = ""} : child)
+            }, Child == null ? new Label() {Text = ""} : Child)
             )
         );
     }

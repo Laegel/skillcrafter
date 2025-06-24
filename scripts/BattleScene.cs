@@ -1836,7 +1836,11 @@ public partial class BattleScene : Node2D
                         Kind = CellKind.Contraption,
                         isOccupied = false,
                     } });
-                    DoMovement(tpath, playerEntity, RefreshTurnOrder);
+
+                    if (tpath != null)
+                    {
+                        DoMovement(tpath, playerEntity, RefreshTurnOrder);
+                    }
                     // var tilePosition = tilemap.LocalToMap(point);
                     // DestroyTargetCells();
                     // var entity = playerEntity;

@@ -266,9 +266,17 @@ public partial class BattleScene : Node2D
     private Vector2I? validateCastingSkillTargetCell;
     private Dictionary<string, MapItem> maps;
     private Storage store;
+    private SwipeCamera SwipeCamera;
+    // Used to prevent pointer conflict between camera moving and character moving
+    private bool CameraMovingDelayTracker = false;
 
     public override void _Ready()
     {
+        SwipeCamera = new SwipeCamera()
+        {
+            Name = "SwipeCamera"
+        };
+        AddChild(SwipeCamera);
         DisplayServer.ScreenSetOrientation(DisplayServer.ScreenOrientation.Landscape);
         // Screen.orientation = ScreenOrientation.LandscapeLeft;
         GD.Print("Loading document manager...");
@@ -867,15 +875,23 @@ public partial class BattleScene : Node2D
     }
 
     private Vector2? _pointerPosition;
-    public override void _Input(InputEvent @event)
+    public override void _UnhandledInput(InputEvent @event)
     {
+        if (SwipeCamera.CameraMoving)
+        {
+            CameraMovingDelayTracker = true;
+        }
         if (@event is InputEventScreenTouch touchEvent)
         {
             _pointerPosition = touchEvent.Position;
         }
-        else if (@event is InputEventMouseButton mouseEvent && mouseEvent.ButtonIndex == MouseButton.Left && !mouseEvent.Pressed)
+        else if (!CameraMovingDelayTracker && @event is InputEventMouseButton mouseEvent && mouseEvent.ButtonIndex == MouseButton.Left && !mouseEvent.Pressed)
         {
             _pointerPosition = mouseEvent.Position;
+        }
+        if (!SwipeCamera.CameraMoving)
+        {
+            CameraMovingDelayTracker = false;
         }
 
         if (@event is InputEventKey keyEvent && keyEvent.Pressed)
@@ -1331,14 +1347,19 @@ public partial class BattleScene : Node2D
         //     System.GC.Collect();
         // }
 
-        // if (Camera.main.GetComponent<SwipeCamera>().IsBlockedByUI)
-        // {
-        //     return;
-        // }
+        if (CameraMovingDelayTracker)
+        {
+            return;
+        }
 
         if (MenuState.currentMenu != Menus.None)
         {
+            SwipeCamera.PreventCameraDragging = true;
             return;
+        }
+        else
+        {
+            SwipeCamera.PreventCameraDragging = false;
         }
 
         //         if (turnEntities.Count() > 0 &&
@@ -3130,7 +3151,7 @@ public partial class BattleScene : Node2D
 
     private bool IsSectionLoaded(string name, int index)
     {
-        return GetNode(name + "-" + index) != null;
+        return GetNodeOrNull(name + "-" + index) != null;
     }
 
     private Node2D LoadSection(string name, int index)

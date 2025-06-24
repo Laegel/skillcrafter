@@ -260,9 +260,6 @@ public class TilemapExtractor
                 }
             }
         }
-        GD.Print(JsonConvert.SerializeObject(tiles));
-
-
         return tiles;
     }
 

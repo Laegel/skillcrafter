@@ -340,6 +340,7 @@ public partial class BattleScene : Node2D
                 (playerEntity as Humanoid).SetGear(gearSlot.Key, gearItem.GetGearString());
             }
         }
+        SwipeCamera.LookAt(playerEntity);
     }
 
     private void MergeNewSection(string prefix, int sectionIndex)

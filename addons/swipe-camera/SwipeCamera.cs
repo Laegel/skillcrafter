@@ -74,6 +74,7 @@ public partial class SwipeCamera : Camera2D
         {
             dragOrigin = pointerPosition;
             CameraDragging = true;
+            FocusTarget = null;
         }
         else if (Pointer.GetPointerUp(@event))
         {
@@ -95,7 +96,11 @@ public partial class SwipeCamera : Camera2D
 
     public override void _Process(double delta)
     {
-
+        if (FocusTarget != null)
+        {
+            Position = Position.Lerp(new Vector2(FocusTarget.Position.X, FocusTarget.Position.Y), 0.1f);
+            return;
+        }
     }
     //     public float dragSpeed = 15;
     //     public Vector3? dragOrigin;
@@ -106,7 +111,7 @@ public partial class SwipeCamera : Camera2D
     //     private Tilemap tilemap;
 
     //     private MapItem currentMapItem;
-    //     private Transform focusTarget;
+    private Node2D FocusTarget;
 
     //     void Awake()
     //     {
@@ -122,16 +127,7 @@ public partial class SwipeCamera : Camera2D
     //         //     FocusOnCenterOfMap();
     //         //     return;
     //         // }
-    //         if (Input.GetMouseButtonDown(0))
-    //         {
-    //             focusTarget = null;
-    //         }
 
-    //         if (focusTarget != null)
-    //         {
-    //             transform.position = Vector3.Lerp(transform.position, new Vector3(focusTarget.position.x, focusTarget.position.y, transform.position.z), 0.1f);
-    //             return;
-    //         }
 
     //         Vector2 mousePosition = new(Input.mousePosition.x, Input.mousePosition.y);
 
@@ -260,9 +256,14 @@ public partial class SwipeCamera : Camera2D
     //         );
     //     }
 
-    //     public void Focus(Transform target)
-    //     {
-    //         focusTarget = target;
-    //     }
+    public void LookAt(Node2D target)
+    {
+        Position = target.Position;
+    }
+
+        public void Focus(Node2D target)
+    {
+        FocusTarget = target;
+    }
 }
 

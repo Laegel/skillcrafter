@@ -4,10 +4,65 @@ using System.ComponentModel;
 using System.Linq;
 using Godot;
 
-using SkillKindConfiguration = ReactiveState<System.Collections.Generic.Dictionary<string, object>>;
+using SkillEffectConfiguration = ReactiveState<System.Collections.Generic.Dictionary<string, object>>;
+
+public static class SkillEffectHelper
+{
+    public static SkillEffectConfiguration FromSkillEffect(SkillEffects skillEffect)
+    {
+        return skillEffect switch
+        {
+            SkillEffects.DealDamage1 => DealDamage.Init(),
+            SkillEffects.DealDamage2 => DealDamage.Init(),
+            SkillEffects.DealDamage3 => DealDamage.Init(),
+            // SkillKinds.Attract => throw new NotImplementedException(),
+            // SkillKinds.Repel => throw new NotImplementedException(),
+            // SkillKinds.Activate => throw new NotImplementedException(),
+            // SkillKinds.Move => throw new NotImplementedException(),
+            // SkillKinds.ApplyDebuff => throw new NotImplementedException(),
+            // SkillKinds.ApplyBuff => throw new NotImplementedException(),
+            // SkillKinds.CreateSurface => throw new NotImplementedException(),
+            // SkillKinds.ConsumeSurface => throw new NotImplementedException(),
+            _ => DealDamage.Init(),
+        };
+    }
+
+    public static SkillEffectConfiguration RandomizeFromSkillEffect(SkillEffects skillEffect)
+    {
+        return skillEffect switch
+        {
+            SkillEffects.DealDamage1 => DealDamage.Randomize(),
+            SkillEffects.DealDamage2 => DealDamage.Randomize(),
+            SkillEffects.DealDamage3 => DealDamage.Randomize(),
+            SkillEffects.CreateSurface => CreateSurface.Randomize(),
+            // SkillKinds.Attract => throw new NotImplementedException(),
+            // SkillKinds.Repel => throw new NotImplementedException(),
+            // SkillKinds.Activate => throw new NotImplementedException(),
+            // SkillKinds.Move => throw new NotImplementedException(),
+            // SkillKinds.ApplyDebuff => throw new NotImplementedException(),
+            // SkillKinds.ApplyBuff => throw new NotImplementedException(),
+            // SkillKinds.CreateSurface => throw new NotImplementedException(),
+            // SkillKinds.ConsumeSurface => throw new NotImplementedException(),
+            _ => DealDamage.Randomize(),
+        };
+    }
+}
 
 public enum SkillKinds
 {
+    [Description("Active")]
+    Active,
+    [Description("Passive")]
+    Passive,
+    [Description("Reflexive")]
+    Reflexive,
+    [Description("Weapon")]
+    Weapon,
+}
+
+public enum SkillEffects
+{
+    // Active
     [Description("Deal Damage I")]
     DealDamage1,
     [Description("Deal Damage II")]
@@ -30,14 +85,33 @@ public enum SkillKinds
     CreateSurface,
     [Description("Consume Surface")]
     ConsumeSurface,
+
+    // Passive
+    [Description("Absorb")]
+    Absorb,
+    [Description("WhenOnSurfaceCostLess")]
+    WhenOnSurfaceCostLess,
+
+    // Reflexive
+    [Description("OnGettingHit")]
+    OnGettingHit,
+    [Description("OnHit")]
+    OnHit,
+    [Description("OnEnemyGettingClose")]
+    OnEnemyGettingClose,
+
+    // Weapon
+    [Description("DealWeaponDamage")]
+    DealWeaponDamage,
 }
 
 
 public partial class SkillConfiguration
 {
+    public ReactiveState<SkillKinds> SkillKind = SkillKinds.Active;
     public ReactiveState<string> Name = "New Skill";
-    public ReactiveState<SkillKinds> SkillKind = SkillKinds.DealDamage1;
-    public SkillKindConfiguration SkillKindConfiguration = DealDamage.Init();
+    public ReactiveState<SkillEffects> SkillEffect = SkillEffects.DealDamage1;
+    public SkillEffectConfiguration SkillEffectConfiguration = DealDamage.Init();
     public ReactiveState<int> Cooldown = 2;
     public ReactiveState<int> AP = 4;
     public ReactiveState<int> MP = 0;
@@ -153,34 +227,19 @@ public partial class ConfigurationPanel : BuilderComponent
             SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
             Value = skillConfiguration.Name,
         },
-        new Dropdown
+        new Dropdown(Enum.GetValues(typeof(SkillEffects))
+                .Cast<SkillEffects>()
+                .Select(x => x.GetEnumDescription())
+                .ToArray())
         {
-            SelectedItem = skillConfiguration.SkillKind.Map(x => (int)x),
+            SelectedItem = skillConfiguration.SkillEffect.Map(x => (int)x),
             OnChanged = (index) =>
             {
-                var newSkillKind = (SkillKinds)index;
-                skillConfiguration.SkillKindConfiguration = newSkillKind switch
-                {
-                    SkillKinds.DealDamage1 => DealDamage.Init(),
-                    SkillKinds.DealDamage2 => DealDamage.Init(),
-                    SkillKinds.DealDamage3 => DealDamage.Init(),
-                    // SkillKinds.Attract => throw new NotImplementedException(),
-                    // SkillKinds.Repel => throw new NotImplementedException(),
-                    // SkillKinds.Activate => throw new NotImplementedException(),
-                    // SkillKinds.Move => throw new NotImplementedException(),
-                    // SkillKinds.ApplyDebuff => throw new NotImplementedException(),
-                    // SkillKinds.ApplyBuff => throw new NotImplementedException(),
-                    // SkillKinds.CreateSurface => throw new NotImplementedException(),
-                    // SkillKinds.ConsumeSurface => throw new NotImplementedException(),
-                    _ => DealDamage.Init(),
-                };
-                skillConfiguration.SkillKind.Value = newSkillKind;
+                var newSkillEffect = (SkillEffects)index;
+                skillConfiguration.SkillEffectConfiguration = SkillEffectHelper.FromSkillEffect(newSkillEffect);
+                skillConfiguration.SkillEffect.Value = newSkillEffect;
 
             },
-            Items = Enum.GetValues(typeof(SkillKinds))
-                .Cast<SkillKinds>()
-                .Select(x => x.GetEnumDescription())
-                .ToArray(),
             SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
         },
 
@@ -229,20 +288,23 @@ public partial class ConfigurationPanel : BuilderComponent
                 SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
             }, new()
             {
-                {SkillConfigurationTabs.Spec, () => NodeBuilder.Match(skillConfiguration.SkillKind, new VBoxContainer(), new() {
-                    {SkillKinds.DealDamage1, () => new DealDamage() {
-                        SkillKindConfiguration = skillConfiguration.SkillKindConfiguration,
+                {SkillConfigurationTabs.Spec, () => NodeBuilder.Match(skillConfiguration.SkillEffect, new VBoxContainer(), new() {
+                    {SkillEffects.DealDamage1, () => new DealDamage() {
+                        SkillKindConfiguration = skillConfiguration.SkillEffectConfiguration,
 
                     }},
-                    {SkillKinds.DealDamage2, () => new DealDamage() {
-                        SkillKindConfiguration = skillConfiguration.SkillKindConfiguration,
+                    {SkillEffects.DealDamage2, () => new DealDamage() {
+                        SkillKindConfiguration = skillConfiguration.SkillEffectConfiguration,
                         Strength = 2,
                     }},
-                    {SkillKinds.DealDamage3, () => new DealDamage() {
-                        SkillKindConfiguration = skillConfiguration.SkillKindConfiguration,
+                    {SkillEffects.DealDamage3, () => new DealDamage() {
+                        SkillKindConfiguration = skillConfiguration.SkillEffectConfiguration,
                         Strength = 3,
                     }},
-                    { SkillKinds.Attract, () => {
+                    {SkillEffects.CreateSurface, () => new CreateSurface() {
+                        SkillKindConfiguration = skillConfiguration.SkillEffectConfiguration,
+                    }},
+                    { SkillEffects.Attract, () => {
                         return new Label(){ Text = "Attract" };
                     }},
                 })},
@@ -303,10 +365,10 @@ public partial class ConfigurationPanel : BuilderComponent
 
 public partial class DealDamage : BuilderComponent
 {
-    public SkillKindConfiguration SkillKindConfiguration;
+    public SkillEffectConfiguration SkillKindConfiguration;
     public int Strength = 1;
 
-    public static SkillKindConfiguration Init()
+    public static SkillEffectConfiguration Init()
     {
         return new(new()
         {
@@ -314,29 +376,84 @@ public partial class DealDamage : BuilderComponent
             { "element", new ReactiveState<Element>(Element.Fire)}
         });
     }
+
+    public static SkillEffectConfiguration Randomize()
+    {
+        var min = Random.Int(1, 5);
+        return new(new()
+        {
+            { "damage", (new ReactiveState<int>(min), new ReactiveState<int>(Random.Int(min, 10))) },
+            { "element", new ReactiveState<Element>(Random.Enum<Element>())}
+        });
+    }
+
     public Node Build()
     {
         var damageRange = ((ReactiveState<int>, ReactiveState<int>))SkillKindConfiguration.Value["damage"];
         var element = (ReactiveState<Element>)SkillKindConfiguration.Value["element"];
+
         return NodeBuilder.CreateNode(new VBoxContainer(),
             new Label() { Text = "Damage Range" },
             new NumericRangeInput(damageRange, 1, 5 * Strength),
             new Label() { Text = "Element" },
-            new Dropdown()
+            new Dropdown(Enum.GetValues(typeof(Element))
+                .Cast<Element>()
+                .Select(x => x.GetEnumDescription())
+                .ToArray())
             {
-                SelectedItem = element.Map(x => (int)x),
                 OnChanged = (index) =>
                 {
                     element.Value = (Element)index;
                 },
-                Items = Enum.GetValues(typeof(Element))
-                .Cast<Element>()
-                .Select(x => x.GetEnumDescription())
-                .ToArray(),
+                SelectedItem = element.Map(x => (int)x),
             }
         );
     }
 }
+
+public partial class CreateSurface : BuilderComponent
+{
+    public SkillEffectConfiguration SkillKindConfiguration;
+    public int Strength = 1;
+
+    public static SkillEffectConfiguration Init()
+    {
+        return new(new()
+        {
+            { "element", new ReactiveState<Element>(Element.Fire)}
+        });
+    }
+
+    public static SkillEffectConfiguration Randomize()
+    {
+        var possibleSurfaces = new Element[] { Element.Water, Element.Fire, Element.Air, Element.Earth };
+        return new(new()
+        {
+            { "element", new ReactiveState<Element>(possibleSurfaces[Random.Int(0, possibleSurfaces.Length - 1)])}
+        });
+    }
+
+    public Node Build()
+    {
+        var element = (ReactiveState<Element>)SkillKindConfiguration.Value["element"];
+
+        return NodeBuilder.CreateNode(new VBoxContainer(),
+            new Label() { Text = "Element" },
+            new Dropdown(Enum.GetValues(typeof(Element))
+                .Cast<Element>()
+                .Select(x => x.GetEnumDescription())
+                .ToArray())
+            {
+                OnChanged = (index) =>
+                {
+                    element.Value = (Element)index;
+                },
+                SelectedItem = element.Map(x => (int)x),
+            }
+        );
+    }
+}
+
 
 public partial class CostAndResultPanel : BuilderComponent
 {
@@ -350,96 +467,34 @@ public partial class CostAndResultPanel : BuilderComponent
         /*
         Grid with radii
         Skill icon
-        Skill tooltip
-        - Skill name
-        - Damages
-        - Cost
-        - Stability
-        - Range
-        - Target radius
         */
+        var image = GD.Load<Texture2D>($"res://images/skin/icon-sword.svg");
         return NodeBuilder.CreateNode(new VBoxContainer
         {
             SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
             SizeFlagsVertical = Control.SizeFlags.ExpandFill,
         },
-            new DynamicLabel
+        NodeBuilder.CreateNode(() =>
             {
-                Content = skillConfiguration.Name,
-                FontSize = 20,
-                AutowrapMode = TextServer.AutowrapMode.Off,
-            },
+                var gridContainer = new GridContainer()
+                {
+                    Columns = 2,
+                    OffsetTop = SCTheme.GridItemSize * 2 - 48,
+                    OffsetRight = SCTheme.GridItemSize - 20,
+                    OffsetBottom = 648,
+                };
+                // gridContainer.AddThemeConstantOverride("h_separation", border);
+                // gridContainer.AddThemeConstantOverride("v_separation", border);
 
-            new HSeparator(),
-            new StabilityBar(skillConfiguration.Stability)
+                return gridContainer;
+            }, new ItemComponent()
             {
-                CustomMinimumSize = new Vector2(500, 20)
-            },
-            new DynamicLabel
-            {
-                Content = skillConfiguration.SkillKind.Map(x => x.GetEnumDescription()),
-            },
-            NodeBuilder.Match(skillConfiguration.SkillKind, new VBoxContainer(), new()
-            {
-                { SkillKinds.DealDamage1, () => {
-                    var damage = ((ReactiveState<int>, ReactiveState<int>))skillConfiguration.SkillKindConfiguration.Value["damage"];
-                    var element = (ReactiveState<Element>)skillConfiguration.SkillKindConfiguration.Value["element"];
-                    return NodeBuilder.CreateNode(new VBoxContainer(),
-
-                        NodeBuilder.Watch(new HBoxContainer(), () => {
-                            return new RichTextLabel() {
-                                BbcodeEnabled = true, FitContent = true, AutowrapMode = TextServer.AutowrapMode.Off, Text = Translation.T("damage", new() {
-                                { "min", damage.Item1 },
-                                { "max", damage.Item2 },
-                                { "element", element.Value.GetEnumDescription().ToLower() },
-                                { "elementColor", SCTheme.GetElementColor(element).ToHtml() }
-                            }) };
-                        }, damage.Item1, damage.Item2, element.Map(x => (int)x))
-                    );
-                } }
+                BackgroundImage = image
             }),
-
-            NodeBuilder.Watch(new HBoxContainer(), () =>
+            new SkillTooltip()
             {
-                return new Label()
-                {
-                    Text = Translation.T("range", new() {
-                        { "min", skillConfiguration.Range.Min },
-                        { "max", skillConfiguration.Range.Max }
-                    })
-                };
-            }, skillConfiguration.Range.Min, skillConfiguration.Range.Max),
-            NodeBuilder.Watch(new HBoxContainer(), () =>
-            {
-                return new Label()
-                {
-                    Text = Translation.T("targetRadius", new() {
-                        { "min", skillConfiguration.TargetRadius.Min },
-                        { "max", skillConfiguration.TargetRadius.Max }
-                    })
-                };
-            }, skillConfiguration.TargetRadius.Min, skillConfiguration.TargetRadius.Max),
-            new DynamicLabel
-            {
-                Content = skillConfiguration.Visibility.Map(x => x ? "Requires visibility" : "Doesn't require visibility"),
+                SkillConfiguration = skillConfiguration
             },
-            NodeBuilder.CreateNode(new HBoxContainer(),
-                NodeBuilder.Show(skillConfiguration.AP.Map(x => x > 0), new DynamicLabel()
-                {
-                    AutowrapMode = TextServer.AutowrapMode.Off,
-                    Content = skillConfiguration.AP.Map(x => $"[color={SCTheme.Ability.ToHtml()}][img=40x40]res://images/skin/icon-star.svg[/img][b]" + x + "[/b][/color]"),
-                }),
-                NodeBuilder.Show(skillConfiguration.MP.Map(x => x > 0), new DynamicLabel()
-                {
-                    AutowrapMode = TextServer.AutowrapMode.Off,
-                    Content = skillConfiguration.MP.Map(x => $"[color={SCTheme.Movement.ToHtml()}][img=40x40]res://images/skin/icon-boot.svg[/img][b]" + x + "[/b][/color]"),
-                }),
-                NodeBuilder.Show(skillConfiguration.HP.Map(x => x > 0), new DynamicLabel()
-                {
-                    AutowrapMode = TextServer.AutowrapMode.Off,
-                    Content = skillConfiguration.HP.Map(x => $"[color={SCTheme.Health.ToHtml()}][img=40x40]res://images/skin/icon-heart.svg[/img][b]" + (x * 10) + "%" + "[/b][/color]"),
-                })
-            ),
             new CallbackButton()
             {
                 Callback = () =>
@@ -463,8 +518,8 @@ public partial class CostAndResultPanel : BuilderComponent
                             Min = skillConfiguration.TargetRadius.Min,
                             Max = skillConfiguration.TargetRadius.Max
                         },
-                        SkillKind = skillConfiguration.SkillKind,
-                        SkillKindConfiguration = skillConfiguration.SkillKindConfiguration,
+                        SkillEffect = skillConfiguration.SkillEffect,
+                        SkillEffectConfiguration = skillConfiguration.SkillEffectConfiguration,
                         Stability = skillConfiguration.Stability,
                         Visibility = skillConfiguration.Visibility,
                     });

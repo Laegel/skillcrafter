@@ -15,19 +15,24 @@ public enum Menus
     Inventory,
     [Description("designer")]
     Designer,
+    [Description("parchment")]
+    Parchment,
     [Description("map")]
     Map,
+    [Description("test")]
+    Test = 999,
 }
 
+[AutoRegister]
 public class MenuState
 {
-    public static ReactiveState<Menus> currentMenu = new(Menus.None);
+    public ReactiveState<Menus> currentMenu = new(Menus.None);
 }
 
 public partial class MenuButton : BuilderComponent
 {
     private ReactiveState<bool> isToggled = false;
-    public Node Build()
+    public Node Build(MenuState menuState)
     {
         var menus = new ReactiveState<List<Menus>>(Enum.GetValues(typeof(Menus)).Cast<Menus>().ToList());
         GD.Print(menus.Value);
@@ -74,7 +79,7 @@ public partial class MenuButton : BuilderComponent
                     button.Pressed += () =>
                     {
                         GD.Print("Pressed " + menu.ToString());
-                        MenuState.currentMenu.Value = menu;
+                        menuState.currentMenu.Value = menu;
                         isToggled.Value = false;
                     };
                     return button;

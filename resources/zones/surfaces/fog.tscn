@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://d2gslpdxilwup"]
+
+[ext_resource type="Texture2D" uid="uid://b00vl264uabuk" path="res://resources/zones/maps/tile-iso.png" id="1_sounp"]
+
+[node name="Fog" type="Sprite2D"]
+texture = ExtResource("1_sounp")

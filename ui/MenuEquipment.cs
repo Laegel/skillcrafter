@@ -23,7 +23,7 @@ public partial class MenuEquipment : BuilderComponent
     private GameData gameData;
     // private Dictionary<string, SkillBlueprint> allSkills = SkillsReader.Get();
     private Dictionary<string, Gear> allGear = GearReader.Get();
-    private Dictionary<string, DisplayableItem> allResources = ResourcesReader.Get();
+    private Dictionary<string, DisplayableResource> allResources = ResourcesReader.Get();
 
     private ReactiveState<List<Node>> itemsToDisplay = new(new());
     public Node Build(ItemFilterState itemFilterState, GearSlotState gearSlotState, SkillSlotsState skillSlotsState, Storage store)
@@ -56,18 +56,18 @@ public partial class MenuEquipment : BuilderComponent
 
             var itemComponent = new ItemComponent
             {
-                onClick = () => onClick(gearSlot),
+                OnClick = () => onClick(gearSlot),
             };
 
             if (slotItem != null)
             {
                 var gear = allGear[slotItem.name];
-                itemComponent.backgroundImage = GD.Load<Texture2D>($"res://images/gear/{BattleScene.GetFullGearPath(gear)}.png");
+                itemComponent.BackgroundImage = GD.Load<Texture2D>($"res://images/gear/{BattleScene.GetFullGearPath(gear)}.png");
                 itemComponent.borderColor = SCTheme.GetColorByQuality(gear.quality);
             }
             else
             {
-                itemComponent.backgroundImage = GD.Load<Texture2D>("res://images/skills/bareHandedStrike.png");
+                itemComponent.BackgroundImage = GD.Load<Texture2D>("res://images/skills/bareHandedStrike.png");
                 itemComponent.borderColor = SCTheme.GetColorByQuality(Quality.Worn);
             }
 
@@ -106,7 +106,11 @@ public partial class MenuEquipment : BuilderComponent
         itemsContainer.AddThemeConstantOverride("h_separation", border);
         itemsContainer.AddThemeConstantOverride("v_separation", border);
 
-        return NodeBuilder.CreateNode(new VBoxContainer(), equipmentContainer, NodeBuilder.Map(itemsContainer, itemsToDisplay, (item, i) => item));
+        return NodeBuilder.CreateNode(
+            new VBoxContainer(),
+            equipmentContainer,
+            NodeBuilder.Map(itemsContainer, itemsToDisplay, (item, i) => item)
+        );
     }
 
     private List<Node> GetItemsSection()
@@ -117,9 +121,9 @@ public partial class MenuEquipment : BuilderComponent
         {
             var crossIcon = new ItemComponent
             {
-                onClick = () => OnItemClick(),
+                OnClick = () => OnItemClick(),
                 borderColor = SCTheme.GetColorByQuality(Quality.Worn),
-                backgroundImage = GD.Load<Texture2D>("res://images/skills/bareHandedStrike.png"),
+                BackgroundImage = GD.Load<Texture2D>("res://images/skills/bareHandedStrike.png"),
             };
             items.Add(crossIcon);
         }
@@ -134,8 +138,8 @@ public partial class MenuEquipment : BuilderComponent
                     var gearNode = NodeBuilder.CreateNode(new ItemComponent
                     {
                         borderColor = SCTheme.GetColorByQuality(allGear[gear.name].quality),
-                        backgroundImage = GD.Load<Texture2D>($"res://images/gear/{BattleScene.GetFullGearPath(gear)}.png"),
-                        onClick = () => OnSelectGear(gear),
+                        BackgroundImage = GD.Load<Texture2D>($"res://images/gear/{BattleScene.GetFullGearPath(gear)}.png"),
+                        OnClick = () => OnSelectGear(gear),
                     });
 
                     items.Add(gearNode);
@@ -146,7 +150,7 @@ public partial class MenuEquipment : BuilderComponent
                 {
                     var skillNode = NodeBuilder.CreateNode(new ItemComponent()
                     {
-                        onClick = () => OnSelectSkill(skill),
+                        OnClick = () => OnSelectSkill(skill),
                         // backgroundImage = GD.Load<Texture2D>($"res://images/skills/{skill.name}.png"),
                     });
 

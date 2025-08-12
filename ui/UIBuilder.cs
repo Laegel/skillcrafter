@@ -163,6 +163,22 @@ public static class NodeBuilder
 
     }
 
+    public static Node Watch<T>(Node parent, Func<Node> lazy, ReactiveState<T> state)
+    {
+        state.OnValueChanged += (x) =>
+        {
+            foreach (var child in parent.GetChildren())
+            {
+                parent.RemoveChild(child);
+            }
+            parent.AddChild(lazy());
+        };
+        parent.AddChild(lazy());
+
+        return parent;
+    }
+
+
     public static Node Watch<T>(Node parent, Func<Node> lazy, params ReactiveState<T>[] states)
     {
         var state = ReactiveState<T>.Merge(states);
@@ -314,11 +330,11 @@ public static class NodeBuilder
             {
                 parent.RemoveChild(child);
             }
-            var newChild = map[target.Value]();
+            var newChild = TryToGetMatch(map, target);
             AddChild(parent, newChild);
         };
 
-        var initialChild = map[target.Value]();
+        var initialChild = TryToGetMatch(map, target);
         AddChild(parent, initialChild);
         return parent;
     }
@@ -331,13 +347,26 @@ public static class NodeBuilder
             {
                 parent.RemoveChild(child);
             }
-            var newChild = map[target.Value]();
+            var newChild = TryToGetMatch(map, target);
             AddChild(parent, newChild);
         };
 
-        var initialChild = map[target.Value]();
+        var initialChild = TryToGetMatch(map, target);
         AddChild(parent, initialChild);
         return parent;
+    }
+
+    private static Node TryToGetMatch<T>(Dictionary<T, Func<Node>> map, ReactiveState<T> target)
+    {
+        try
+        {
+            return map[target.Value]();
+        }
+        catch (System.Exception)
+        {
+            GD.Print($"Tried to match {target.Value} but arm is not defined");
+            throw;
+        }
     }
 }
 public abstract partial class BuilderComponent

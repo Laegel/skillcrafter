@@ -5,34 +5,34 @@ using Godot;
 public partial class Dropdown : OptionButton
 {
     private string[] _items;
-    public ReactiveState<int> SelectedItem = new();
+
+    public ReactiveState<int> SelectedItem
+    {
+        get => Selected;
+        set
+        {
+            // Selected = value;
+            GD.Print("set " + value.Value);
+            Select(value);
+
+        }
+    }
     public Action<int> OnChanged;
 
-    public Dropdown()
+    public Dropdown(string[] items)
     {
+        _items = items;
+        foreach (var item in _items)
+        {
+            AddItem(item);
+        }
         ItemSelected += (index) =>
         {
             OnChanged((int)index);
-            // if (index >= 0 && index < _items.Length)
-            // {
-            //     SelectedItem.Value = (int)index;
-            // }
+
         };
     }
 
-    public string[] Items
-    {
-        get => _items;
-        set
-        {
-            _items = value;
-            Clear();
-            foreach (var item in _items)
-            {
-                AddItem(item);
-            }
-        }
-    }
 }
 
 public partial class TextInput : LineEdit
@@ -57,6 +57,12 @@ public partial class DynamicLabel : RichTextLabel
     {
         BbcodeEnabled = true;
         FitContent = true;
+    }
+
+    public override void _Ready()
+    {
+        base._Ready();
+        InstallEffect(new ThemeCode());
     }
     public int FontSize
     {
@@ -435,5 +441,118 @@ public partial class VerticalContainer : BuilderComponent
         };
         container.AddThemeConstantOverride("separation", Separation);
         return container;
+    }
+}
+
+public partial class SkillTooltip : BuilderComponent
+{
+    public SkillConfiguration SkillConfiguration;
+    public bool IsConfigurable = false;
+    public Node Build()
+    {
+        return NodeBuilder.CreateNode(new VBoxContainer
+        {
+            SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
+            SizeFlagsVertical = Control.SizeFlags.ExpandFill,
+        },
+            IsConfigurable ? new TextInput
+            {
+                PlaceholderText = "Skill Name",
+                SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
+                Value = SkillConfiguration.Name,
+            } : new DynamicLabel
+            {
+                Content = SkillConfiguration.Name,
+                FontSize = 20,
+                AutowrapMode = TextServer.AutowrapMode.Off,
+            },
+
+            new HSeparator(),
+            new StabilityBar(SkillConfiguration.Stability)
+            {
+                CustomMinimumSize = new Vector2(500, 20)
+            },
+            new DynamicLabel
+            {
+                Content = SkillConfiguration.SkillEffect.Map(x => x.GetEnumDescription()),
+            },
+            NodeBuilder.Match(SkillConfiguration.SkillEffect, new VBoxContainer(), new()
+            {
+                { SkillEffects.DealDamage1, () => {
+                    var damage = ((ReactiveState<int>, ReactiveState<int>))SkillConfiguration.SkillEffectConfiguration.Value["damage"];
+                    var element = (ReactiveState<Element>)SkillConfiguration.SkillEffectConfiguration.Value["element"];
+                    return NodeBuilder.CreateNode(new VBoxContainer(),
+
+                        NodeBuilder.Watch(new HBoxContainer(), () => {
+                            return new RichTextLabel() {
+                                BbcodeEnabled = true, FitContent = true, AutowrapMode = TextServer.AutowrapMode.Off, Text = Translation.T("damage", new() {
+                                { "min", damage.Item1 },
+                                { "max", damage.Item2 },
+                                { "element", element.Value.GetEnumDescription().ToLower() },
+                                { "elementColor", SCTheme.GetElementColor(element).ToHtml() }
+                            }) };
+                        }, damage.Item1, damage.Item2, element.Map(x => (int)x))
+                    );
+                } },
+                {
+                    SkillEffects.CreateSurface, () => {
+                    var element = (ReactiveState<Element>)SkillConfiguration.SkillEffectConfiguration.Value["element"];
+                    return NodeBuilder.CreateNode(new VBoxContainer(),
+
+                        NodeBuilder.Watch(new HBoxContainer(), () => {
+                            return new RichTextLabel() {
+                                BbcodeEnabled = true, FitContent = true, AutowrapMode = TextServer.AutowrapMode.Off, Text = Translation.T("createSurface", new() {
+                                { "element", element.Value.GetEnumDescription().ToLower() },
+                                { "elementColor", SCTheme.GetElementColor(element).ToHtml() }
+                            }) };
+                        }, element.Map(x => (int)x))
+                    );
+                } },
+            }),
+
+            NodeBuilder.Watch(new HBoxContainer(), () =>
+            {
+                return new DynamicLabel()
+                {
+                    AutowrapMode = TextServer.AutowrapMode.Off,
+                    Text = Translation.T("range", new() {
+                        { "min", SkillConfiguration.Range.Min },
+                        { "max", SkillConfiguration.Range.Max }
+                    })
+                };
+            }, SkillConfiguration.Range.Min, SkillConfiguration.Range.Max),
+            NodeBuilder.Watch(new HBoxContainer(), () =>
+            {
+                return new DynamicLabel()
+                {
+                    AutowrapMode = TextServer.AutowrapMode.Off,
+                    Text = Translation.T("targetRadius", new() {
+                        { "min", SkillConfiguration.TargetRadius.Min },
+                        { "max", SkillConfiguration.TargetRadius.Max }
+                    })
+                };
+            }, SkillConfiguration.TargetRadius.Min, SkillConfiguration.TargetRadius.Max),
+            new DynamicLabel
+            {
+                Content = SkillConfiguration.Visibility.Map(x => "[theme classes=text-content-60]" + (x ? "Requires visibility" : "Doesn't require visibility") + "[/theme]"),
+            },
+            NodeBuilder.CreateNode(new HBoxContainer(),
+                NodeBuilder.Show(SkillConfiguration.AP.Map(x => x > 0), new DynamicLabel()
+                {
+                    AutowrapMode = TextServer.AutowrapMode.Off,
+                    Content = SkillConfiguration.AP.Map(x => "[theme classes=text-ability][img=40x40]res://images/skin/icon-star.svg[/img][b]" + x + "[/b][/theme]"),
+                }),
+                NodeBuilder.Show(SkillConfiguration.MP.Map(x => x > 0), new DynamicLabel()
+                {
+                    AutowrapMode = TextServer.AutowrapMode.Off,
+                    Content = SkillConfiguration.MP.Map(x => "[theme classes=text-movement][img=40x40]res://images/skin/icon-boot.svg[/img][b]" + x + "[/b][/theme]"),
+                }),
+                NodeBuilder.Show(SkillConfiguration.HP.Map(x => x > 0), new DynamicLabel()
+                {
+                    AutowrapMode = TextServer.AutowrapMode.Off,
+                    Content = SkillConfiguration.HP.Map(x => "[theme classes=text-health][img=40x40]res://images/skin/icon-heart.svg[/img][b]" + (x * 10) + "%" + "[/b][/theme]"),
+                })
+            )
+        );
     }
 }

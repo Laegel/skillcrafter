@@ -3,6 +3,7 @@
   "farewell": "Goodbye, {name}. See you in {days} days.",
   "item_count": "You have {count} items.",
   "damage": "[color={elementColor}][img=40x40]res://images/skin/icon-{element}.svg[/img] [b]{min}-{max}[/b][/color]",
-  "range": "Range: {min}-{max}",
-  "targetRadius": "Target Radius: {min}-{max}"
+  "createSurface": "Create a [color={elementColor}][img=40x40]res://images/skin/icon-{element}.svg[/img][/color] [b]surface[/b]",
+  "range": "[theme classes=text-content-60]Range[/theme] [b]{min}-{max}[/b]",
+  "targetRadius": "[theme classes=text-content-60]Target Radius[/theme] [b]{min}-{max}[/b]"
 }

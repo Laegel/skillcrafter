@@ -8,6 +8,8 @@ public partial class Tabs : BuilderComponent
     private ReactiveState<int> currentTab;
     private Dictionary<string, Node> tabs;
 
+    public Action OnChange;
+
     public Tabs(Dictionary<string, Node> tabs)
     {
         this.tabs = tabs;
@@ -22,20 +24,30 @@ public partial class Tabs : BuilderComponent
         {
         }, tabs.Select((tab, index) =>
         {
-            var button = new TextureButton()
+            return NodeBuilder.Watch(new Control() { CustomMinimumSize = new Vector2(100, 50), }, () =>
             {
-                CustomMinimumSize = new Vector2(100, 50),
-            };
-            button.AddChild(new Label { Text = tab.Key });
-            button.Pressed += () =>
-            {
-                currentTab.Value = index;
-            };
+                var button = new Button()
+                {
+                    CustomMinimumSize = new Vector2(100, 50),
+                };
+                button.AddChild(new Label { Text = tab.Key });
+                button.Pressed += () =>
+                {
+                    currentTab.Value = index;
+                    OnChange();
+                };
 
-            return NodeBuilder.CreateNode(button, NodeBuilder.Show(currentTab.Map(x => x == index), new Label
-            {
-                Text = "          *",
-            }));
+                var style = new StyleBoxFlat
+                {
+                    BgColor = SCTheme.Base100,
+                };
+                style.SetBorderWidthAll(2);
+
+                    style.BorderColor = currentTab == index ? SCTheme.Content : SCTheme.Base300;
+                style.SetCornerRadiusAll(8);
+                button.AddThemeStyleboxOverride("normal", style);
+                return button;
+            }, currentTab);
         }).ToList()), NodeBuilder.CreateNode(marginContainer, NodeBuilder.Match(
             currentTab,
             tabs.Select((tab, index) => new KeyValuePair<int, Func<Node>>(index, () => tab.Value)).ToDictionary(kv => kv.Key, kv => kv.Value)

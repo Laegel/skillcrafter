@@ -1,10 +1,7 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using Godot;
-using Microsoft.Win32.SafeHandles;
 
 [Serializable]
 public class GameDataSkill
@@ -32,6 +29,8 @@ public class InventoryItem
     public int quantity;
 }
 
+public class StorageItem {}
+
 
 [Serializable]
 public partial class GameData : GodotObject
@@ -42,6 +41,7 @@ public partial class GameData : GodotObject
     public GameDataGear[] gear;
     public Dictionary<string, Dictionary<string, MapItemBase>> progress;
     public InventoryItem[] resources;
+    public Parchment[] Parchments;
     public GameDataBarterOffer[] barterOffers;
 }
 
@@ -100,12 +100,52 @@ public class Storage
                     TargetRadius = new Range() { Min = 1, Max = 1 },
                 },
                 new() {
-                    Name = "interact",
+                    Name = "tearDrop",
                     AP = 3,
                     Cooldown = 1,
                     Range = new Range() { Min = 1, Max = 1 },
                     Visibility = true,
                     TargetRadius = new Range() { Min = 1, Max = 1 },
+                    SkillEffect = SkillEffects.CreateSurface,
+                    SkillEffectConfiguration = new() {
+                        {"element", new ReactiveState<Element>(Element.Water)}
+                    }
+                },
+                new() {
+                    Name = "earth",
+                    AP = 3,
+                    Cooldown = 1,
+                    Range = new Range() { Min = 1, Max = 1 },
+                    Visibility = true,
+                    TargetRadius = new Range() { Min = 1, Max = 1 },
+                    SkillEffect = SkillEffects.CreateSurface,
+                    SkillEffectConfiguration = new() {
+                        {"element", new ReactiveState<Element>(Element.Earth)}
+                    }
+                },
+                new() {
+                    Name = "air",
+                    AP = 3,
+                    Cooldown = 1,
+                    Range = new Range() { Min = 1, Max = 1 },
+                    Visibility = true,
+                    TargetRadius = new Range() { Min = 1, Max = 1 },
+                    SkillEffect = SkillEffects.CreateSurface,
+                    SkillEffectConfiguration = new() {
+                        {"element", new ReactiveState<Element>(Element.Air)}
+                    }
+                },
+                new() {
+                    Name = "fire",
+                    AP = 3,
+                    Cooldown = 1,
+                    Range = new Range() { Min = 1, Max = 1 },
+                    Visibility = true,
+                    TargetRadius = new Range() { Min = 1, Max = 1 },
+                    SkillEffect = SkillEffects.CreateSurface,
+                    SkillEffectConfiguration = new() {
+                        {"element", new ReactiveState<Element>(Element.Fire)}
+                    }
                 },
                 new() {
                     Name = "test",
@@ -114,6 +154,11 @@ public class Storage
                     Range = new Range() { Min = 1, Max = 20 },
                     Visibility = false,
                     TargetRadius = new Range() { Min = 1, Max = 1 },
+                    SkillEffect = SkillEffects.DealDamage1,
+                    SkillEffectConfiguration = new() {
+                        {"damage", (new ReactiveState<int>(1), new ReactiveState<int>(5))},
+                        {"element", new ReactiveState<Element>(Element.Fire)}
+                    }
                 },
                 // new() { name = "skill1", }
             },
@@ -134,11 +179,12 @@ public class Storage
             },
             skillSlots = new() {
                 {0, new GameDataSkill(){ name = "bareHandedStrike", label = "bareHandedStrike" } },
-                {1, new GameDataSkill(){ name = "interact", label = "interact" } },
+                // {1, new GameDataSkill(){ name = "interact", label = "interact" } },
+                {1, new GameDataSkill(){ name = "tearDrop", label = "tearDrop" } },
                 {2, new GameDataSkill(){ name = "test", label = "test" } },
-                {3, null },
-                {4, null },
-                {5, null },
+                {3, new GameDataSkill(){ name = "earth", label = "earth" } },
+                {4, new GameDataSkill(){ name = "air", label = "air" } },
+                {5, new GameDataSkill(){ name = "fire", label = "fire" } },
                 {6, null },
                 {7, null },
                 {8, null },
@@ -152,6 +198,13 @@ public class Storage
                 { GearSlot.Weapon, null}
             },
             barterOffers = Array.Empty<GameDataBarterOffer>(),
+            Parchments = new Parchment[]{
+                Parchment.Randomize(),
+                Parchment.Randomize(),
+                Parchment.Randomize(),
+                Parchment.Randomize(),
+                Parchment.Randomize(),
+            },
             progress = new Dictionary<string, Dictionary<string, MapItemBase>>
             {
                 { "forest", new() {

@@ -9,8 +9,9 @@ public partial class ItemComponent : BuilderComponent
     private Button button;
     private bool isLongPress = false;
     public Color borderColor = new(0, 0, 0, 0);
-    public Texture2D backgroundImage = new();
-    public Action onClick = () => { };
+    public int BorderWidth = 2;
+    public Texture2D BackgroundImage = new();
+    public Action OnClick = () => { };
     public Action onLongPress = () => { };
 
     private void ClearTimers()
@@ -64,18 +65,19 @@ public partial class ItemComponent : BuilderComponent
             {
                 return;
             }
-            onClick();
+            OnClick();
             ClearTimers();
 
         };
 
-        var border = 2;
+        var border = BorderWidth;
         var style = new StyleBoxFlat
         {
-            BgColor = SCTheme.Base300,
+            BgColor = SCTheme.Base100,
         };
         style.SetBorderWidthAll(border);
         style.BorderColor = borderColor;
+        style.SetCornerRadiusAll(8);
         button.AddThemeStyleboxOverride("normal", style);
         button.AddThemeStyleboxOverride("hover", style);
         button.AddThemeStyleboxOverride("focus", style);
@@ -88,12 +90,13 @@ public partial class ItemComponent : BuilderComponent
 
                 var shader = new Shader
                 {
-                    Code = FileAccess.Open("res://radial.shader", FileAccess.ModeFlags.Read).GetAsText()
+                    Code = FileAccess.Open("res://radial.gdshader", FileAccess.ModeFlags.Read).GetAsText()
                 };
 
                 shaderMaterial.Shader = shader;
-                shaderMaterial.SetShaderParameter("inner_color", SCTheme.Base300);
-                shaderMaterial.SetShaderParameter("outer_color", borderColor);
+                shaderMaterial.SetShaderParameter("inner_color", borderColor);
+                shaderMaterial.SetShaderParameter("outer_color", SCTheme.Base100);
+                shaderMaterial.SetShaderParameter("radius", 0.66f);
                 return new Panel()
                 {
                     Material = shaderMaterial,
@@ -104,7 +107,7 @@ public partial class ItemComponent : BuilderComponent
                 };
             }, NodeBuilder.CreateNode(new TextureRect
             {
-                Texture = backgroundImage,
+                Texture = BackgroundImage,
                 CustomMinimumSize = new Vector2(SCTheme.GridItemSize - border * 3, SCTheme.GridItemSize - border * 3),
                 ExpandMode = TextureRect.ExpandModeEnum.FitWidthProportional,
                 StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered,

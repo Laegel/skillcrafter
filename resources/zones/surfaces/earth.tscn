@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3 uid="uid://b5qn41enbw6bw"]
+
+[ext_resource type="Texture2D" uid="uid://b00vl264uabuk" path="res://resources/zones/maps/tile-iso.png" id="1_akkja"]
+
+[node name="Earth" type="Sprite2D"]
+modulate = Color(0.410918, 0.24437, 0.0581826, 1)
+texture = ExtResource("1_akkja")

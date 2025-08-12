@@ -1,0 +1,13 @@
+[gd_scene load_steps=4 format=3 uid="uid://len4m8bnqh5f"]
+
+[ext_resource type="Texture2D" uid="uid://n2tito0hjkgc" path="res://resources/zones/surfaces/Fire.png" id="1_w1njv"]
+[ext_resource type="Texture2D" uid="uid://l1o2wx7td0fj" path="res://images-preprocess/grayscaleflame.png" id="2_218y4"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_r87cw"]
+
+[node name="Fire" type="Sprite2D"]
+texture = ExtResource("1_w1njv")
+
+[node name="GPUParticles2D" type="GPUParticles2D" parent="."]
+material = SubResource("ShaderMaterial_r87cw")
+texture = ExtResource("2_218y4")

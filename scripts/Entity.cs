@@ -98,31 +98,6 @@ public partial class Entity : Interactive
     public Vector2 direction = new(1, 0);
     public float movementSpeedModifier = 1f;
 
-
-    public Node damageBox;
-
-
-
-
-    void Awake()
-    {
-        healthPoints = maxHealthPoints;
-        abilityPoints = maxAbilityPoints;
-        movementPoints = maxMovementPoints;
-    }
-
-
-    void Start()
-    {
-
-    }
-
-
-    void Update()
-    {
-
-    }
-
     public void LateUpdate()
     {
         bool stateChanged = previousState != currentState;
@@ -151,10 +126,11 @@ public partial class Entity : Interactive
         //     movementTargets = targets;
         // }
 
+
         RunAnimation(State.Attack);
 
-        // SurfaceEffect mainSurfaceEffect = skill.surface != null ? new SurfaceEffect { surface = (Surface)skill.surface } : null;
-        // var surfaceEffects = new List<SurfaceEffect>();
+        SurfaceEffect mainSurfaceEffect = null;
+        var surfaceEffects = new List<SurfaceEffect>();
 
         // var overTimeEffects = new List<OverTimeEffect>();
         var damages = new List<DamageResult>();
@@ -226,12 +202,26 @@ public partial class Entity : Interactive
         //         overTimeEffects = overTimeEffects,
         //     };
         // }
+
+        switch (skill.SkillEffect)
+        {
+            case SkillEffects.DealDamage1:
+            case SkillEffects.DealDamage2:
+            case SkillEffects.DealDamage3:
+                break;
+            case SkillEffects.CreateSurface:
+                var surface = (ReactiveState<Element>)skill.SkillEffectConfiguration["element"];
+                mainSurfaceEffect = new SurfaceEffect { surface = SurfaceEnumConverter.FromElementToSurface(surface.Value) };
+                break;
+            default:
+                break;
+        }
         return new CastResult()
         {
             Damages = damages,
             MovementEffects = new(),
             SurfaceEffects = new(),
-            MainSurfaceEffect = null,
+            MainSurfaceEffect = mainSurfaceEffect,
             OverTimeEffects = new(),
             SideEffects = new(),
         };
@@ -318,11 +308,11 @@ public partial class Entity : Interactive
     //     return Math.Ceiling(valueWithElementModifier);
     // }
 
-    public void TakeDamage(int damages, int element, bool isCritical)
+    public void TakeDamage(int damages, Element element, bool isCritical)
     {
-        var damageManager = GetNode<DamageManager>("damageBox");
-        var (r, g, b) = Skill.GetElementColor((Element)element);
-        damageManager.Create(Vector3.Zero, damages.ToString() + (isCritical ? "!" : ""), new Color(r, g, b));
+        var damageManager = GetNode<DamageManager>("DamageManager");
+        var color = SCTheme.GetElementColor(element);
+        damageManager.Create(damages.ToString() + (isCritical ? "!" : ""), color, SCTheme.GetElementOutlineColor(element));
         if (damages >= healthPoints)
         {
             healthPoints = 0;
@@ -338,16 +328,16 @@ public partial class Entity : Interactive
         healthPoints = 0;
     }
 
-    public void LookAt(Vector2I target)
+    public void ChangeDirection(Vector2I target)
     {
-        // var skeleton = GetChild(0);
-        // var direction = GridHelper.GetRelativePosition(BattleMap.EntityPositionToCellCoordinates(transform.position), target) switch
-        // {
-        //     Direction.Left => -1,
-        //     Direction.Top => -1,
-        //     _ => 1
-        // };
-        // skeleton.localScale = new Vector3(Mathf.Abs(skeleton.localScale.x) * direction, skeleton.localScale.y, skeleton.localScale.z);
+        var skeleton = GetNode<Skeleton2D>("Skeleton");
+        var direction = GridHelper.GetRelativePosition(BattleMap.EntityPositionToCellCoordinates(Position), target) switch
+        {
+            Direction.Left => -1,
+            Direction.Top => -1,
+            _ => 1
+        };
+        skeleton.Scale = new Vector2(Mathf.Abs(skeleton.Scale.X) * direction, skeleton.Scale.Y);
     }
 
     public void Move()

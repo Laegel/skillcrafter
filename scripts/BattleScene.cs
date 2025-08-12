@@ -179,23 +179,6 @@ public enum CellKind
 
 }
 
-public enum Surface
-{
-    [Description("Water")]
-    Water,
-    [Description("Poison")]
-    Poison,
-    [Description("Fire")]
-    Fire,
-    [Description("Radiating")]
-    Radiating,
-    [Description("Ice")]
-    Ice,
-    [Description("Fog")]
-    Fog,
-    [Description("Smoke")]
-    Smoke,
-}
 
 
 
@@ -266,9 +249,14 @@ public partial class BattleScene : Node2D
     private Vector2I? validateCastingSkillTargetCell;
     private Dictionary<string, MapItem> maps;
     private Storage store;
+    private MenuState menuState;
+    private SkillSlotsState skillSlotsState;
     private SwipeCamera SwipeCamera;
     // Used to prevent pointer conflict between camera moving and character moving
     private bool CameraMovingDelayTracker = false;
+
+    [Export]
+    public Surfaces SurfaceMap;
 
     public override void _Ready()
     {
@@ -294,8 +282,21 @@ public partial class BattleScene : Node2D
         allGear = GearReader.Get();
         ServiceStorage.AutoRegisterServices();
 
+        menuState = ServiceStorage.Resolve<MenuState>();
+
         store = ServiceStorage.Resolve<Storage>();
         gameData = store.GameData;
+        skillSlotsState = ServiceStorage.Resolve<SkillSlotsState>();
+        skillSlotsState.equipedSkills.Value = gameData.skillSlots.Select(x => x.Value == null ? (null, null) : (new TurnSkillRestrictions() { cooldown = 0 }, GetSkillByName(x.Value.name))).ToList();
+
+        
+
+        skillSlotsState.equipedSkills.OnValueChanged += (x) =>
+        {
+            playerEntity.skills = x.Select(skill =>((TurnSkillRestrictions, SkillBlueprint)?)skill).ToList();
+            GD.Print("Changed entity skills");
+        };
+
         GD.Print("Done loading data");
 
         GD.Print("Creating player character portrait...");
@@ -305,6 +306,7 @@ public partial class BattleScene : Node2D
         GD.Print("Finishing awakening...");
         scope = new TileMapTerrain(GetNode<TileMapLayer>("Grid/Scope"));
         validationScope = new TileMapTerrain(GetNode<TileMapLayer>("Grid/ValidationScope"));
+
         var currentZone = Zone.Instance.CurrentBattle;
         currentMapItem = maps[Zone.Instance.CurrentBattle.Item1 + (currentZone.Item2 + 1)];
 
@@ -374,9 +376,10 @@ public partial class BattleScene : Node2D
         Translation.LoadTranslations("res://translations/en.json");
         var itemFilterState = ServiceStorage.Resolve<ItemFilterState>();
         var gearSlotState = ServiceStorage.Resolve<GearSlotState>();
-        var skillSlotsState = ServiceStorage.Resolve<SkillSlotsState>();
+        var treeService = ServiceStorage.Resolve<TreeService>();
+        
+        treeService.Root = GetTree().Root;
 
-        skillSlotsState.equipedSkills.Value = gameData.skillSlots.Select(x => x.Value == null ? (null, null) : (new TurnSkillRestrictions() { cooldown = 0 }, GetSkillByName(x.Value.name))).ToList();
         gearSlotState.equipedGear.Value = gameData.gearSlots;
 
         gearSlotState.equipedGear.OnValueChanged += (gearSlots) =>
@@ -396,7 +399,7 @@ public partial class BattleScene : Node2D
         };
         AddChild(new BattlePanel((index) =>
         {
-            if (MenuState.currentMenu.Value == Menus.Equipment)
+            if (menuState.currentMenu.Value == Menus.Equipment)
             {
                 itemFilterState.Set(ItemType.Skill, index);
             }
@@ -781,7 +784,7 @@ public partial class BattleScene : Node2D
 
     private void SetMapCellSurface(int x, int y, SurfaceStatus surfaceStatus)
     {
-        currentMap[new Vector3I(x, y, 0).ToString()].surfaceStatus = surfaceStatus;
+        currentMap[CoordsToString(x, y)].surfaceStatus = surfaceStatus;
     }
 
 
@@ -807,6 +810,64 @@ public partial class BattleScene : Node2D
     {
         // var ruleTile = Resources.Load<RuleTile>("Highlight");
         // validationScope.Modulate = color ?? new Color(1, 1, 1);
+
+
+
+//         var testShader = @"shader_type canvas_item;
+
+// uniform vec3 ring_color: source_color = vec3(1.0);
+// uniform float ring_frequency = 50.0;
+// uniform float ring_portion: hint_range(-0.9, 0.9, 0.1) = 0.0;
+// uniform float move_speed = -10.0;
+// uniform bool smooth_edge = false;
+
+// uniform vec2 tilemap_origin; // Set from GDScript (global_position of the TileMap)
+// uniform vec2 tilemap_size;   // Set from GDScript (size in pixels of the TileMap)
+// uniform vec2 viewport_size;
+
+// uniform vec2 ring_center = vec2(0.5, 0.5);
+
+// void fragment() {
+//     // Normalized screen UV coordinates (0 to 1)
+//     vec2 uv = SCREEN_UV;
+
+//     float dist = distance(uv, tilemap_origin);
+//     float rings = sin(dist * ring_frequency + (TIME * move_speed));
+//     rings = step(ring_portion, rings);
+//     float blend_alpha = smoothstep(0.5, 0.4, dist);
+
+//     if (dist > 0.5 || rings < 1.0) {
+//         COLOR = vec4(0.0);
+//     } else {
+//         COLOR.rgb = ring_color;
+//         COLOR.a = smooth_edge ? blend_alpha : 1.0;
+//     }
+// }
+//  ";
+
+//         var shaderMaterial = new ShaderMaterial();
+//         var usedRect = validationScope.tileMapLayer.GetUsedRect();
+//         var tileSize = validationScope.tileMapLayer.TileSet.TileSize;
+
+//         var mapSize = usedRect.Size * tileSize;
+//         // var origin = GlobalPosition + usedRect.Position * tileSize;
+//         var viewportSize = GetViewportRect().Size;
+//         var canvasXform = validationScope.tileMapLayer.GetGlobalTransformWithCanvas();
+//         var origin = canvasXform.Origin;
+
+//         shaderMaterial.SetShaderParameter("tilemap_origin", origin);
+//         shaderMaterial.SetShaderParameter("tilemap_size", mapSize);
+//         shaderMaterial.SetShaderParameter("viewport_size", viewportSize);
+
+//         var shader = new Shader
+//         {
+//             Code = testShader
+//         };
+
+
+//         shaderMaterial.Shader = shader;
+//         validationScope.tileMapLayer.Material = shaderMaterial;
+
 
         var cells = FindReachableCells(position, fromRadius, radius, includableCells);
         foreach (var cell in cells)
@@ -944,7 +1005,7 @@ public partial class BattleScene : Node2D
 
         foreach (var cell in path)
         {
-            entity.LookAt(cell);
+            entity.ChangeDirection(cell);
             entity.OccupiedCells = new() { cell };
             MoveRendererToCell(entity, cell);
             var mapCell = ReadMapCell(cell);
@@ -1182,8 +1243,8 @@ public partial class BattleScene : Node2D
                     switch (sideEffect.effect)
                     {
                         case SideEffect.Burning:
-                            var damageBurn = Random.Range(1, 4);
-                            entity.TakeDamage(damageBurn, (int)Element.Fire, false);
+                            var damageBurn = Random.Int(1, 4);
+                            entity.TakeDamage(damageBurn, Element.Fire, false);
                             AppendLogs("takeDamage", new Dictionary<string, string>() {
                                 {"entity", entity.Name},
                                 {"damage", damageBurn.ToString()},
@@ -1216,8 +1277,8 @@ public partial class BattleScene : Node2D
                     var overTimeEffect = decreasedOverTimeEffects[i];
                     if (overTimeEffect.damage != null)
                     {
-                        var damageDealt = Random.Range(overTimeEffect.damage.min, overTimeEffect.damage.max);
-                        entity.TakeDamage(damageDealt, (int)overTimeEffect.damage.element, false);
+                        var damageDealt = Random.Int(overTimeEffect.damage.min, overTimeEffect.damage.max);
+                        entity.TakeDamage(damageDealt, overTimeEffect.damage.element, false);
                         AppendLogs("takeDamage", new Dictionary<string, string>() {
                         {"entity", entity.Name},
                         {"damage", damageDealt.ToString()},
@@ -1277,7 +1338,7 @@ public partial class BattleScene : Node2D
                 TriggerSurfaceEffectOverTime(entity, surface);
                 break;
             case Surface.Ice:
-                var slipped = Random.Range(1, 10) == 1;
+                var slipped = Random.Int(1, 10) == 1;
                 if (slipped)
                 {
                     AppendLogs("slipped", new Dictionary<string, string> {
@@ -1297,8 +1358,8 @@ public partial class BattleScene : Node2D
         switch (surface)
         {
             case Surface.Fire:
-                var damageBurn = Random.Range(1, 4);
-                entity.TakeDamage(damageBurn, (int)Element.Fire, false);
+                var damageBurn = Random.Int(1, 4);
+                entity.TakeDamage(damageBurn, Element.Fire, false);
                 AppendLogs("takeDamage", new Dictionary<string, string>() {
                     {"entity", entity.Name},
                     {"damage", damageBurn.ToString()},
@@ -1353,7 +1414,7 @@ public partial class BattleScene : Node2D
             return;
         }
 
-        if (MenuState.currentMenu != Menus.None)
+        if (menuState.currentMenu != Menus.None)
         {
             SwipeCamera.PreventCameraDragging = true;
             return;
@@ -1581,11 +1642,10 @@ public partial class BattleScene : Node2D
                 GD.Print(tile);
                 if (IsInBoundaries(scope.tileMapLayer, scope.tileMapLayer.LocalToMap(point)))
                 {
-                    var entity = playerEntity;
 
                     var tilemapTargetPosition = cellPos;
 
-                    var pickedSkill = entity.skills[(int)IsCastingSkill - 1].Value.Item2;
+                    var pickedSkill = playerEntity.skills[(int)IsCastingSkill - 1].Value.Item2;
 
 
 
@@ -1594,13 +1654,13 @@ public partial class BattleScene : Node2D
                         validateCastingSkillTargetCell = null;
                         DestroyTargetCells();
                         DestroyValidationCells();
-                        CastSkill(entity, pickedSkill, tilemapTargetPosition, () =>
+                        CastSkill(playerEntity, pickedSkill, tilemapTargetPosition, () =>
                         {
 
                             if (Status != BattleStatus.Exploring)
-                                DisplayMovementRange(entity);
+                                DisplayMovementRange(playerEntity);
                         });
-                        entity.LookAt(tilemapTargetPosition);
+                        playerEntity.ChangeDirection(tilemapTargetPosition);
 
                         IsCastingSkill = SkillAction.Inactive;
                         RefreshTurnOrder();
@@ -1612,7 +1672,7 @@ public partial class BattleScene : Node2D
                         DestroyValidationCells();
                         // if (validateCastingSkillTargetCell != null) {
                         DestroyTargetCells();
-                        DrawTargetCells(entity.OccupiedCells.First(), pickedSkill.Range.Min, pickedSkill.Range.Max, GetTargetableCells(pickedSkill), new Color(1f, 0.843f, 0f), pickedSkill.Visibility);
+                        DrawTargetCells(playerEntity.OccupiedCells.First(), pickedSkill.Range.Min, pickedSkill.Range.Max, GetTargetableCells(pickedSkill), new Color(1f, 0.843f, 0f), pickedSkill.Visibility);
                         // }
                         validateCastingSkillTargetCell = tilemapTargetPosition;
                         DrawValidationCells(tilemapTargetPosition, pickedSkill.TargetRadius.Min - 1, pickedSkill.TargetRadius.Max - 1, new[] {  new MapCell(){
@@ -1688,10 +1748,10 @@ public partial class BattleScene : Node2D
         {
             pointerDownTimer += (float)delta;
         }
-        if (GetPointerUpPosition() != null)
-        {
-            ResetLongPress();
-        }
+        // if (GetPointerUpPosition() != null)
+        // {
+        //     ResetLongPress();
+        // }
         if (pointerDownTimer >= requiredHoldTime)
         {
             OnLongPress();
@@ -1753,10 +1813,9 @@ public partial class BattleScene : Node2D
                 var tile = GetScopeTileFromWorld(point);
                 if (tile != null)
                 {
-                    var entity = playerEntity;
 
 
-                    var pickedSkill = entity.skills[(int)IsCastingSkill - 1].Value.Item2;
+                    var pickedSkill = skillSlotsState.equipedSkills.Value[(int)IsCastingSkill - 1].Item2;
 
 
                     if (validateCastingSkillTargetCell == cellPos)
@@ -1766,8 +1825,8 @@ public partial class BattleScene : Node2D
                         DestroyValidationCells();
 
                         // SkillCooldown = ((int)IsCastingSkill - 1, pickedSkill.Cooldown);
-                        var targets = CastSkill(entity, pickedSkill, tilemap.LocalToMap(point), () => { });
-                        entity.LookAt(cellPos);
+                        var targets = CastSkill(playerEntity, pickedSkill, tilemap.LocalToMap(point), () => { });
+                        playerEntity.ChangeDirection((Vector2I)cellPos);
 
                         if (targets.Count > 0)
                         {
@@ -1789,7 +1848,7 @@ public partial class BattleScene : Node2D
                         DestroyValidationCells();
                         // if (validateCastingSkillTargetCell != null) {
                         DestroyTargetCells();
-                        DrawTargetCells(entity.OccupiedCells.First(), pickedSkill.Range.Min, pickedSkill.Range.Max, GetTargetableCells(pickedSkill), new Color(1f, 0.843f, 0f), pickedSkill.Visibility);
+                        DrawTargetCells(playerEntity.OccupiedCells.First(), pickedSkill.Range.Min, pickedSkill.Range.Max, GetTargetableCells(pickedSkill), new Color(1f, 0.843f, 0f), pickedSkill.Visibility);
                         // }
                         validateCastingSkillTargetCell = (Vector2I)cellPos;
                         DrawValidationCells(tilemap.LocalToMap(point), pickedSkill.TargetRadius.Min - 1, pickedSkill.TargetRadius.Max - 1, new[] {  new MapCell(){
@@ -1895,10 +1954,10 @@ public partial class BattleScene : Node2D
             {
                 // pointerDownTimer += Time.deltaTime;
             }
-            if (GetPointerUpPosition() != null)
-            {
-                ResetLongPress();
-            }
+            // if (GetPointerUpPosition() != null)
+            // {
+            //     ResetLongPress();
+            // }
             if (pointerDownTimer >= requiredHoldTime)
             {
                 OnLongPress();
@@ -2005,7 +2064,7 @@ public partial class BattleScene : Node2D
         var isCritical = false;
         var casterStability = entity.GetRateFromEffect(Characteristic.Stability);
         int getStability(int stability) => (int)MathF.Ceiling(stability - stability * casterStability / 100);
-        var roll = Random.Range(1, 100);
+        var roll = Random.Int(1, 100);
         if (roll <= getStability(skill.Stability.CriticalFailure))
         {
             AppendLogs("criticalFailure", new Dictionary<string, string>() {
@@ -2090,10 +2149,10 @@ public partial class BattleScene : Node2D
         {
             var targetEntity = (Entity)targets[row.index];
             var rate = targetEntity.GetRateFromEffect(Characteristic.Evasion);
-            var hit = Random.Range(1, 100) > rate;
+            var hit = Random.Int(1, 100) > rate;
             if (hit || isCritical)
             {
-                targetEntity.TakeDamage(row.damage.amount, (int)row.damage.element, isCritical);
+                targetEntity.TakeDamage(row.damage.amount, row.damage.element, isCritical);
                 AppendLogs(isCritical ? "takeCriticalDamage" : "takeDamage", new Dictionary<string, string>() {
                             {"entity", targetEntity.Name},
                             {"element", row.damage.element.GetEnumDescription()},
@@ -2121,7 +2180,7 @@ public partial class BattleScene : Node2D
                 var referencePosition = entityReference.OccupiedCells.First();
                 var entityTarget = effect.target;
                 var targetMoveResistance = entityTarget.GetRateFromEffect(Characteristic.MoveResistance);
-                var roll = Random.Range(1, 100);
+                var roll = Random.Int(1, 100);
                 if (roll <= targetMoveResistance)
                 {
                     return;
@@ -2228,7 +2287,7 @@ public partial class BattleScene : Node2D
             foreach (var target in targets)
             {
                 var targetEntity = (Entity)target;
-                var value = Random.Range(0, 100);
+                var value = Random.Int(0, 100);
                 if (effect.rate > value)
                 {
                     if (targetEntity.sideEffects.Select(x => x.effect).Contains(effect.name))
@@ -2247,6 +2306,8 @@ public partial class BattleScene : Node2D
                 }
             }
         });
+
+        GD.Print(effects.MainSurfaceEffect);
 
         if (effects.MainSurfaceEffect != null)
         {
@@ -2270,8 +2331,8 @@ public partial class BattleScene : Node2D
                     region.ForEach(c =>
                     {
                         SetMapCellSurface(c.X, c.Y, new SurfaceStatus() { surface = surface, turns = GetSurfaceTurns(surface) });
-                        DeleteSurfaceTile(c);
-                        CreateSurface(c, surface);
+                        RemoveSurface(c);
+                        SurfaceMap.SetSurface(tilemap.ToGlobal(tilemap.MapToLocal(c)), surface);
                     });
                 });
             });
@@ -2306,9 +2367,30 @@ public partial class BattleScene : Node2D
     }
 
 
+    public void RemoveSurface(Vector2I position)
+    {
+        var cellData = ReadMapCell(position);
+        if (cellData.surfaceStatus == null)
+        {
+            return;
+        }
+
+        switch (cellData.surfaceStatus.surface)
+            {
+                case Surface.Earth:
+                    // Animate tile moving down
+                    cellData.Kind = CellKind.Empty;
+                    break;
+                default:
+                    SurfaceMap.RemoveSurface(position);
+                    break;
+            }
+    }
+
+
     public void CastDetect(List<Interactive> targets, int skillRank)
     {
-        var detectionValue = Random.Range(1, 20) + skillRank;
+        var detectionValue = Random.Int(1, 20) + skillRank;
         foreach (var target in targets)
         {
             // var interactive = target.GetComponent<Interactive>();
@@ -2379,8 +2461,8 @@ public partial class BattleScene : Node2D
                 switch (sideEffect.effect)
                 {
                     case SideEffect.Burning:
-                        var damageBurn = Random.Range(1, 4);
-                        entity.TakeDamage(damageBurn, (int)Element.Fire, false);
+                        var damageBurn = Random.Int(1, 4);
+                        entity.TakeDamage(damageBurn, Element.Fire, false);
                         AppendLogs("takeDamage", new Dictionary<string, string>() {
                             {"entity", entity.Name},
                             {"damage", damageBurn.ToString()},
@@ -2411,8 +2493,8 @@ public partial class BattleScene : Node2D
             for (int i = 0; i < decreasedOverTimeEffects.Count(); i++)
             {
                 var overTimeEffect = decreasedOverTimeEffects[i];
-                var damageDealt = Random.Range(overTimeEffect.damage.min, overTimeEffect.damage.max);
-                entity.TakeDamage(damageDealt, (int)overTimeEffect.damage.element, false);
+                var damageDealt = Random.Int(overTimeEffect.damage.min, overTimeEffect.damage.max);
+                entity.TakeDamage(damageDealt, overTimeEffect.damage.element, false);
                 AppendLogs("takeDamage", new Dictionary<string, string>() {
                     {"entity", entity.Name},
                     {"damage", damageDealt.ToString()},
@@ -2494,61 +2576,38 @@ public partial class BattleScene : Node2D
                 return;
             }
 
+            Texture2D texture = null;
+
+            switch (surface)
+            {
+                case Surface.Earth:
+                    if (cellData.isOccupied && cellData.surfaceStatus?.surface != Surface.Earth)
+                    {
+                        return;
+                    }
+
+                    cellData.isOccupied = true;
+                    // func get_cell_texture(coord:Vector2i) -> Texture:
+                    var source_id = tilemap.GetCellSourceId(cell);
+                    var source = tilemap.TileSet.GetSource(source_id) as TileSetAtlasSource;
+                    var altas_coord = tilemap.GetCellAtlasCoords(cell);
+                    var rect = source.GetTileTextureRegion(altas_coord);
+                    var image = source.Texture.GetImage();
+                    var tile_image = image.GetRegion(rect);
+                    texture = ImageTexture.CreateFromImage(tile_image);
+                    
+                    break;
+                default:
+                    break;
+            }
+
             var newSurface = GetSurfaceResult(cellData.surfaceStatus?.surface, surface);
-            DeleteSurfaceTile(cell);
-            CreateSurface(cell, newSurface);
+            RemoveSurface(cell);
+            SurfaceMap.SetSurface(tilemap.ToGlobal(tilemap.MapToLocal(cell)), newSurface, texture);
             SetMapCellSurface(cell.X, cell.Y, new SurfaceStatus() { surface = newSurface, turns = GetSurfaceTurns(newSurface) });
         });
     }
 
-    private void CreateSurface(Vector2I position, Surface surface)
-    {
-        // var prefab = Resources.Load<GameObject>("Battle/Prefabs/Surfaces/" + surface.GetEnumDescription());
-        // GameObject go;
-        // var scale = 2f;
-        // if (prefab == null)
-        // {
-        //     go = new GameObject("surface-" + position.X + "," + position.Y);
-        //     go.transform.SetParent(GameObject.Find("Surfaces").transform);
-        //     var sprite = Resources.Load<Sprite>("Battle/Images/Environment/Textures/Surfaces/" + surface.GetEnumDescription());
-        //     var renderer = go.AddComponent<SpriteRenderer>();
-
-        //     if (sprite == null)
-        //     {
-        //         sprite = Resources.Load<Sprite>("Battle/Images/Environment/Textures/tile-iso");
-        //         scale = 1.2f;
-        //     }
-        //     renderer.sprite = sprite;
-
-        //     go.transform.localScale = new Vector3(scale, scale);
-        //     var spritePosition = tilemap.LocalToMap(new Vector3I(position.X, position.Y, 0));
-        //     spritePosition.X += 0.05f;
-        //     spritePosition.Y += (int)sprite.bounds.size.Y * scale / 2 - 0.5f - 0.025f;
-        //     go.transform.position = spritePosition;
-
-        //     renderer.sortingOrder = (int)1e6 - position.X - position.Y - 2;
-        // }
-        // else
-        // {
-        //     go = Instantiate(prefab);
-        //     go.name = "surface-" + position.X + "," + position.Y;
-        //     var renderer = go.GetComponent<SpriteRenderer>();
-        //     var spritePosition = tilemap.LocalToMap(new Vector3I(position.X, position.Y, 0));
-        //     spritePosition.X += 0.05f;
-        //     spritePosition.Y += (int)renderer.sprite.bounds.size.Y * scale / 2 - 0.5f - 0.025f;
-        //     go.transform.position = spritePosition;
-        //     renderer.sortingOrder = (int)1e6 - position.X - position.Y - 2;
-        // }
-
-        // go.transform.SetParent(GameObject.Find("Surfaces").transform);
-
-
-    }
-
-    private void DeleteSurfaceTile(Vector2I position)
-    {
-        // Destroy(GameObject.Find("surface-" + position.X + "," + position.Y));
-    }
 
     // private void SetTileColor(Tile tile, Surface surface)
     // {
@@ -2572,7 +2631,7 @@ public partial class BattleScene : Node2D
     private bool pointerDown = false;
     private float pointerDownTimer;
     private readonly float requiredHoldTime = 0.5f;
-    public Dictionary<string, DisplayableItem> items;
+    public Dictionary<string, DisplayableResource> items;
     private List<LootResult> lootBag = new();
 
     public List<LootResult> GetLoot()
@@ -3043,34 +3102,6 @@ public partial class BattleScene : Node2D
 
 
 
-    private Vector3? GetPointerHoldPosition()
-    {
-        // if (Input.GetMouseButton(0))
-        // {
-        //     return Input.mousePosition;
-        // }
-        // else if ((Input.touchCount > 0) && (Input.GetTouch(0).phase == TouchPhase.Began))
-        // {
-        //     return Input.GetTouch(0).position;
-        // }
-        return null;
-    }
-
-
-    private Vector3? GetPointerUpPosition()
-    {
-        // if (Input.GetMouseButtonUp(0))
-        // {
-        //     return Input.mousePosition;
-        // }
-
-        // if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Ended)
-        // {
-        //     return Input.GetTouch(0).position;
-        // }
-
-        return null;
-    }
 
     private bool IsAdjacentCell(Vector2I origin, Vector2I target)
     {
@@ -3468,9 +3499,37 @@ public class LootResult
 
 class Random
 {
-    public static int Range(int min, int max)
+    private static System.Random Randomizer;
+    public static int Int(int min, int max)
     {
-        var rand = new System.Random();
-        return rand.Next(min, max + 1);
+        Init();
+        return Randomizer.Next(min, max + 1);
+    }
+
+    public static T Enum<T>() where T : Enum
+    {
+        return typeof(T).GetRandomEnumValue<T>();
+    }
+    public static bool Boolean()
+    {
+        return Int(0, 0) == 0;
+    }
+
+    public static Range Range(int min, int max)
+    {
+        return new Range()
+        {
+            Min = 1,
+            Max = Int(min, max)
+        };
+    }
+
+    private static void Init()
+    {
+        if (Randomizer != null)
+        {
+            return;
+        }
+        Randomizer = new System.Random();
     }
 }

@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://cnwdcfjjgw8d8"]
+
+[ext_resource type="Texture2D" uid="uid://n2tito0hjkgc" path="res://resources/zones/surfaces/Fire.png" id="1_24vy8"]
+
+[node name="Lava" type="Sprite2D"]
+texture = ExtResource("1_24vy8")

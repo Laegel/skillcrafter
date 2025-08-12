@@ -1,0 +1,23 @@
+[gd_scene load_steps=6 format=3 uid="uid://c3trvhv8newng"]
+
+[ext_resource type="Shader" path="res://shaders/water.gdshader" id="1_3efcg"]
+[ext_resource type="Texture2D" uid="uid://dgvdcuvglbog7" path="res://resources/zones/surfaces/Water.png" id="2_no5mr"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_kk6ry"]
+seed = 7
+frequency = 0.0093
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_05f3g"]
+noise = SubResource("FastNoiseLite_kk6ry")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_fpmmi"]
+shader = ExtResource("1_3efcg")
+shader_parameter/water_color = Color(0.407358, 0.463185, 0.174878, 1)
+shader_parameter/distortion_strength = 0.005
+shader_parameter/fresnel_strength = 1.39
+shader_parameter/fresnel_power = 2.13
+shader_parameter/noise_texture = SubResource("NoiseTexture2D_05f3g")
+
+[node name="Poison" type="Sprite2D"]
+material = SubResource("ShaderMaterial_fpmmi")
+texture = ExtResource("2_no5mr")

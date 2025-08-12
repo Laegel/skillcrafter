@@ -26,3 +26,9 @@ public class SkillSlotsState
         equipedSkills.Value = skillDictionary;
     }
 }
+
+[AutoRegister]
+public class ParchmentState
+{
+    public Parchment Parchment;
+}

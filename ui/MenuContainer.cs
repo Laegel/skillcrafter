@@ -3,19 +3,24 @@ using Godot;
 
 public partial class MenuContainer : BuilderComponent
 {
-    public Node Build()
+    public Node Build(MenuState menuState)
     {
         return NodeBuilder.CreateNode(new CanvasLayer
         {
             Name = GetType().Name,
             Offset = new Vector2(0, 0),
             Transform = new Transform2D(1, 0, 0, 1, 0, 0),
-        }, NodeBuilder.Match(MenuState.currentMenu, new() {
+        }, NodeBuilder.Match(menuState.currentMenu, new() {
             { Menus.None, () => new Node()},
             { Menus.Equipment, () => Wrap(new MenuEquipment(), false)},
             { Menus.Inventory, () => Wrap(new MenuInventory())},
             { Menus.Designer, () => Wrap(new MenuDesigner())},
             { Menus.Map, () => Wrap(new MenuMap())},
+            { Menus.Parchment, () => Wrap(new ParchmentComponent())},
+            { Menus.Test, () => {
+                var label = new Label()  { Text = "TEST"};
+                return label;
+            }}
         }));
     }
 

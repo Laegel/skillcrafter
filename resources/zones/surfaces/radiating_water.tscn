@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://8i2rhgdhph7e"]
+
+[ext_resource type="Texture2D" uid="uid://dgvdcuvglbog7" path="res://resources/zones/surfaces/Water.png" id="1_exgw6"]
+
+[node name="RadiatingWater" type="Sprite2D"]
+texture = ExtResource("1_exgw6")

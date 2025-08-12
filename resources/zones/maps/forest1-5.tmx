@@ -1,18 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.0" orientation="isometric" renderorder="right-up" width="30" height="20" tilewidth="128" tileheight="64" infinite="1" nextlayerid="3" nextobjectid="3">
+<map version="1.8" tiledversion="1.11.0" orientation="isometric" renderorder="right-up" width="30" height="20" tilewidth="128" tileheight="64" infinite="1" nextlayerid="26" nextobjectid="3">
  <editorsettings>
   <export target="forest1-5.tmx" format="tmx"/>
  </editorsettings>
- <tileset firstgid="2" source="ob_00024_.tsx"/>
- <tileset firstgid="3" source="bg_00250_.tsx"/>
- <layer id="1" name="Tile Layer 1" width="30" height="20">
+ <tileset firstgid="1" source="ob_00024_.tsx"/>
+ <tileset firstgid="2" source="bg_00250_.tsx"/>
+ <tileset firstgid="3" source="bg_00246_.tsx"/>
+ <tileset firstgid="4" source="bg_00249_.tsx"/>
+ <layer id="1" name="Ground" width="30" height="20">
   <data encoding="csv">
    <chunk x="-16" y="0" width="16" height="16">
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,3,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -45,7 +47,10 @@
 </chunk>
   </data>
  </layer>
+ <layer id="25" name="Schema" width="30" height="20">
+  <data encoding="csv"/>
+ </layer>
  <objectgroup id="2" name="Object Layer 1">
-  <object id="2" gid="2" x="0" y="256" width="140" height="138"/>
+  <object id="2" gid="1" x="0" y="256" width="140" height="138"/>
  </objectgroup>
 </map>

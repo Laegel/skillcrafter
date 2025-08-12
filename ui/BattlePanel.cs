@@ -15,7 +15,7 @@ public partial class BattlePanel : BuilderComponent
     private Action<int> onPressSkill;
     public BattlePanel(Action<int> onPressSkill)
     {
-        this.Key = 0;
+        Key = 0;
         this.onPressSkill = onPressSkill;
 
         // this.skills.Value = skills;
@@ -32,21 +32,49 @@ public partial class BattlePanel : BuilderComponent
         // }).ToList();
     }
 
-    public Node Build(SkillSlotsState skillSlotsState)
+    public Node Build(SkillSlotsState skillSlotsState, TreeService treeService)
     {
         var If = NodeBuilder.Show;
-        // var M = NodeBuilder.Map;
-        // var image = Image.LoadFromFile("res://resources/400x400.png");
         var border = 4;
+        ReactiveState<int> selectedSkill = -1;
 
         var marginContainer =
         NodeBuilder.CreateNode(
             new CanvasLayer
             {
                 Name = GetType().Name,
-                Offset = new Vector2(591, 324),
                 Transform = new Transform2D(1, 0, 0, 1, 591, 324),
             },
+            NodeBuilder.Watch<int>(new CanvasLayer()
+            {
+                Transform = new Transform2D(1, 0, 0, 1, 591, 324),
+            }, () =>
+            {
+                if (selectedSkill == -1 || skillSlotsState.equipedSkills.Value[selectedSkill].Item2 == null)
+                {
+                    return new Node(); 
+                }
+                var node = treeService.GetNodeRecursively<Button>("ItemComponent" + selectedSkill.Value);
+
+                var currentSkill = skillSlotsState.equipedSkills.Value[selectedSkill].Item2;
+                return NodeBuilder.CreateNode(new BoxContainer(), new SkillTooltip()
+                {
+                    SkillConfiguration = new SkillConfiguration()
+                    {
+                        Name = currentSkill.Name,
+                        Range = new(currentSkill.Range.Min, currentSkill.Range.Max),
+                        TargetRadius = new(currentSkill.TargetRadius.Min, currentSkill.TargetRadius.Max),
+                        AP = currentSkill.AP,
+                        MP = currentSkill.MP,
+                        HP = currentSkill.HP,
+                        Stability = currentSkill.Stability,
+                        SkillEffect = currentSkill.SkillEffect,
+                        SkillEffectConfiguration = currentSkill.SkillEffectConfiguration,
+                        Visibility = currentSkill.Visibility,
+                        Cooldown = currentSkill.Cooldown,
+                    }
+                });
+            }, new ReactiveState<int>[]{ selectedSkill }),
             NodeBuilder.CreateNode(
                 new VBoxContainer
                 {
@@ -131,15 +159,22 @@ public partial class BattlePanel : BuilderComponent
                         gridContainer.AddThemeConstantOverride("v_separation", border);
 
                         return gridContainer;
-                    }, skillSlotsState.equipedSkills, (item, i) => new ItemComponent
+                    }, skillSlotsState.equipedSkills, (item, i) =>
                     {
-                        Key = i,
-                        onClick = () => onPressSkill(i),
-                        onLongPress = () => { },
-                        Child = new Label()
+                        var itemComponent = new ItemComponent
                         {
-                            Text = item.Item2 != null ? item.Item2.Name : "Empty",
-                        }
+                            Key = i,
+                            OnClick = () => onPressSkill(i),
+                            onLongPress = () =>
+                            {
+                                selectedSkill.Value = i;
+                            },
+                            Child = new Label()
+                            {
+                                Text = item.Item2 != null ? item.Item2.Name : "Empty",
+                            }
+                        };
+                        return itemComponent;
                     })
                 )
             )

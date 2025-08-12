@@ -25,10 +25,15 @@ public class GearReader
 [Serializable]
 public enum GearSlot
 {
+    [Description("head")]
     Head,
+    [Description("torso")]
     Torso,
+    [Description("arms")]
     Arms,
+    [Description("legs")]
     Legs,
+    [Description("heavy")]
     Weapon,
 }
 
@@ -48,17 +53,23 @@ public enum GearType
 
 public enum Quality
 {
+    [Description("worn")]
     Worn,
+    [Description("common")]
     Common,
+    [Description("perfected")]
     Perfected,
+    [Description("masterpiece")]
     Masterpiece,
+    [Description("mythical")]
     Mythical,
+    [Description("unique")]
     Unique,
 }
 
 
 [Serializable]
-public class Gear
+public class Gear : StorageItem
 {
     public string name;
     public string set;

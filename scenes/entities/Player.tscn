@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://da0irxjtore7b"]
+[gd_scene load_steps=15 format=3 uid="uid://da0irxjtore7b"]
 
 [ext_resource type="Script" path="res://scripts/Humanoid.cs" id="1_isfw5"]
 [ext_resource type="Texture2D" uid="uid://b5wwhnr73mtgl" path="res://resources/entities/leg-left.png" id="2_1o5s3"]
@@ -11,12 +11,19 @@
 [ext_resource type="Texture2D" uid="uid://bwdgf8rviufd8" path="res://resources/entities/head.png" id="9_n7jrr"]
 [ext_resource type="Texture2D" uid="uid://crurj3youcgkf" path="res://resources/entities/shoulder-right.png" id="10_rwek4"]
 [ext_resource type="Texture2D" uid="uid://b5vpog1qc2kll" path="res://resources/entities/hand-right.png" id="11_644is"]
+[ext_resource type="Script" path="res://scripts/DamageManager.cs" id="12_em26h"]
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_sos33"]
 
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_x1445"]
+content_margin_left = 4.0
+content_margin_right = 4.0
+
 [node name="Humanoid" type="Node2D"]
 z_index = 1
+y_sort_enabled = true
 script = ExtResource("1_isfw5")
+abilityPoints = 10
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
 libraries = {
@@ -127,4 +134,22 @@ rest = Transform2D(1, 0, 0, 1, -1, 54)
 position = Vector2(3, -19)
 texture = ExtResource("11_644is")
 
-[node name="DamageBoard" type="CanvasLayer" parent="."]
+[node name="DamageManager" type="CenterContainer" parent="."]
+offset_left = -11.0
+offset_top = -76.0
+offset_right = 34.0
+offset_bottom = -36.0
+script = ExtResource("12_em26h")
+
+[node name="PanelContainer" type="PanelContainer" parent="DamageManager"]
+visible = false
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxEmpty_x1445")
+
+[node name="RichTextLabel" type="RichTextLabel" parent="DamageManager/PanelContainer"]
+layout_mode = 2
+bbcode_enabled = true
+text = "[outline_size=2][outline_color=white][color=#B8554F]999![/color][/outline_color][/outline_size]"
+fit_content = true
+autowrap_mode = 0

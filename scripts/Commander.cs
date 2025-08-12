@@ -41,13 +41,15 @@ public class Commander
         GD.Print("Opening menu with value: ", args[0]);
 
         var menu = Enum.Parse<Menus>((string)args[0]);
-        MenuState.currentMenu.Value = menu;
+        var menuState = ServiceStorage.Resolve<MenuState>();
+        menuState.currentMenu.Value = menu;
     }
 
     private static void CloseMenu()
     {
         GD.Print("Closing current menu");
-        MenuState.currentMenu.Value = Menus.None;
+        var menuState = ServiceStorage.Resolve<MenuState>();
+        menuState.currentMenu.Value = Menus.None;
     }
 
     private static void ShowMessage(object[] args)
